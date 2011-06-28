@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" displayUsed="true" scale="80" Ysize="5" Xsize="15" name="Following1opp2">
+    <crowd>
+        <goal y="2.9875" x="14.0125"/>
+        <position y="3.025" x="2.0125"/>
+        <id>1</id>
+        <preferedSpeed>1.8</preferedSpeed>
+    </crowd>
+    <crowd>
+        <goal y="2.975" x="14.0125"/>
+        <position y="2.9875" x="4.975"/>
+        <id>2</id>
+        <preferedSpeed>1.2</preferedSpeed>
+    </crowd>
+    <crowd>
+        <goal y="2.7125" x="2.025"/>
+        <position y="2.85" x="13.0125"/>
+        <id>3</id>
+        <preferedSpeed>1.2</preferedSpeed>
+    </crowd>
+    <crowd>
+        <goal y="3.2625" x="2.6"/>
+        <position y="3.175" x="13.0"/>
+        <id>4</id>
+        <preferedSpeed>1.2</preferedSpeed>
+    </crowd>
+</SimulationScenario>

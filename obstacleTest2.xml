@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" displayUsed="true" scale="80" Ysize="10" Xsize="10" name="obstacleTest2">
+    <crowd>
+        <goal y="9.525" x="4.8625"/>
+        <position y="0.125" x="5.4125"/>
+        <id>3</id>
+        <preferedSpeed>1.3</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+    </crowd>
+    <obstacles>
+        <vertices y="2.0375" x="3.825"/>
+        <vertices y="5.225" x="3.7125"/>
+        <vertices y="5.3625" x="7.7"/>
+        <vertices y="1.5875" x="8.1"/>
+    </obstacles>
+    <obstacles>
+        <vertices y="6.525" x="3.55"/>
+        <vertices y="9.0" x="6.1375"/>
+        <vertices y="8.15" x="2.3125"/>
+    </obstacles>
+    <obstacles>
+        <vertices y="6.325" x="6.2875"/>
+        <vertices y="7.425" x="6.4375"/>
+        <vertices y="7.2" x="8.3875"/>
+        <vertices y="6.1125" x="7.5"/>
+        <vertices y="5.8625" x="6.8625"/>
+        <vertices y="5.9125" x="6.325"/>
+    </obstacles>
+</SimulationScenario>

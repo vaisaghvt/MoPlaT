@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" displayUsed="true" scale="80" Ysize="5" Xsize="10" name="SideAvoid">
+    <crowd>
+        <goal y="1.9625" x="5.9875"/>
+        <position y="1.9625" x="1.9875"/>
+        <id>1</id>
+        <preferedSpeed>1.0</preferedSpeed>
+    </crowd>
+    <crowd>
+        <goal y="1.65" x="2.0125"/>
+        <position y="1.65" x="6.0"/>
+        <id>2</id>
+        <preferedSpeed>1.0</preferedSpeed>
+    </crowd>
+    <crowd>
+        <goal y="1.925" x="1.9625"/>
+        <position y="1.9875" x="6.0125"/>
+        <id>3</id>
+        <preferedSpeed>1.0</preferedSpeed>
+    </crowd>
+    <crowd>
+        <goal y="2.275" x="2.025"/>
+        <position y="2.2875" x="6.0125"/>
+        <id>4</id>
+        <preferedSpeed>1.0</preferedSpeed>
+    </crowd>
+    <crowd>
+        <goal y="2.55" x="2.0625"/>
+        <position y="2.6" x="5.975"/>
+        <id>5</id>
+        <preferedSpeed>1.0</preferedSpeed>
+    </crowd>
+    <crowd>
+        <goal y="1.2875" x="1.9875"/>
+        <position y="1.25" x="6.0"/>
+        <id>6</id>
+        <preferedSpeed>1.0</preferedSpeed>
+    </crowd>
+</SimulationScenario>

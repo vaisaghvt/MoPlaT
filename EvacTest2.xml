@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="true" displayUsed="true" direction="3" scale="8" Ysize="111" Xsize="111" name="EvacTest2">
+    <obstacles>
+        <vertices y="44.0" x="0.0"/>
+        <vertices y="44.0" x="53.0"/>
+        <vertices y="42.0" x="53.0"/>
+        <vertices y="42.0" x="0.0"/>
+    </obstacles>
+    <obstacles>
+        <vertices y="44.0" x="0.0"/>
+        <vertices y="44.0" x="3.0"/>
+        <vertices y="109.0" x="3.0"/>
+        <vertices y="109.0" x="0.0"/>
+    </obstacles>
+    <obstacles>
+        <vertices y="44.0" x="55.0"/>
+        <vertices y="42.0" x="55.0"/>
+        <vertices y="42.0" x="109.0"/>
+        <vertices y="44.0" x="109.0"/>
+    </obstacles>
+    <obstacles>
+        <vertices y="44.0" x="106.0"/>
+        <vertices y="109.0" x="106.0"/>
+        <vertices y="109.0" x="109.0"/>
+        <vertices y="44.0" x="109.0"/>
+    </obstacles>
+    <environmentGoals>
+        <vertices z="0.0" y="44.0" x="54.0"/>
+        <vertices z="0.0" y="44.0" x="56.0"/>
+    </environmentGoals>
+    <environmentGoals>
+        <vertices z="0.0" y="42.0" x="54.0"/>
+        <vertices z="0.0" y="42.0" x="56.0"/>
+    </environmentGoals>
+    <environmentGoals>
+        <vertices z="0.0" y="0.0" x="0.0"/>
+        <vertices z="0.0" y="0.0" x="109.0"/>
+    </environmentGoals>
+    <generationLines>
+        <endPoint y="109.0" x="103.0"/>
+        <startPoint y="109.0" x="6.0"/>
+        <direction>3</direction>
+        <frequency>5</frequency>
+        <number>40</number>
+    </generationLines>
+</SimulationScenario>

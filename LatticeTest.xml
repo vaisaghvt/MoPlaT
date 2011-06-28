@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="true" displayUsed="true" direction="5" scale="5" Ysize="100" Xsize="100" name="LatticeTest">
+    <crowd>
+        <goal y="14.0" x="49.0"/>
+        <position y="60.0" x="35.0"/>
+        <id>1</id>
+        <preferedSpeed>1.3</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+    </crowd>
+    <obstacles>
+        <vertices y="28.0" x="43.0"/>
+        <vertices y="26.0" x="43.0"/>
+        <vertices y="26.0" x="0.0"/>
+        <vertices y="28.0" x="0.0"/>
+    </obstacles>
+    <obstacles>
+        <vertices y="28.0" x="100.0"/>
+        <vertices y="28.0" x="47.0"/>
+        <vertices y="26.0" x="47.0"/>
+        <vertices y="26.0" x="100.0"/>
+    </obstacles>
+</SimulationScenario>

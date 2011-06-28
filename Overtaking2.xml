@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" displayUsed="true" scale="80" Ysize="5" Xsize="20" name="Overtaking2">
+    <crowd>
+        <goal y="3.0" x="18.9875"/>
+        <position y="3.0" x="1.025"/>
+        <id>1</id>
+        <preferedSpeed>2.0</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+    </crowd>
+    <crowd>
+        <goal y="2.75" x="18.0"/>
+        <position y="2.725" x="3.0"/>
+        <id>2</id>
+        <preferedSpeed>0.8</preferedSpeed>
+        <commitmentLevel>3</commitmentLevel>
+    </crowd>
+    <crowd>
+        <goal y="3.175" x="18.0"/>
+        <position y="3.175" x="3.025"/>
+        <id>3</id>
+        <preferedSpeed>0.8</preferedSpeed>
+        <commitmentLevel>3</commitmentLevel>
+    </crowd>
+</SimulationScenario>
