@@ -16,6 +16,7 @@ import sim.display.GUIState;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
 import sim.field.grid.ObjectGrid2D;
+import sim.portrayal.Inspector;
 import sim.portrayal.continuous.ContinuousPortrayal2D;
 import sim.portrayal.grid.FastValueGridPortrayal2D;
 import sim.portrayal.grid.ObjectGridPortrayal2D;
@@ -36,6 +37,10 @@ import sim.portrayal.simple.RectanglePortrayal2D;
  */
 public class RVOGui extends GUIState {
 
+    private static final boolean CHECKBOARD = true;
+    /**
+     * This is a singleton class that holds all the display information
+     */
     public Display2D display;
     public JFrame displayFrame;
     private RVOModel model;
@@ -45,19 +50,19 @@ public class RVOGui extends GUIState {
     public static int SCALE = 80;
     public static int checkSizeX = 5;
     public static int checkSizeY = 5;
-
-
-    private boolean checkBoard = true;
     ContinuousPortrayal2D geographyPortrayal;
     ContinuousPortrayal2D agentPortrayal;
     ContinuousPortrayal2D[] clusteredPortrayal;
     ObjectGridPortrayal2D checkBoardPortrayal;
- 
     FastValueGridPortrayal2D latticeGasPortrayal;
+
+    public RVOGui() {
+        this(new RVOModel(RVOModel.SEED));
+    }
 
     public RVOGui(SimState state) {
         super(state);
-        this.model = (RVOModel) state;
+        model = (RVOModel) state;
         geographyPortrayal = new ContinuousPortrayal2D();
         checkBoardPortrayal = new ObjectGridPortrayal2D();
 
@@ -65,58 +70,75 @@ public class RVOGui extends GUIState {
 
         if (RVOModel.LATTICEMODEL) {
             latticeGasPortrayal = new FastValueGridPortrayal2D();
-          
         }
 
+
+        /**
+         *If clustering is being used then create multiple layers for each 
+         * cluster layer
+         */
         if (RVOModel.USECLUSTERING) {
             clusteredPortrayal = new ContinuousPortrayal2D[ClusteredSpace.getNumberOfClusteringSpaces()];
-
             for (int j = 0; j < ClusteredSpace.getNumberOfClusteringSpaces(); j++) {
                 clusteredPortrayal[j] = new ContinuousPortrayal2D();
             }
         }
     }
 
+    /**
+     *  tell the portrayals what to portray and how to portray them
+     */
     public void setupPortrayals() {
-        // tell the portrayals what to portray and how to portray them
 
-        agentPortrayal.setField(this.model.getRvoSpace().getCurrentAgentSpace());
-        //   agentPortrayal.setPortrayalForClass(RVOAgent.class, RVOAgent.getPortrayal()); // DOUBT : vvt: this code doesn't seem to have any effect on anything...
 
-        this.checkBoardPortrayal.setField(new ObjectGrid2D(checkSizeX, checkSizeY));
-        this.checkBoardPortrayal.setPortrayalForNull(new RectanglePortrayal2D(new Color(0.4f, 0.4f, 0.4f, 0.7f), 1.0f, false));
+        agentPortrayal.setField(model.getRvoSpace().getCurrentAgentSpace());
 
-        this.geographyPortrayal.setField(this.model.getRvoSpace().getGeographySpace());
+
+        checkBoardPortrayal.setField(new ObjectGrid2D(checkSizeX, checkSizeY));
+        checkBoardPortrayal.setPortrayalForNull(new RectanglePortrayal2D(new Color(0.4f, 0.4f, 0.4f, 0.7f), 1.0f, false));
+
+        geographyPortrayal.setField(model.getRvoSpace().getGeographySpace());
 
         if (RVOModel.LATTICEMODEL) {
-            this.latticeGasPortrayal.setField(this.model.getLatticeSpace().getSpace());
+            latticeGasPortrayal.setField(model.getLatticeSpace().getSpace());
             latticeGasPortrayal.setMap(new sim.util.gui.SimpleColorMap(
                     new Color[]{new Color(0, 0, 0, 0), new Color(0, 0, 255, 150), Color.red}));
-
-            
-            
-
         }
 
         if (RVOModel.USECLUSTERING) {
             for (int j = 0; j < ClusteredSpace.getNumberOfClusteringSpaces(); j++) {
-                this.clusteredPortrayal[j].setField(((ClusteredSpace) this.model.getRvoSpace()).getClusteredSpace(j));
+                clusteredPortrayal[j].setField(((ClusteredSpace) model.getRvoSpace()).getClusteredSpace(j));
             }
         }
+
+    }
+
+    @Override
+    public void start() {
+        super.start();
+        setupPortrayals();
         display.reset();
         display.repaint();
     }
 
-    public void start() {
-        super.start();
-        setupPortrayals();
+    @Override
+    public void load(SimState state) {
+        super.load(state);
+        setupPortrayals();  // set up our portrayals for the new SimState model
+        display.reset();    // reschedule the displayer
+        display.repaint();  // redraw the display
     }
 
+    /**
+     * This function controls the controller on the side of the display with all 
+     * the play and stuff
+     * @param c Controller that is responsible for running the simulation
+     */
     public void init(Controller c) {
         super.init(c);
 
         // Make the Display2D.  We'll have it display stuff later.
-        model = (RVOModel) state;       // vvt : Where does this function get "state" from?
+        model = (RVOModel) state;
         display = new Display2D(model.getWorldXSize() * SCALE, model.getWorldYSize() * SCALE, this, 1);
 
         //create and display frame
@@ -127,7 +149,7 @@ public class RVOGui extends GUIState {
 
         display.attach(geographyPortrayal, "Geography portrayal");  // attach the portrayals
         display.attach(agentPortrayal, "Agent portrayal");  // attach the portrayals
-        if (checkBoard) {
+        if (CHECKBOARD) {
             display.attach(this.checkBoardPortrayal, "Check board");
         }
         if (RVOModel.USECLUSTERING) {
@@ -138,7 +160,7 @@ public class RVOGui extends GUIState {
         }
         if (RVOModel.LATTICEMODEL) {
             display.attach(latticeGasPortrayal, "lattice portrayal");
-   
+
 
         }
 
@@ -155,8 +177,22 @@ public class RVOGui extends GUIState {
         display = null;       // let gc
     }
 
+    /**
+     * These two methods return the name of the applet window and it's description 
+     * wherever used. It actually practically overrides Mason's in-built methods
+     * of the same name. For how this is actually done, check documentation.
+     * @return 
+     */
+    public static String getName() {
+        return "Crowd Simulation";
+    }
+
     public static Object getInfo() {
         return "<H2>Motion planning testbed</H2><p>A testbed for various different"
-                + " motion planning and collision avoidance systems.";
+                + " motion planning and collision avoidance systems.</p>";
+    }
+
+    public static void main(String[] args) {
+        new RVOGui().createController();
     }
 }

@@ -43,31 +43,33 @@ public class RVOModel extends SimState {
 
         RVO2, PatternBasedMotion, RVO1Standard, RVO1Acceleration, RuleBasedNew
     }
+    public static final long SEED = 10;
     private static final int WORLDXSIZE = 10;
     private static final int WORLDYSIZE = 10;
     private static final float GRIDSIZE = 1.0f;
-    public static final long SEED = 10;
     public final static double TIMESTEP = 0.25f;
-    public static final boolean INITIALISEFROMXML = true;
-    public static final boolean USECLUSTERING =false ;
-    public static final String FILEPATH = "EvacTest4.xml";
+    
+    
     public static final Model MODEL = Model.RVO2;
-    public static final boolean LATTICEMODEL = true;
+    public static final boolean LATTICEMODEL = false;
     public static final boolean INFOPROCESSING = false;
-
-
-    public static double getTimeStep() {
-        return TIMESTEP;
-    }
+    public static final boolean USECLUSTERING = false;
+    public static final boolean INITIALISEFROMXML = false;
+    public static final String FILEPATH = "EvacTest4.xml";
     private int worldXSize = WORLDXSIZE;
     private int worldYSize = WORLDYSIZE;
     private float gridSize = GRIDSIZE;
     private static RVOGui rvoGui;
     private RVOSpace rvoSpace;
     private LatticeSpace latticeSpace;
-    private ArrayList<RVOAgent> agentList;
-    private ArrayList<RVOObstacle> obstacleList;
-    private ArrayList<AgentGenerator> agentLineList;
+    /**
+     * Actually initialised to ArrayList as can be seen in second constructor, 
+     * But using List type here so that we can change the implementation later 
+     * if needed
+     */
+    private List<RVOAgent> agentList;
+    private List<RVOObstacle> obstacleList;
+    private List<AgentGenerator> agentLineList;
 
 //    //the list to keep record of every agent's status in each timestemp
 //    //each record contains a list of status for each agent
@@ -80,13 +82,29 @@ public class RVOModel extends SimState {
 
     public RVOModel(long seed) {
         super(seed);
+
+        if (INITIALISEFROMXML) {
+
+            try {
+                XMLManager settings = XMLManager.instance();
+                SimulationScenario scenario = (SimulationScenario) settings.unmarshal(FILEPATH);
+                RVOGui.SCALE = scenario.getScale();
+                worldXSize = RVOGui.checkSizeX = scenario.getXsize();
+                worldYSize = RVOGui.checkSizeY = scenario.getYsize();
+
+
+            } catch (JAXBException ex) {
+                Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+
+
         agentList = new ArrayList<RVOAgent>();
         obstacleList = new ArrayList<RVOObstacle>();
         agentLineList = new ArrayList<AgentGenerator>();
-    }
 
-    public RVOSpace getRvoSpace() {
-        return rvoSpace;
+
     }
 
     @Override
@@ -94,18 +112,24 @@ public class RVOModel extends SimState {
 
         super.start();
 
-        this.setup();
+        // This function is equivalent to a reset. 
+        //Need to readup a bit more to see if it is even necessary...
+        setup();
 
         if (INITIALISEFROMXML) {
-            this.initialiseFromXML();
+            initialiseFromXML();
         } else {
-            this.buildSpace();
-            this.createAgents();
+            buildSpace();
+            createAgents();
         }
     }
 
+    /**
+     * Creates the continuous 2D space that will be used for the simulation. 
+     * Creates an appropriate space for Clustering
+     */
     private void buildSpace() {
-        System.out.println("Running buildModel()");
+
         if (!RVOModel.USECLUSTERING) {
             rvoSpace = new RVOSpace(worldXSize, worldYSize, gridSize, this);
         } else {
@@ -117,13 +141,17 @@ public class RVOModel extends SimState {
 
     }
 
+    /**
+     * To use RVO without using an xml to initialise layout. Arranges agents in 
+     * a pre decided order
+     */
     private void createAgents() {
         int numAgentsPerSide = 5;
         double gap = 1.5f;
         for (int i = 1; i < numAgentsPerSide + 1; i++) {
-            this.addNewAgent(new RVOAgent(new Point2d(2, i * gap + 0.5), new Point2d(8, i * gap + 0.5), this.rvoSpace, new Color(Color.HSBtoRGB((float) i / (float) numAgentsPerSide,
+            addNewAgent(new RVOAgent(new Point2d(2, i * gap + 0.5), new Point2d(8, i * gap + 0.5), this.rvoSpace, new Color(Color.HSBtoRGB((float) i / (float) numAgentsPerSide,
                     1.0f, 0.68f))));
-            this.addNewAgent(new RVOAgent(new Point2d(8, i * gap + 0.5), new Point2d(2, i * gap + 0.5),
+            addNewAgent(new RVOAgent(new Point2d(8, i * gap + 0.5), new Point2d(2, i * gap + 0.5),
                     this.rvoSpace, new Color(Color.HSBtoRGB(0.7f - (float) i / (float) numAgentsPerSide,
                     1.0f, 0.68f))));
         }
@@ -133,14 +161,20 @@ public class RVOModel extends SimState {
     }
 
     public void setup() {
-        System.out.println(" running setup");
+
         rvoSpace = null;
         agentList = new ArrayList<RVOAgent>();
-        RVOAgent.counter = 0;
-        System.out.println("Setup Finished");
+        obstacleList = new ArrayList<RVOObstacle>();
+        agentLineList = new ArrayList<AgentGenerator>();
+        RVOAgent.agentCount = 0;
+
     }
 
-    public ArrayList<RVOAgent> getAgentList() {
+    public RVOSpace getRvoSpace() {
+        return rvoSpace;
+    }
+
+    public List<RVOAgent> getAgentList() {
         return agentList;
     }
 
@@ -154,6 +188,10 @@ public class RVOModel extends SimState {
 
     public void setWorldYSize(int worldYSize) {
         this.worldYSize = worldYSize;
+    }
+
+    public static double getTimeStep() {
+        return TIMESTEP;
     }
 
     public int getWorldYSize() {
@@ -223,7 +261,7 @@ public class RVOModel extends SimState {
 
                 Point2d start = new Point2d(xmlAgentLineList.get(i).getStartPoint().getX(), xmlAgentLineList.get(i).getStartPoint().getY());
                 Point2d end = new Point2d(xmlAgentLineList.get(i).getEndPoint().getX(), xmlAgentLineList.get(i).getEndPoint().getY());
-                AgentGenerator tempAgentLine = new AgentGenerator(start, end, scenario.getGenerationLines().get(i).getNumber(), scenario.getGenerationLines().get(i).getDirection(),scenario.getEnvironmentGoals(), this);
+                AgentGenerator tempAgentLine = new AgentGenerator(start, end, scenario.getGenerationLines().get(i).getNumber(), scenario.getGenerationLines().get(i).getDirection(), scenario.getEnvironmentGoals(), this);
                 this.addNewAgentLine(tempAgentLine, scenario.getGenerationLines().get(i).getFrequency());
 
 
@@ -248,45 +286,20 @@ public class RVOModel extends SimState {
     public void addNewAgent(RVOAgent a) {
         a.scheduleAgent();
         agentList.add(a);
-        this.rvoSpace.updatePositionOnMap(a, a.getX(), a.getY());
+        rvoSpace.updatePositionOnMap(a, a.getX(), a.getY());
         if (RVOModel.LATTICEMODEL) {
-        //    latticeSpace.addAgentAt(a.getX(), a.getY());
+            //    latticeSpace.addAgentAt(a.getX(), a.getY());
         }
-    }
-
-    public static void main(String[] args) {
-        if (INITIALISEFROMXML) {
-
-            RVOModel rvoModel = new RVOModel(RVOModel.SEED);
-
-            try {
-                XMLManager settings = XMLManager.instance();
-                SimulationScenario scenario = (SimulationScenario) settings.unmarshal(FILEPATH);
-
-
-                rvoModel.worldXSize = scenario.getXsize();
-                rvoModel.worldYSize = scenario.getYsize();
-                RVOGui.SCALE = scenario.getScale();
-                RVOGui.checkSizeX = rvoModel.worldXSize;
-                RVOGui.checkSizeY = rvoModel.worldYSize;
-                rvoGui = new RVOGui(rvoModel);
-                Console c = new Console(rvoGui);
-                c.setVisible(true);
-
-            } catch (JAXBException ex) {
-                Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            rvoGui = new RVOGui(new RVOModel(RVOModel.SEED));
-            Console c = new Console(rvoGui);
-            c.setVisible(true);
-        }
-
     }
 
     private void addNewAgentLine(AgentGenerator tempAgentLine, int frequency) {
         agentLineList.add(tempAgentLine);
         schedule.scheduleRepeating(tempAgentLine, 1, (double) frequency);
 
+    }
+
+    public static void main(String[] args) {
+        doLoop(RVOModel.class, args);
+        System.exit(0);
     }
 }

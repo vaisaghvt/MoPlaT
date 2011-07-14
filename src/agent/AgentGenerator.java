@@ -9,7 +9,6 @@ import environment.geography.Goals;
 import environment.geography.Position;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 import sim.engine.SimState;
@@ -83,6 +82,7 @@ public class AgentGenerator implements Steppable {
         System.out.println("number = "+number+",gap = " + gap);
     }
 
+    @Override
     public void step(SimState ss) {
         for (int i = 0; i < number; i++) {
             RVOAgent agent = new RVOAgent(model.getRvoSpace());
