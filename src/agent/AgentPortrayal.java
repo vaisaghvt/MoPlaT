@@ -9,16 +9,12 @@ import app.RVOGui;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Paint;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import javax.vecmath.Point2d;
-import motionPlanners.rvo.Line;
-import motionPlanners.rvo.RVO_2_1;
+import utility.Line;
+import motionPlanners.rvo2.RVO_2_1;
 import sim.display.GUIState;
-import sim.display.Manipulating2D;
 import sim.portrayal.DrawInfo2D;
 import sim.portrayal.Inspector;
 import sim.portrayal.LocationWrapper;
@@ -26,13 +22,12 @@ import sim.portrayal.SimplePortrayal2D;
 import sim.util.Double2D;
 
 /**
- * TWContextBuilder
+ * 
  *
  * @author michaellees
  * Created: Nov 29, 2010
  *
- * Copyright michaellees Expression year is undefined on line 16, column 24 in Templates/Classes/Class.java.
- *
+ * 
  *
  * Description:This class which is a parent of RVOAgent describes the things that
  * are drawn including the Agent itself, it's trail, it's velocity or in special
@@ -58,7 +53,7 @@ public class AgentPortrayal extends SimplePortrayal2D {
     public AgentPortrayal(double radius, boolean trails) {
         this.radius = radius;
         this.trails = trails;
-        scale = RVOGui.SCALE;
+        scale = RVOGui.scale;
         filled = false;
         points = new ArrayList<Double2D>();
 
@@ -88,7 +83,7 @@ public class AgentPortrayal extends SimplePortrayal2D {
         if (((RVOAgent) this).getRvoCalc() instanceof RVO_2_1) {
 
             RVO_2_1 rvo2 = (RVO_2_1) ((RVOAgent) this).getRvoCalc();
-            if (rvo2.showLines) {
+            if (rvo2.SHOW_LINES) {
                 for (Line l : rvo2.getOrcaLines()) {
                     Point2d end = l.getEndPoint();
                     Point2d start = l.getStartPoint();

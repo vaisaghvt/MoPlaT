@@ -13,6 +13,8 @@ import sim.util.Bag;
  *
  * @author michaellees
  *
+ * The interface which needs to implemented by all classes that implement 
+ * collision detection algorithms
  *
  */
 public interface VelocityCalculator {

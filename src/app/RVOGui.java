@@ -4,19 +4,14 @@
  */
 package app;
 
-import agent.RVOAgent;
 import agent.clustering.ClusteredSpace;
-import environment.Obstacle.RVOObstacle;
-import environment.latticegas.LatticeSpace;
 import java.awt.Color;
 import javax.swing.JFrame;
 import sim.display.Controller;
 import sim.display.Display2D;
 import sim.display.GUIState;
 import sim.engine.SimState;
-import sim.field.continuous.Continuous2D;
 import sim.field.grid.ObjectGrid2D;
-import sim.portrayal.Inspector;
 import sim.portrayal.continuous.ContinuousPortrayal2D;
 import sim.portrayal.grid.FastValueGridPortrayal2D;
 import sim.portrayal.grid.ObjectGridPortrayal2D;
@@ -44,12 +39,17 @@ public class RVOGui extends GUIState {
     public Display2D display;
     public JFrame displayFrame;
     private RVOModel model;
+    
+    public static final int SCALE = 80;
+    public static final int CHECK_SIZE_X = 5;
+    public static final int CHECK_SIZE_Y = 5;
+    
     /**
      * Number of pixels that each cell (or unit space) should be represented by (for display).
      */
-    public static int SCALE = 80;
-    public static int checkSizeX = 5;
-    public static int checkSizeY = 5;
+    public static int scale;
+    public static int checkSizeX;
+    public static int checkSizeY;
     ContinuousPortrayal2D geographyPortrayal;
     ContinuousPortrayal2D agentPortrayal;
     ContinuousPortrayal2D[] clusteredPortrayal;
@@ -62,10 +62,12 @@ public class RVOGui extends GUIState {
 
     public RVOGui(SimState state) {
         super(state);
+        scale = SCALE;
+        checkSizeX= RVOGui.CHECK_SIZE_X;
+        checkSizeY= RVOGui.CHECK_SIZE_Y;
         model = (RVOModel) state;
         geographyPortrayal = new ContinuousPortrayal2D();
         checkBoardPortrayal = new ObjectGridPortrayal2D();
-
         agentPortrayal = new ContinuousPortrayal2D();
 
         if (RVOModel.LATTICEMODEL) {
@@ -134,12 +136,13 @@ public class RVOGui extends GUIState {
      * the play and stuff
      * @param c Controller that is responsible for running the simulation
      */
+    @Override
     public void init(Controller c) {
         super.init(c);
 
         // Make the Display2D.  We'll have it display stuff later.
         model = (RVOModel) state;
-        display = new Display2D(model.getWorldXSize() * SCALE, model.getWorldYSize() * SCALE, this, 1);
+        display = new Display2D(model.getWorldXSize() * scale, model.getWorldYSize() * scale, this, 1);
 
         //create and display frame
         displayFrame = display.createFrame();
@@ -168,6 +171,7 @@ public class RVOGui extends GUIState {
         display.setBackdrop(new Color(220, 220, 220));
     }
 
+    @Override
     public void quit() {
         super.quit();
         if (displayFrame != null) {

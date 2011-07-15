@@ -1,25 +1,21 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package environment.Obstacle;
 
-import app.RVOGui;
 import environment.geography.Obstacle;
-import java.awt.Color;
 import java.util.ArrayList;
 import javax.vecmath.Point2d;
-import sim.portrayal.Portrayal;
 
 
 /**
  *
  * @author Vaisagh
+ * 
+ * This class extends ObstaclePortrayal and gives a description of a general 
+ * RVOObstacle which is used to create obstacles from an XML file
+ * 
+ * 
  */
 public class RVOObstacle extends ObstaclePortrayal {
-
- //   ArrayList<Point2d> vertices;
-
 
     public RVOObstacle() {
         vertices = new ArrayList<Point2d>();

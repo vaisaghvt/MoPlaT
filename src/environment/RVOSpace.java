@@ -6,12 +6,9 @@ import environment.Obstacle.RVO2Obstacle;
 import environment.Obstacle.RVOObstacle;
 
 import javax.vecmath.Point2d;
-import sim.engine.SimState;
-import sim.engine.Steppable;
 import sim.field.continuous.Continuous2D;
 import sim.util.Bag;
 import sim.util.Double2D;
-import sim.util.Int2D;
 
 /**
  * RVOSpace
@@ -23,13 +20,11 @@ import sim.util.Int2D;
  *
  * Description:
  *
- * This class defines the environment. It has three layers : an agent layer with
- * all the agents on it,a obstacleSpace layer with all the obstacles on it. 
+ * This class defines the environment. It has two layers : an agent layer with
+ * all the agents on it and an obstacleSpace layer with all the obstacles on it. 
  */
 public class RVOSpace {
 
-    protected int numGridX;
-    protected int numGridY;
     protected double gridDimension;
     public static double xRealSize;
     public static double yRealSize;
@@ -48,9 +43,6 @@ public class RVOSpace {
 
     public RVOSpace(int xSize, int ySize, float gridSize, RVOModel rm) {
 
-        numGridX = xSize;
-        numGridY = ySize;
-
         gridDimension = gridSize;
 
         xRealSize = xSize * gridDimension;
@@ -65,35 +57,7 @@ public class RVOSpace {
 
     }
 
-    /**
-     * Returns if this area is within an obstacle's area
-     * @param x
-     * @param y
-     * @return
-     */
-    public boolean isObstacle(int x, int y) {
-        return false;
-    }
-
-    //TODO: VVT: might need to stop creating agents at points where there are
-    //obstacles
-    public boolean isObstacle(double x, double y) {
-        return false;
-
-
-    }
-
-    public void updatePositionOnMap(RVOAgent agent, double x, double y) {
-        //TODO: vvt: check whether the agent was created on an existing obstacle
-        agent.setCurrentPosition(x, y);
-        agentSpace.setObjectLocation(agent, new Double2D(x, y));
-    }
-
-    public void updatePositionOnMap(RVOAgent agent) {
-        //TODO: vvt: check whether the agent was created on an existing obstacle
-        agentSpace.setObjectLocation(agent, new Double2D(agent.getX(), agent.getY()));
-    }
-
+    
     public Continuous2D getCurrentAgentSpace() {
         return agentSpace;
     }
@@ -102,24 +66,12 @@ public class RVOSpace {
         return rvoModel;
     }
 
+    /**
+     * Analogous to obstacle space
+     * @return obstacleSpace
+     */
     public Continuous2D getGeographySpace() {
         return obstacleSpace;
-    }
-
-    public Int2D generateRandomLocation() {
-        int x = (int) (this.rvoModel.random.nextDouble() * (agentSpace.getWidth()));
-        int y = (int) (this.rvoModel.random.nextDouble() * (agentSpace.getHeight()));
-        return new Int2D(x, y);
-    }
-
-    public void setNumGridX(int num) {
-        numGridX = num;
-
-    }
-
-    public void setNumGridY(int num) {
-        numGridY = num;
-
     }
 
     public void addNewObstacle(RVOObstacle obstacle) {
@@ -166,18 +118,36 @@ public class RVOSpace {
                 }
 
 
-                obstacleSpace.setObjectLocation(rvo2Obstacle, new Double2D(obstacle.getVertices().get(0).x, obstacle.getVertices().get(0).y));
+                obstacleSpace.setObjectLocation(rvo2Obstacle, 
+                        new Double2D(
+                            obstacle.getVertices().get(0).x, 
+                            obstacle.getVertices().get(0).y));
             }
 
         } else {
-            obstacleSpace.setObjectLocation(obstacle, new Double2D(obstacle.getVertices().get(0).x, obstacle.getVertices().get(0).y));
+            obstacleSpace.setObjectLocation(
+                    obstacle, 
+                    new Double2D(
+                        obstacle.getVertices().get(0).x, 
+                        obstacle.getVertices().get(0).y));
         }
 
 
     }
 
+    public void updatePositionOnMap(RVOAgent agent, double x, double y) {
+        //TODO: vvt: check whether the agent was created on an existing obstacle
+        agent.setCurrentPosition(x, y);
+        agentSpace.setObjectLocation(agent, new Double2D(x, y));
+    }
+
     public Bag senseNeighbours(RVOAgent me) {
         return findNeighbours(me.getCurrentPosition(), RVOAgent.SENSOR_RANGE * me.getRadius());
+    }
+
+    public Bag findNeighbours(Double2D currentPosition, double radius) {
+        Bag neighbours = agentSpace.getObjectsExactlyWithinDistance(currentPosition, radius);
+        return neighbours;
     }
 
     public Bag senseObstacles(RVOAgent me) {
@@ -190,15 +160,8 @@ public class RVOSpace {
         return obstacles;
     }
 
-    public Bag findNeighbours(Double2D currentPosition, double radius) {
-        Bag neighbours = agentSpace.getObjectsExactlyWithinDistance(currentPosition, radius);
-        return neighbours;
-    }
-
     public Bag findNeighbours(Point2d currentPosition, double radius) {
         Bag neighbours = agentSpace.getObjectsExactlyWithinDistance(new Double2D(currentPosition.x, currentPosition.y), radius);
         return neighbours;
     }
-
-
 }

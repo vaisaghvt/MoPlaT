@@ -3,13 +3,27 @@
  * and open the template in the editor.
  */
 package agent.clustering;
+/**
+ * 
+ *
+ * @author vaisagh
+ * Created: Jan, 2010
+ *
+ * 
+ *
+ * Description:This class is a subclass of RVOAgent that enables the grouping of 
+ * a number of similar/ nearby agents into a single clusteredAgent. This is 
+ * essential for the idea of group collision avoidance
+ *
+ */
 
 import agent.RVOAgent;
 import environment.RVOSpace;
 import java.util.ArrayList;
+import java.util.List;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
-import utility.Geometry;
+import sim.portrayal.LocationWrapper;
 
 /**
  *
@@ -18,37 +32,27 @@ import utility.Geometry;
 public class ClusteredAgent extends RVOAgent {
 
     public static double MAXCLUSTERRADIUS = 0.8f;
-    protected ArrayList<RVOAgent> agents;
+    protected List<RVOAgent> agents;
     protected double maxRadius = MAXCLUSTERRADIUS;
   
     public ClusteredAgent(RVOSpace rvoSpace, RVOAgent agent) {
         super(rvoSpace);
-        this.radius = agent.getRadius();
-        this.velocity = new Vector2d(agent.getVelocity());
-        this.setCentre(new Point2d(agent.getCurrentPosition()));
+        radius = agent.getRadius();
+        velocity = new Vector2d(agent.getVelocity());
+        setCentre(new Point2d(agent.getCurrentPosition()));
         agents = new ArrayList<RVOAgent>();
         agents.add(agent);
 
     }
 
     @Override
-    public double getRadius() {
-        return this.radius;
+    public String getName(LocationWrapper wrapper) {
+        return "Clustered Agent"+id;
     }
 
-//    public double getActualRadius() {
-//        return radius;
-//    }
-    @Override
-    public Vector2d getVelocity() {
-        return velocity;
-    }
 
-    public Point2d getCentre() {
-        return currentPosition;
-    }
 
-    public ArrayList<RVOAgent> getAgents() {
+    public List<RVOAgent> getAgents() {
         return agents;
     }
 
@@ -56,12 +60,26 @@ public class ClusteredAgent extends RVOAgent {
         this.radius = radius;
     }
 
-    public void setVelocity(Vector2d velocity) {
-        this.velocity = new Vector2d(velocity);
+    /**
+     * These two methods are the same value as currentPosition, it is just that 
+     * Centre is more intuitive.. hence using a seperate getter and setter that 
+     * does the same thing.
+     * @return location of center of the cluster.
+     */
+    public Point2d getCentre() {
+        return currentPosition;
     }
 
-    public void setCentre(Point2d centre) {
+    public final void setCentre(Point2d centre) {
         this.currentPosition = new Point2d(centre);
+    }
+    
+    public double getMaxRadius() {
+        return maxRadius;
+    }
+
+    public void setMaxRadius(double maxRadius) {
+        this.maxRadius = maxRadius;
     }
 
     /**
@@ -69,8 +87,8 @@ public class ClusteredAgent extends RVOAgent {
      * to the current cluster.
      *
      *
-     * @param agent
-     * @return
+     * @param agent is the agent added to be added to it
+     * @return boolean indicating whether agent was added sucessfully or not
      */
     public boolean addAgent(RVOAgent agent) {
 
@@ -111,11 +129,6 @@ public class ClusteredAgent extends RVOAgent {
             double maxDistance = Double.MIN_VALUE;
 
             for (RVOAgent tempAgent : agents) {
-
-
-
-
-
                 Vector2d distance = new Vector2d(tempAgent.getCurrentPosition());
                 distance.sub(this.getCentre());
                 if (distance.length() > maxDistance) {
@@ -172,11 +185,5 @@ public class ClusteredAgent extends RVOAgent {
         return false;
     }
 
-    public double getMaxRadius() {
-        return maxRadius;
-    }
-
-    public void setMaxRadius(double maxRadius) {
-        this.maxRadius = maxRadius;
-    }
+  
 }

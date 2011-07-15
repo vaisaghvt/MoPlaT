@@ -5,15 +5,11 @@
 package agent;
 
 /**
- * TWContextBuilder
+ * 
  *
- * @author michaellees
- * Created: Apr 26, 2010
- *
- * Copyright michaellees Expression year is undefined on line 16, column 24 in Templates/Classes/Class.java.
- *
- *
- * Description:
+ * @author Vaisagh
+ * 
+ * Description: This class defines an inspector for the RVOAgents.
  *
  */
 import java.awt.BorderLayout;
@@ -25,11 +21,9 @@ import javax.swing.JButton;
 import sim.display.Controller;
 import sim.display.GUIState;
 import sim.engine.SimState;
-import sim.field.continuous.Continuous2D;
 import sim.portrayal.Inspector;
 import sim.portrayal.LocationWrapper;
 
-import sim.portrayal.continuous.ContinuousPortrayal2D;
 
 class AgentInspector extends Inspector {
 
@@ -41,9 +35,9 @@ class AgentInspector extends Inspector {
 
         // get info out of the wrapper
 
-        ContinuousPortrayal2D agentPortrayal = (ContinuousPortrayal2D) wrapper.getFieldPortrayal();
+//        ContinuousPortrayal2D agentPortrayal = (ContinuousPortrayal2D) wrapper.getFieldPortrayal();
         // these are final so that we can use them in the anonymous inner class below...
-        final Continuous2D agentField = (Continuous2D) (agentPortrayal.getField());
+//        final Continuous2D agentField = (Continuous2D) (agentPortrayal.getField());
 
 
         final RVOAgent agent = (RVOAgent) wrapper.getObject();

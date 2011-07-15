@@ -15,24 +15,28 @@ import sim.engine.SimState;
 import sim.engine.Steppable;
 
 /**
- *
+ * This class defines the agent generator line that can generate agents at 
+ * requested positions with a given frequency
+ * 
+ * 
  * @author vaisaghvt
  */
 public class AgentGenerator implements Steppable {
 
-    int number;
+    int generatorsPerLine;
     Point2d startPoint;
     Point2d endPoint;
     RVOModel model;
     int directionX;
     int directionY;
     double gap;
-    ArrayList<Goals> goals;
+    List<Goals> goals;
 
-    public AgentGenerator(Point2d start, Point2d end, int number, int direction,List<Goals> passedGoals, RVOModel model) {
+    public AgentGenerator(Point2d start, Point2d end, int number, int direction,
+            List<Goals> passedGoals, RVOModel model) {
         startPoint = new Point2d(start.getX(), start.getY());
         endPoint = new Point2d(end.getX(), end.getY());
-        this.number = number;
+        this.generatorsPerLine = number;
         this.model = model;
         //0 means -x, 1 means x, 2 means y, 3 means -y
         switch (direction) {
@@ -54,17 +58,17 @@ public class AgentGenerator implements Steppable {
                 break;
         }
 
-        this.goals = new ArrayList(passedGoals.size());
-        for(int i=0;i<passedGoals.size();i++){
+        goals = new ArrayList<Goals>(passedGoals.size());
+        for (int i = 0; i < passedGoals.size(); i++) {
             Goals tempGoal = new Goals();
-           Position startPosition = new Position();
+            Position startPosition = new Position();
 
-           startPosition.setX(passedGoals.get(i).getVertices().get(0).getX());
+            startPosition.setX(passedGoals.get(i).getVertices().get(0).getX());
             startPosition.setY(passedGoals.get(i).getVertices().get(0).getY());
 
-           Position endPosition = new Position();
+            Position endPosition = new Position();
 
-           endPosition.setX(passedGoals.get(i).getVertices().get(1).getX());
+            endPosition.setX(passedGoals.get(i).getVertices().get(1).getX());
             endPosition.setY(passedGoals.get(i).getVertices().get(1).getY());
 
 
@@ -77,27 +81,25 @@ public class AgentGenerator implements Steppable {
         distance.sub(endPoint);
 
 
-        gap = (number>1)?distance.length() / (number-1):distance.length()/2;
+        gap = (number > 1) ? distance.length() / (number - 1) : distance.length() / 2;
         System.out.println("distance = " + distance.length());
-        System.out.println("number = "+number+",gap = " + gap);
+        System.out.println("number = " + number + ",gap = " + gap);
     }
 
     @Override
     public void step(SimState ss) {
-        for (int i = 0; i < number; i++) {
+        for (int i = 0; i < generatorsPerLine; i++) {
             RVOAgent agent = new RVOAgent(model.getRvoSpace());
             if (directionY != 0) {
-
                 agent.setCurrentPosition(startPoint.getX() + gap * i, startPoint.getY());
             } else {
-
                 agent.setCurrentPosition(startPoint.getX(), startPoint.getY() + gap * i);
             }
 
-         //   agent.setGoal(new Point2d(6.0, 0.0));
+            //   agent.setGoal(new Point2d(6.0, 0.0));
             agent.setCheckPoints(goals);
-            agent.findPrefVelocity();
-            agent.setVelocity(agent.getPrefVelocity());
+
+            agent.setVelocity(agent.findPrefVelocity());
 
             model.addNewAgent(agent);
 

@@ -6,7 +6,6 @@ package environment.Obstacle;
 
 
 import javax.vecmath.Point2d;
-import javax.vecmath.Vector2d;
 
 /**
  * RVO2Obstacle
@@ -18,8 +17,7 @@ import javax.vecmath.Vector2d;
  *
  * Description:
  *
- *  Implementation of RVO2Obstacle according to RVO2 - this should be standardized
- *  if possible between RVO2 and RVO1.1
+ *  These obstacles as per RVO2 requirements
  */
 public class RVO2Obstacle extends RVOObstacle{
 

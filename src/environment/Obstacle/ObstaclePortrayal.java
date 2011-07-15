@@ -1,8 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package environment.Obstacle;
+
+/**
+ *
+ * @author Vaisagh
+ * 
+ * This class describes how objects are portrayed. Currently specifically for 
+ * RVO2 obstacles which are polygons
+ */
 
 import app.RVOGui;
 import java.awt.Color;
@@ -28,8 +33,8 @@ public class ObstaclePortrayal extends SimplePortrayal2D {
 
 
         for (int j = 0; j < vertices.size(); j++) {
-            double x = vertices.get(j).getX() * RVOGui.SCALE;
-            double y = vertices.get(j).getY() * RVOGui.SCALE;
+            double x = vertices.get(j).getX() * RVOGui.scale;
+            double y = vertices.get(j).getY() * RVOGui.scale;
             xPoints[j] = (int) Math.round(x);
             yPoints[j] = (int) Math.round(y);
  
@@ -40,7 +45,7 @@ public class ObstaclePortrayal extends SimplePortrayal2D {
 
         graphics.setColor(Color.black);
 
- graphics.drawPolygon(xPoints, yPoints, vertices.size());
+        graphics.drawPolygon(xPoints, yPoints, vertices.size());
         //return new sim.portrayal.simple.ShapePortrayal2D(xPoints,yPoints,new Color(0.5f, 0.5f, 1.0f);
     }
 }
