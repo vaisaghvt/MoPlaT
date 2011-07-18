@@ -31,17 +31,18 @@ import sim.util.Double2D;
 public final class ClusteredSpace extends RVOSpace {
 
     public static final double ALPHA = 3;
-    public static final int CLUSTER_DIAMETER = (int) Math.round(ALPHA * 2 * RVOAgent.RADIUS * 100.0);
+    public static final int CLUSTER_DIAMETER = (int) Math.round(
+                                ALPHA * 2 * RVOAgent.RADIUS * 100.0);
     public static final int NUMBER_OF_CLUSTERING_SPACES = 3;
     protected static int numberOfClusteringSpaces;
     protected ArrayList<ClusteredAgent>[] clusteredAgents;
     protected Continuous2D[] clusteringLayers;
 
-    public ClusteredSpace(int xSize, int ySize, float gridSize, RVOModel rm) {
+    public ClusteredSpace(int xSize, int ySize, double gridSize, RVOModel rm) {
         this(xSize, ySize, gridSize, rm, NUMBER_OF_CLUSTERING_SPACES);
     }
 
-    public ClusteredSpace(int xSize, int ySize, float gridSize, RVOModel rm,
+    public ClusteredSpace(int xSize, int ySize, double gridSize, RVOModel rm,
             int numberOfLayers) {
         super(xSize, ySize, gridSize, rm);
         numberOfClusteringSpaces = numberOfLayers;

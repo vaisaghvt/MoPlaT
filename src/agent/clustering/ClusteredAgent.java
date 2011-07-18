@@ -33,15 +33,17 @@ public class ClusteredAgent extends RVOAgent {
 
     public static double MAXCLUSTERRADIUS = 0.8f;
     protected List<RVOAgent> agents;
-    protected double maxRadius = MAXCLUSTERRADIUS;
+    protected double maxRadius;
   
     public ClusteredAgent(RVOSpace rvoSpace, RVOAgent agent) {
         super(rvoSpace);
+        maxRadius = MAXCLUSTERRADIUS;
         radius = agent.getRadius();
         velocity = new Vector2d(agent.getVelocity());
         setCentre(new Point2d(agent.getCurrentPosition()));
         agents = new ArrayList<RVOAgent>();
         agents.add(agent);
+        
 
     }
 

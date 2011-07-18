@@ -4,7 +4,7 @@
  */
 package app.creator;
 
-import environment.XMLManager;
+import environment.XMLScenarioManager;
 import environment.geography.ObjectFactory;
 import environment.geography.SimulationScenario;
 import java.awt.BorderLayout;
@@ -169,7 +169,7 @@ public class EnvironmentCreatorApp implements ActionListener {
             } while (returnVal == JFileChooser.APPROVE_OPTION && test);
             if (!test) {
                 try {
-                    XMLManager settings = XMLManager.instance();
+                    XMLScenarioManager settings = XMLScenarioManager.instance("environment.geography");
                     environment = (SimulationScenario) settings.unmarshal(file);
                     descriptionArea.setTitle(environment.getName());
                     descriptionArea.setScale(environment.getScale().toString());
@@ -282,7 +282,7 @@ public class EnvironmentCreatorApp implements ActionListener {
 
             descriptionArea.loadDataToEnvironment(environment);
             interactionArea.loadObjectsIntoScenario(environment);
-            XMLManager manager = XMLManager.instance();
+            XMLScenarioManager manager = XMLScenarioManager.instance("environment.geography");
             try {
 
                 manager.marshal(environment, new FileOutputStream(environment.getName() + ".xml"));

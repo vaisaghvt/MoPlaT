@@ -37,24 +37,32 @@ import sim.util.Double2D;
  */
 public class AgentPortrayal extends SimplePortrayal2D {
 
+    
+    public static boolean SHOW_ORCA_LINES;
+    public static boolean SHOW_TRAILS;
+    public static boolean SHOW_VELOCITY;
+    
     ArrayList<Double2D> points; // this is the list of points that will be painted in the trail
+    
     //  public Paint paint;
     private boolean trails;
-    public boolean filled;
-    public double scale;
-    public double radius;
+    private double scale;
+    protected double radius;
     protected double offset = 0.0;  // used only by CircledPortrayal2D
     private Color trailColor = new Color(0.0f, 1.0f, 0.0f, 0.2f); // no effect?
     private Color agentColor = new Color(0.0f, 0.0f, 1.0f, 1.0f); // no effect?
     private float trailLineWidth = 1.5f;
     private float agentLineWidth = 5.0f;
+    private boolean showOrcaLines;
+    private boolean showVelocity;
 
     //TODO: when are each of these portrayals used.. why do i have two with entirely different parameters??
-    public AgentPortrayal(double radius, boolean trails) {
-        this.radius = radius;
-        this.trails = trails;
+    public AgentPortrayal() {
+        radius = RVOAgent.RADIUS;
         scale = RVOGui.scale;
-        filled = false;
+        showOrcaLines = SHOW_ORCA_LINES;
+        trails = SHOW_TRAILS;
+        showVelocity = SHOW_VELOCITY;
         points = new ArrayList<Double2D>();
 
     }
@@ -83,7 +91,7 @@ public class AgentPortrayal extends SimplePortrayal2D {
         if (((RVOAgent) this).getRvoCalc() instanceof RVO_2_1) {
 
             RVO_2_1 rvo2 = (RVO_2_1) ((RVOAgent) this).getRvoCalc();
-            if (rvo2.SHOW_LINES) {
+            if (showOrcaLines) {
                 for (Line l : rvo2.getOrcaLines()) {
                     Point2d end = l.getEndPoint();
                     Point2d start = l.getStartPoint();
@@ -164,7 +172,7 @@ public class AgentPortrayal extends SimplePortrayal2D {
         graphics.setStroke(new BasicStroke(1.0f));
 
         //Draw Current velocity of the agent
-        if (me.SHOW_VELOCITY) {
+        if (showVelocity) {
             graphics.drawLine((int) Math.round((startx)),
                     (int) Math.round((starty)),
                     (int) Math.round((me.getVelocity().x) * scale + startx),
@@ -195,5 +203,16 @@ public class AgentPortrayal extends SimplePortrayal2D {
 
     public void toggleTrails() {
         trails = !trails;
+    }
+    
+    public void toggleShowVelocity() {
+        showVelocity = !showVelocity;
+    }
+    
+    public void toggleShowOrcaLines() {
+        showOrcaLines = !showOrcaLines;
+    }
+    public double getRadius() {
+        return radius;
     }
 }

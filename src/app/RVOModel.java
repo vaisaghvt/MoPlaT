@@ -5,7 +5,7 @@ import agent.RVOAgent;
 import agent.clustering.ClusteredSpace;
 import environment.Obstacle.RVOObstacle;
 import environment.RVOSpace;
-import environment.XMLManager;
+import environment.XMLScenarioManager;
 import environment.geography.Agent;
 import environment.geography.AgentLine;
 import environment.geography.Goals;
@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import javax.vecmath.Point2d;
 import javax.xml.bind.JAXBException;
 import sim.engine.SimState;
-
+        
 /**
  * RVOModel
  *
@@ -38,26 +38,11 @@ import sim.engine.SimState;
  */
 public class RVOModel extends SimState {
 
-    public static enum Model {
-        RVO2, PatternBasedMotion, RVO1Standard, RVO1Acceleration, RuleBasedNew
-    }
+
     
-    
-    public static final long SEED = 10;
-    private static final int WORLDXSIZE = 10;
-    private static final int WORLDYSIZE = 10;
-    private static final float GRIDSIZE = 1.0f;
-    public final static double TIMESTEP = 0.25f;
-    public static final Model MODEL = Model.RVO2;
-    public static final boolean LATTICEMODEL = false;
-    public static final boolean INFOPROCESSING = false;
-    public static final boolean USECLUSTERING = false;
-    public static final boolean INITIALISEFROMXML = true;
-    public static final String xmlSourceFolder ="xml-resources\\scenarios";
-    public static final String FILEPATH = xmlSourceFolder +"\\EvacTest\\4.xml";
-    private int worldXSize = WORLDXSIZE;
-    private int worldYSize = WORLDYSIZE;
-    private float gridSize = GRIDSIZE;
+    private int worldXSize = PropertySet.WORLDXSIZE;
+    private int worldYSize = PropertySet.WORLDYSIZE;
+    private double gridSize = PropertySet.GRIDSIZE;
     private RVOSpace rvoSpace;
     private LatticeSpace latticeSpace;
     /**
@@ -74,18 +59,18 @@ public class RVOModel extends SimState {
 //    //for each agent, there is a list to record all the necessary status (e.g., velocity, position etc)
 //    public ArrayList<ArrayList<ArrayList>> records;
     public RVOModel() {
-        this(RVOModel.SEED);
+        this(PropertySet.SEED);
 
     }
 
     public RVOModel(long seed) {
         super(seed);
 
-        if (INITIALISEFROMXML) {
+        if (PropertySet.INITIALISEFROMXML) {
 
             try {
-                XMLManager settings = XMLManager.instance();
-                SimulationScenario scenario = (SimulationScenario) settings.unmarshal(FILEPATH);
+                XMLScenarioManager settings = XMLScenarioManager.instance("environment.geography");
+                SimulationScenario scenario = (SimulationScenario) settings.unmarshal(PropertySet.FILEPATH);
                 RVOGui.scale = scenario.getScale();
                 worldXSize = RVOGui.checkSizeX = scenario.getXsize();
                 worldYSize = RVOGui.checkSizeY = scenario.getYsize();
@@ -114,7 +99,7 @@ public class RVOModel extends SimState {
         //Need to readup a bit more to see if it is even necessary...
         setup();
 
-        if (INITIALISEFROMXML) {
+        if (PropertySet.INITIALISEFROMXML) {
             initialiseFromXML();
         } else {
             buildSpace();
@@ -128,7 +113,7 @@ public class RVOModel extends SimState {
      */
     private void buildSpace() {
 
-        if (!RVOModel.USECLUSTERING) {
+        if (!PropertySet.USECLUSTERING) {
             rvoSpace = new RVOSpace(worldXSize, worldYSize, gridSize, this);
         } else {
             rvoSpace = new ClusteredSpace(worldXSize, worldYSize, gridSize, this);
@@ -150,7 +135,7 @@ public class RVOModel extends SimState {
             addNewAgent(
                     new RVOAgent(new Point2d(2, i * gap + 0.5),
                     new Point2d(8, i * gap + 0.5),
-                    this.rvoSpace,
+                    rvoSpace,
                     new Color(Color.HSBtoRGB((float) i / (float) numAgentsPerSide, 1.0f, 0.68f))));
             addNewAgent(
                     new RVOAgent(new Point2d(8, i * gap + 0.5),
@@ -181,7 +166,7 @@ public class RVOModel extends SimState {
     }
 
     public static double getTimeStep() {
-        return TIMESTEP;
+        return PropertySet.TIMESTEP;
     }
 
     public int getWorldYSize() {
@@ -192,7 +177,7 @@ public class RVOModel extends SimState {
         return worldXSize;
     }
 
-    public float getGridSize() {
+    public double getGridSize() {
         return gridSize;
     }
 
@@ -213,7 +198,7 @@ public class RVOModel extends SimState {
         a.scheduleAgent();
         agentList.add(a);
         rvoSpace.updatePositionOnMap(a, a.getX(), a.getY());
-        if (RVOModel.LATTICEMODEL) {
+        if (PropertySet.LATTICEMODEL) {
             latticeSpace.addAgentAt(a.getX(), a.getY());
         }
     }
@@ -226,6 +211,10 @@ public class RVOModel extends SimState {
 
     public static void main(String[] args) {
         // Read tutorial 2 of mason to see what this does.. or refer to documentation of this function
+        
+        PropertySet.initializeProperties();
+       
+            
         doLoop(RVOModel.class, args);
         System.exit(0);
     }
@@ -236,18 +225,18 @@ public class RVOModel extends SimState {
      */
     private void initialiseFromXML() {
         try {
-            XMLManager settings = XMLManager.instance();
-            SimulationScenario scenario = (SimulationScenario) settings.unmarshal(FILEPATH);
-            System.out.println("Running buildModel()");
+            XMLScenarioManager settings = XMLScenarioManager.instance("environment.geography");
+            SimulationScenario scenario = (SimulationScenario) settings.unmarshal(PropertySet.FILEPATH);
+            
 
-            if (!RVOModel.USECLUSTERING) {
+            if (!PropertySet.USECLUSTERING) {
                 rvoSpace = new RVOSpace(worldXSize, worldYSize, gridSize, this);
             } else {
                 rvoSpace = new ClusteredSpace(worldXSize, worldYSize, gridSize, this);
                 ((ClusteredSpace) rvoSpace).scheduleClustering();
             }
 
-            if (RVOModel.LATTICEMODEL) {
+            if (PropertySet.LATTICEMODEL) {
                 latticeSpace = new LatticeSpace(worldXSize, worldYSize, this);
                 latticeSpace.scheduleLattice();
                 latticeSpace.setDirection(scenario.getDirection());
@@ -280,7 +269,7 @@ public class RVOModel extends SimState {
                 Obstacle tempObst = xmlObstacleList.get(i);
                 RVOObstacle tempRvoObst = new RVOObstacle(tempObst);
                 addNewObstacle(tempRvoObst);
-                if (RVOModel.LATTICEMODEL) {
+                if (PropertySet.LATTICEMODEL) {
                     latticeSpace.addObstacle(tempObst);
                 }
             }
@@ -299,4 +288,7 @@ public class RVOModel extends SimState {
         }
 
     }
+    
+   
+
 }

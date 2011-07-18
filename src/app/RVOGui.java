@@ -32,7 +32,7 @@ import sim.portrayal.simple.RectanglePortrayal2D;
  */
 public class RVOGui extends GUIState {
 
-    private static final boolean CHECKBOARD = true;
+    
     /**
      * This is a singleton class that holds all the display information
      */
@@ -40,9 +40,7 @@ public class RVOGui extends GUIState {
     public JFrame displayFrame;
     private RVOModel model;
     
-    public static final int SCALE = 80;
-    public static final int CHECK_SIZE_X = 5;
-    public static final int CHECK_SIZE_Y = 5;
+
     
     /**
      * Number of pixels that each cell (or unit space) should be represented by (for display).
@@ -57,20 +55,20 @@ public class RVOGui extends GUIState {
     FastValueGridPortrayal2D latticeGasPortrayal;
 
     public RVOGui() {
-        this(new RVOModel(RVOModel.SEED));
+        this(new RVOModel(PropertySet.SEED));
     }
 
     public RVOGui(SimState state) {
         super(state);
-        scale = SCALE;
-        checkSizeX= RVOGui.CHECK_SIZE_X;
-        checkSizeY= RVOGui.CHECK_SIZE_Y;
+        scale = PropertySet.SCALE;
+        checkSizeX= PropertySet.CHECK_SIZE_X;
+        checkSizeY= PropertySet.CHECK_SIZE_Y;
         model = (RVOModel) state;
         geographyPortrayal = new ContinuousPortrayal2D();
         checkBoardPortrayal = new ObjectGridPortrayal2D();
         agentPortrayal = new ContinuousPortrayal2D();
 
-        if (RVOModel.LATTICEMODEL) {
+        if (PropertySet.LATTICEMODEL) {
             latticeGasPortrayal = new FastValueGridPortrayal2D();
         }
 
@@ -79,7 +77,7 @@ public class RVOGui extends GUIState {
          *If clustering is being used then create multiple layers for each 
          * cluster layer
          */
-        if (RVOModel.USECLUSTERING) {
+        if (PropertySet.USECLUSTERING) {
             clusteredPortrayal = new ContinuousPortrayal2D[ClusteredSpace.getNumberOfClusteringSpaces()];
             for (int j = 0; j < ClusteredSpace.getNumberOfClusteringSpaces(); j++) {
                 clusteredPortrayal[j] = new ContinuousPortrayal2D();
@@ -101,13 +99,13 @@ public class RVOGui extends GUIState {
 
         geographyPortrayal.setField(model.getRvoSpace().getGeographySpace());
 
-        if (RVOModel.LATTICEMODEL) {
+        if (PropertySet.LATTICEMODEL) {
             latticeGasPortrayal.setField(model.getLatticeSpace().getSpace());
             latticeGasPortrayal.setMap(new sim.util.gui.SimpleColorMap(
                     new Color[]{new Color(0, 0, 0, 0), new Color(0, 0, 255, 150), Color.red}));
         }
 
-        if (RVOModel.USECLUSTERING) {
+        if (PropertySet.USECLUSTERING) {
             for (int j = 0; j < ClusteredSpace.getNumberOfClusteringSpaces(); j++) {
                 clusteredPortrayal[j].setField(((ClusteredSpace) model.getRvoSpace()).getClusteredSpace(j));
             }
@@ -138,12 +136,15 @@ public class RVOGui extends GUIState {
      */
     @Override
     public void init(Controller c) {
+        
+        
         super.init(c);
 
         // Make the Display2D.  We'll have it display stuff later.
         model = (RVOModel) state;
+        
         display = new Display2D(model.getWorldXSize() * scale, model.getWorldYSize() * scale, this, 1);
-
+    
         //create and display frame
         displayFrame = display.createFrame();
         c.registerFrame(displayFrame);   // register the frame so it appears in the "Display" list
@@ -152,16 +153,16 @@ public class RVOGui extends GUIState {
 
         display.attach(geographyPortrayal, "Geography portrayal");  // attach the portrayals
         display.attach(agentPortrayal, "Agent portrayal");  // attach the portrayals
-        if (CHECKBOARD) {
+        if (PropertySet.CHECKBOARD) {
             display.attach(this.checkBoardPortrayal, "Check board");
         }
-        if (RVOModel.USECLUSTERING) {
+        if (PropertySet.USECLUSTERING) {
             for (int j = 1; j
                     <= ClusteredSpace.getNumberOfClusteringSpaces(); j++) {
                 display.attach(clusteredPortrayal[j - 1], "Cluster portrayal -" + j);
             }
         }
-        if (RVOModel.LATTICEMODEL) {
+        if (PropertySet.LATTICEMODEL) {
             display.attach(latticeGasPortrayal, "lattice portrayal");
 
 
@@ -197,6 +198,7 @@ public class RVOGui extends GUIState {
     }
 
     public static void main(String[] args) {
+        PropertySet.initializeProperties();
         new RVOGui().createController();
     }
 }

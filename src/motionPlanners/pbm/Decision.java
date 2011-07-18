@@ -1,7 +1,7 @@
 package motionPlanners.pbm;
 
 import agent.RVOAgent;
-import app.RVOModel;
+import app.PropertySet;
 import java.awt.Color;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
@@ -207,7 +207,7 @@ public class Decision {
         double relativeDistance = pa2pb.length();
 
         //TODO, shall we use radius or radius*personalSpaceFactor here?
-        double relativeRadius = myAgt.radius + targetAgt.radius;
+        double relativeRadius = myAgt.getRadius() + targetAgt.getRadius();
         //define line's formulae representing the vector of relative speed
         //y-ya - slope(x-xa)=0
         double slope = Math.tan(relativeS.y / relativeS.x);
@@ -219,7 +219,7 @@ public class Decision {
         } else {
             double m = Math.sqrt(relativeRadius * relativeRadius - d * d);
             distanceToMove = Math.sqrt(relativeDistance * relativeDistance - d * d) - m;
-            frameNum = (int) ((distanceToMove / relativeS.length()) / RVOModel.TIMESTEP); //if within 1 frames can reach, return 0
+            frameNum = (int) ((distanceToMove / relativeS.length()) / PropertySet.TIMESTEP); //if within 1 frames can reach, return 0
             return frameNum;
         }
     }
@@ -246,7 +246,7 @@ public class Decision {
         double relativeDistance = pa2pb.length();
 
         //TODO, shall we use radius or radius*personalSpaceFactor here?
-        double relativeRadius = a.radius + b.radius;
+        double relativeRadius = a.getRadius() + b.getRadius();
         //define line's formulae representing the vector of relative speed
         //y-ya - slope(x-xa)=0
         double slope = Math.tan(relativeS.y / relativeS.x);
@@ -258,7 +258,7 @@ public class Decision {
         } else {
             double m = Math.sqrt(relativeRadius * relativeRadius - d * d);
             distanceToMove = Math.sqrt(relativeDistance * relativeDistance - d * d) - m;
-            frameNum = (int) ((distanceToMove / relativeS.length()) / RVOModel.TIMESTEP);
+            frameNum = (int) ((distanceToMove / relativeS.length()) / PropertySet.TIMESTEP);
             return frameNum;
         }
     }

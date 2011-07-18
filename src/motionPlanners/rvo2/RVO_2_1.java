@@ -28,24 +28,24 @@ public class RVO_2_1 implements VelocityCalculator {
      * Stores the orcalines for calculation
      */
     List<Line> orcaLines;
-    public boolean SHOW_LINES = false;
+    
     /**
-     * timeHorizon 	float (time) 	The minimal amount of time for which the
+     * TIME_HORIZON 	float (time) 	The minimal amount of time for which the
      * agent's velocities that are computed by the simulation are safe with
      * respect to other agents. The larger this number, the sooner this agent
      * will respond to the presence of other agents, but the less freedom the
      * agent has in choosing its velocities. Must be positive.
      */
-    double timeHorizon = 0.5f;
+    public static double TIME_HORIZON;
     /**
-     *timeHorizonObst 	float (time) 	The minimal amount of time for which the
+     *TIME_HORIZON_OBSTACLE 	float (time) 	The minimal amount of time for which the
      * agent's velocities that are computed by the simulation are safe with respect
      * to obstacles. The larger this number, the sooner this agent will respond
      * to the presence of obstacles, but the less freedom the agent has in choosing
      * its velocities. Must be positive.
      */
-    double timeHorizonObst = 0.25f;
-    static final float RVO_EPSILON = 0.00001f;
+    public static double TIME_HORIZON_OBSTACLE;
+    public static float RVO_EPSILON;
 
     /* Search for the best new velocity. */
     public RVO_2_1() {
@@ -73,7 +73,7 @@ public class RVO_2_1 implements VelocityCalculator {
         for (int i = 0; i < obses.size(); i++) {
 
 
-            double invTimeHorizonObst = 1.0f / timeHorizonObst;
+            double invTimeHorizonObst = 1.0f / TIME_HORIZON_OBSTACLE;
             RVO2Obstacle obstacle1 = (RVO2Obstacle) obses.get(i);
             RVO2Obstacle obstacle2 = obstacle1.getNext();
 //            System.out.println(obstacle1.getPoint());
@@ -333,7 +333,8 @@ public class RVO_2_1 implements VelocityCalculator {
             final double TLEFT = (velocityMinusLeft.dot(leftLegDirection));
             final double TRIGHT = (velocityMinusRight.dot(rightLegDirection));
 
-            if ((T < 0.0f && TLEFT < 0.0f) || (obstacle1.equals(obstacle2) && TLEFT < 0.0f && TRIGHT < 0.0f)) {
+            if ((T < 0.0f && TLEFT < 0.0f) || 
+                    (obstacle1.equals(obstacle2) && TLEFT < 0.0f && TRIGHT < 0.0f)) {
                 /* Project on left cut-off circle. */
 
 //                System.out.println("Project on left cut off");
@@ -454,7 +455,7 @@ public class RVO_2_1 implements VelocityCalculator {
         final int numObstLines = orcaLines.size();
 
 
-        final double invTimeHorizon = 1.0f / timeHorizon;
+        final double invTimeHorizon = 1.0f / TIME_HORIZON;
 
         /* Create agent ORCA lines. */
         for (int i = 0; i < neighbors.size(); i++) {
@@ -586,8 +587,8 @@ public class RVO_2_1 implements VelocityCalculator {
         b.sub(line.point);
 
 
-        return (det(a, line.direction) - invTimeHorizonObst * me.radius >= -RVO_EPSILON
-                && det(b, line.direction) - invTimeHorizonObst * me.radius >= -RVO_EPSILON);
+        return ((det(a, line.direction) - invTimeHorizonObst * me.getRadius()) >= -RVO_EPSILON
+             && (det(b, line.direction) - invTimeHorizonObst * me.getRadius()) >= -RVO_EPSILON);
 
     }
 

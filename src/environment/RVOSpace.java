@@ -1,6 +1,7 @@
 package environment;
 
 import agent.RVOAgent;
+import app.PropertySet;
 import app.RVOModel;
 import environment.Obstacle.RVO2Obstacle;
 import environment.Obstacle.RVOObstacle;
@@ -41,7 +42,7 @@ public class RVOSpace {
      */
     protected RVOModel rvoModel;
 
-    public RVOSpace(int xSize, int ySize, float gridSize, RVOModel rm) {
+    public RVOSpace(int xSize, int ySize, double gridSize, RVOModel rm) {
 
         gridDimension = gridSize;
 
@@ -76,7 +77,7 @@ public class RVOSpace {
 
     public void addNewObstacle(RVOObstacle obstacle) {
 
-        if (RVOModel.MODEL == RVOModel.MODEL.RVO2) {
+        if (PropertySet.MODEL == PropertySet.MODEL.RVO2) {
             //If RVO2 is the model then the RVO2 obstacle requires obstacles to
             //broken down
 

@@ -45,18 +45,18 @@ class AgentInspector extends Inspector {
         final Controller console = guiState.controller;  // The Console (it's a Controller subclass)
 
         // now let's add a Button
-        Box box = new Box(BoxLayout.X_AXIS);
-        JButton button = new JButton("Toggle Trails");
-        box.add(button);
-        box.add(Box.createGlue());
+        Box viewBox = new Box(BoxLayout.X_AXIS);
+        JButton trailSwitch = new JButton("Toggle Trails");
+        viewBox.add(trailSwitch);
+        viewBox.add(Box.createGlue());
 
         // set up our inspector: keep the properties inspector around too
         setLayout(new BorderLayout());
         add(originalInspector, BorderLayout.CENTER);
-        add(box, BorderLayout.SOUTH);
+        add(viewBox, BorderLayout.SOUTH);
 
-        // set what the button does
-        button.addActionListener(new ActionListener() {
+        // set what the trailSwitch does
+        trailSwitch.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -70,6 +70,8 @@ class AgentInspector extends Inspector {
                 }
             }
         });
+        
+        
     }
 
     @Override

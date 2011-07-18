@@ -22,6 +22,9 @@ import javax.vecmath.Point2d;
  */
 public class LatticeSpace {
 
+    public static double DRIFT = 0.5;
+    public static final double LATTICEGRIDSIZE = 2.0 * RVOAgent.RADIUS;
+    
     protected int numGridX;
     protected int numGridY;
     protected int goalXStart;
@@ -29,7 +32,7 @@ public class LatticeSpace {
     protected int goalXEnd;
     protected int goalYEnd;
     protected MersenneTwisterFast random;
-    protected double DRIFT = 0.5;
+    
     protected double driftX;
     protected double driftY;
     protected int directionX;
@@ -46,8 +49,8 @@ public class LatticeSpace {
      */
     protected RVOModel rvoModel;
     
-    protected ArrayList<GoalLines> goals;
-    public static final double LATTICEGRIDSIZE = 2.0 * RVOAgent.RADIUS;
+    private ArrayList<GoalLines> goals;
+    
 
     public LatticeSpace(int xSize, int ySize, RVOModel rm) {
 
