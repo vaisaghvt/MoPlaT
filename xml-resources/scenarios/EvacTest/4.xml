@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="true" displayUsed="true" direction="3" scale="75" Ysize="12" Xsize="12" name="Default">
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="true" displayUsed="true" direction="3" scale="75" Ysize="12" Xsize="12" name="4">
     <obstacles>
         <vertices y="4.5" x="0.3"/>
         <vertices y="4.5" x="0.9"/>
@@ -44,6 +44,6 @@
         <startPoint y="11.85" x="1.05"/>
         <direction>3</direction>
         <frequency>2</frequency>
-        <number>10</number>
+        <number>9</number>
     </generationLines>
 </SimulationScenario>

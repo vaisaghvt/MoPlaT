@@ -27,5 +27,19 @@
         <copy todir="${build.generated.sources.dir}/jaxb">
             <fileset dir="build/generated/jaxbCache/ScenarioBinding"/>
         </copy>
+        <mkdir dir="build/generated/jaxbCache/Parameters"/>
+        <xjc destdir="build/generated/jaxbCache/Parameters" catalog="catalog.xml">
+            <classpath>
+                <pathelement location="${src.dir}"/>
+                <pathelement path="${jaxbwiz.xjcrun.classpath}"/>
+            </classpath>
+            <arg value="-xmlschema"/>
+            <schema file="xml-resources/jaxb/Parameters/InitializeParameters.xsd"/>
+            <depends file="xml-resources/jaxb/Parameters/InitializeParameters.xsd"/>
+            <produces dir="build/generated/jaxbCache/Parameters"/>
+        </xjc>
+        <copy todir="${build.generated.sources.dir}/jaxb">
+            <fileset dir="build/generated/jaxbCache/Parameters"/>
+        </copy>
     </target>
 </project>

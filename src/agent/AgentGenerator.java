@@ -82,8 +82,6 @@ public class AgentGenerator implements Steppable {
 
 
         gap = (number > 1) ? distance.length() / (number - 1) : distance.length() / 2;
-        System.out.println("distance = " + distance.length());
-        System.out.println("number = " + number + ",gap = " + gap);
     }
 
     @Override

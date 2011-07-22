@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
     <system systemId="file:/C:/Users/vaisagh/Documents/NetBeansProjects/CrowdSimulation/MasonGeography.xsd" uri="xml-resources/jaxb/ScenarioBinding/MasonGeography.xsd"/>
+    <system systemId="file:/Users/vaisaghvt/NetBeansProjects/CrowdSimulation/InitializeParameters.xsd" uri="xml-resources/jaxb/Parameters/InitializeParameters.xsd"/>
 </catalog>

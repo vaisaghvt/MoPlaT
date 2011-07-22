@@ -30,6 +30,7 @@ import motionPlanners.rvo1.RVO_1_WithAccel;
 import motionPlanners.rvo2.RVO_2_1;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim.engine.Stoppable;
 import sim.portrayal.LocationWrapper;
 import sim.util.Bag;
 import sim.util.Proxiable;
@@ -43,8 +44,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public static double RADIUS;
     public static double PREFERRED_SPEED;
     public static int SENSOR_RANGE; //sensor range in proportion to agent radius
-    
-    
     public static int agentCount = 0; // number of agents
     protected int id;
     private List<GoalLine> checkPoints;
@@ -95,6 +94,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      */
     protected VelocityCalculator velocityCalc;
     protected CommitToHighSpeed commitmentLevel;
+    protected Stoppable senseThinkAgent;
+    protected Stoppable actAgent;
 
     public RVOAgent(RVOSpace mySpace) {
         super(); //for portraying the trails on the agentportrayal layer
@@ -121,7 +122,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             velocityCalc = new RuleBasedNew();
         }
         id = agentCount++;
-        
+
     }
 
     public RVOAgent(RVOAgent otherAgent) {
@@ -196,30 +197,35 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         velocity.scale(speed);
     }
 
+    /**
+     * Sets and returns the prefered velocity. Generally this is just the velocity towards goal.
+     * But in the evacTest scenario, this is set to the checkpoint nearby
+     * @return new Preferred Velocity
+     */
     public final Vector2d findPrefVelocity() {
         if (checkPoints.isEmpty()) {
+
+            //By 
             prefVelocity = new Vector2d(goal);
-        } else if (currentGoal > checkPoints.size()) {
+        } else if (currentGoal == checkPoints.size()) {
             return prefVelocity;
         } else {
+
             Vector2d distance = new Vector2d(checkPoints.get(currentGoal).getCenter());
             distance.sub(currentPosition);
-
-
             if (this.getCurrentPosition().getY() < (checkPoints.get(currentGoal).getCenter().getY())) {
                 if (currentGoal < checkPoints.size()) {
+                    //change goal once checkpoint is reached
                     currentGoal++;
+                    if (currentGoal == checkPoints.size())
+                        return prefVelocity;
                 }
 
-                if (currentGoal == checkPoints.size()) {
-                    currentPosition = new Point2d(-4000, 4000);
-                    goal = new Point2d(-4000, 4000);
-                    currentGoal++;
 
-                    return prefVelocity;
-                }
             } else if (this.getCurrentPosition().getX() > (checkPoints.get(currentGoal).getStart().getX() + RVOAgent.RADIUS)
                     && this.getCurrentPosition().getX() < (checkPoints.get(currentGoal).getEnd().getX() - RVOAgent.RADIUS)) {
+
+                // Just move towards doorway not to center of doorway
                 checkPoints.get(currentGoal).center.x = this.getCurrentPosition().getX();
             }
             prefVelocity = new Vector2d(checkPoints.get(currentGoal).getCenter());
@@ -228,6 +234,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         prefVelocity.sub(currentPosition);
         prefVelocity.normalize();
 
+        //Always moving at prefered Speed. Might need to be changed at some point of time
         prefVelocity.scale(preferredSpeed);
         return prefVelocity;
     }
@@ -235,8 +242,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public double getMaxSpeed() {
         return maxSpeed;
     }
-
-    
 
     public double getPersonalSpaceFactor() {
         return personalSpaceFactor;
@@ -251,8 +256,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     }
 
     public void scheduleAgent() {
-        mySpace.getRvoModel().schedule.scheduleRepeating(new SenseThink(), 2, 1.0);
-        mySpace.getRvoModel().schedule.scheduleRepeating(new Act(), 3, 1.0);
+        senseThinkAgent = mySpace.getRvoModel().schedule.scheduleRepeating(new SenseThink(), 2, 1.0);
+        actAgent = mySpace.getRvoModel().schedule.scheduleRepeating(new Act(), 3, 1.0);
     }
 
     /**
@@ -334,19 +339,21 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 
     class SenseThink implements Steppable {
 
-        boolean dead = false;
-
         @Override
         public void step(SimState ss) {
-            if (!dead) {
-                if (reachedGoal()) {
-                    dead = true;
-                    return;
-                }
-                findPrefVelocity(); //update the preferredVelocity according to the current position and the goal
 
-                // Randomize movement for lattice model... uncomment to implement.. might be better to flag
-                if (PropertySet.LATTICEMODEL == true) {
+            if (reachedGoal()) {
+
+                currentPosition = new Point2d(-4000, 4000);
+                goal = new Point2d(-4000, 4000);
+      
+                senseThinkAgent.stop();
+                return;
+            }
+            findPrefVelocity(); //update the preferredVelocity according to the current position and the goal
+
+            // Randomize movement for lattice model... uncomment to implement.. might be better to flag
+            if (PropertySet.LATTICEMODEL == true) {
 //                    MersenneTwisterFast random = new MersenneTwisterFast();
 //                    double chosenSpeed = prefVelocity.length();
 //                    double randomnessFactor = chosenSpeed * (random.nextDouble() - 0.5) * 2.0;
@@ -356,29 +363,29 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 //                    } else if (random.nextDouble() < 0.67) {
 //                        prefVelocity.setY(prefVelocity.y + randomnessFactor);
 //                    }
-                }
-
-                chosenVelocity = new Vector2d(prefVelocity);
-
-
-                Bag sensedNeighbours = mySpace.senseNeighbours(RVOAgent.this);
-
-
-                if (PropertySet.INFOPROCESSING) {
-                    /**
-                     * Here we process the neighbour list that was passed to it to determine collisions
-                     */
-                    List<RVOAgent> sortedList = new ArrayList<RVOAgent>();
-                    determineInitialLists(sortedList, sensedNeighbours);
-                    sensedNeighbours.clear();
-                    sensedNeighbours.addAll(sortedList);
-                }
-                //Don't put obstacles as Null.. instead initialise an empty set. NullPointerException will result.
-                chosenVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
-                        prefVelocity, PropertySet.TIMESTEP);
-                //  for(int j=0;j<mySpace.senseNeighbours(RVOAgent.this).numObjs;j++)
-                //      System.out.println(j+".opp cluster for: "+RVOAgent.this.getId()+"is" + ((RVOAgent)(mySpace.senseNeighbours(RVOAgent.this).get(j))).getCurrentPosition());
             }
+
+            chosenVelocity = new Vector2d(prefVelocity);
+
+
+            Bag sensedNeighbours = mySpace.senseNeighbours(RVOAgent.this);
+
+
+            if (PropertySet.INFOPROCESSING) {
+                /**
+                 * Here we process the neighbour list that was passed to it to determine collisions
+                 */
+                List<RVOAgent> sortedList = new ArrayList<RVOAgent>();
+                determineInitialLists(sortedList, sensedNeighbours);
+                sensedNeighbours.clear();
+                sensedNeighbours.addAll(sortedList);
+            }
+            //Don't put obstacles as Null.. instead initialise an empty set. NullPointerException will result.
+            chosenVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
+                    prefVelocity, PropertySet.TIMESTEP);
+            //  for(int j=0;j<mySpace.senseNeighbours(RVOAgent.this).numObjs;j++)
+            //      System.out.println(j+".opp cluster for: "+RVOAgent.this.getId()+"is" + ((RVOAgent)(mySpace.senseNeighbours(RVOAgent.this).get(j))).getCurrentPosition());
+
         }
 
         private void determineInitialLists(List<RVOAgent> sortedList, Bag sensedNeighbours) {
@@ -523,26 +530,26 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      */
     class Act implements Steppable {
 
-        boolean dead = false;
-
         @Override
         public void step(SimState ss) {
-            if (!dead) {
-                if (reachedGoal()) {
-                    dead = true;
-                    return;
-                }
-                velocity = chosenVelocity;
-                double currentPosition_x = (currentPosition.getX()
-                        + velocity.getX() * PropertySet.TIMESTEP);
-                double currentPosition_y = (currentPosition.getY()
-                        + velocity.getY() * PropertySet.TIMESTEP);
-                setCurrentPosition(currentPosition_x, currentPosition_y);
-                getMySpace().updatePositionOnMap(RVOAgent.this, currentPosition_x,
-                        currentPosition_y);
 
-
+            if (reachedGoal()) {
+                currentPosition = new Point2d(-4000, 4000);
+                goal = new Point2d(-4000, 4000);
+    //             currentGoal++;
+                actAgent.stop();
+                return;
             }
+            velocity = chosenVelocity;
+            double currentPosition_x = (currentPosition.getX()
+                    + velocity.getX() * PropertySet.TIMESTEP);
+            double currentPosition_y = (currentPosition.getY()
+                    + velocity.getY() * PropertySet.TIMESTEP);
+            setCurrentPosition(currentPosition_x, currentPosition_y);
+            getMySpace().updatePositionOnMap(RVOAgent.this, currentPosition_x,
+                    currentPosition_y);
+
+
         }
     }
 
@@ -587,6 +594,14 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 
         public Point2d getPosition() {
             return currentPosition;
+        }
+        
+        public Point2d getGoal(){
+            return goal;
+        }
+        
+        public Point2d getCurrentGoal(){
+            return checkPoints.get(currentGoal).getCenter();
         }
     }
 

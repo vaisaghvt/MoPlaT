@@ -62,10 +62,11 @@ public class RVO_2_1 implements VelocityCalculator {
             Bag neighbors, Bag obses, Vector2d preferredVelocity, double timeStep) {
 
         orcaLines.clear();
+        
 
         Vector2d newVelocity = new Vector2d(preferredVelocity);
 
-
+         final double invTimeHorizonObst = 1.0f / TIME_HORIZON_OBSTACLE;
 
 
 
@@ -73,7 +74,7 @@ public class RVO_2_1 implements VelocityCalculator {
         for (int i = 0; i < obses.size(); i++) {
 
 
-            double invTimeHorizonObst = 1.0f / TIME_HORIZON_OBSTACLE;
+           
             RVO2Obstacle obstacle1 = (RVO2Obstacle) obses.get(i);
             RVO2Obstacle obstacle2 = obstacle1.getNext();
 //            System.out.println(obstacle1.getPoint());
@@ -207,7 +208,7 @@ public class RVO_2_1 implements VelocityCalculator {
 
                 obstacle2 = obstacle1;
 
-                final double LEG1 = Math.sqrt(distSq1 - radiusSq);
+                final double LEG1 = ((distSq1 - radiusSq)<0)?0:Math.sqrt(distSq1 - radiusSq);
 
                 leftLegDirection = new Vector2d(relativePosition1.getX() * LEG1 - relativePosition1.getY() * me.getRadius(), relativePosition1.getX() * me.getRadius() + relativePosition1.getY() * LEG1);
                 rightLegDirection = new Vector2d(relativePosition1.getX() * LEG1 + relativePosition1.getY() * me.getRadius(), negRelativePosition1.getX() * me.getRadius() + relativePosition1.getY() * LEG1);
@@ -226,7 +227,7 @@ public class RVO_2_1 implements VelocityCalculator {
 
                 obstacle1 = obstacle2;
 
-                final double LEG2 = Math.sqrt(distSq2 - radiusSq);
+                final double LEG2 = ((distSq2 - radiusSq)<0)?0:Math.sqrt(distSq2 - radiusSq);
                 leftLegDirection = new Vector2d(relativePosition2.getX() * LEG2 - relativePosition2.getY() * me.getRadius(), relativePosition2.getX() * me.getRadius() + relativePosition2.getY() * LEG2);
                 rightLegDirection = new Vector2d(relativePosition2.getX() * LEG2 + relativePosition2.getY() * me.getRadius(), negRelativePosition2.getX() * me.getRadius() + relativePosition2.getY() * LEG2);
                 leftLegDirection.scale(1.0f / distSq2);
