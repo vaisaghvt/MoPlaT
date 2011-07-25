@@ -76,8 +76,8 @@ public class RVOGui extends GUIState {
          * cluster layer
          */
         if (PropertySet.USECLUSTERING) {
-            clusteredPortrayal = new ContinuousPortrayal2D[ClusteredSpace.getNumberOfClusteringSpaces()];
-            for (int j = 0; j < ClusteredSpace.getNumberOfClusteringSpaces(); j++) {
+            clusteredPortrayal = new ContinuousPortrayal2D[ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES];
+            for (int j = 0; j < ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES; j++) {
                 clusteredPortrayal[j] = new ContinuousPortrayal2D();
             }
         }

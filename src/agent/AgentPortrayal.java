@@ -37,13 +37,10 @@ import sim.util.Double2D;
  */
 public class AgentPortrayal extends SimplePortrayal2D {
 
-    
     public static boolean SHOW_ORCA_LINES;
     public static boolean SHOW_TRAILS;
     public static boolean SHOW_VELOCITY;
-    
     ArrayList<Double2D> points; // this is the list of points that will be painted in the trail
-    
     //  public Paint paint;
     private boolean trails;
     private double scale;
@@ -85,7 +82,7 @@ public class AgentPortrayal extends SimplePortrayal2D {
 
         RVOAgent me = ((RVOAgent) this);
         addPoint(new Double2D(info.draw.x, info.draw.y));
-        graphics.setPaint(trailColor);
+
 
         //draw orcaLines for RVO2
         if (((RVOAgent) this).getRvoCalc() instanceof RVO_2_1) {
@@ -99,18 +96,21 @@ public class AgentPortrayal extends SimplePortrayal2D {
                     end.scale(scale);
                     start.add(me.getCurrentPosition());
                     start.scale(scale);
-
+                    graphics.setColor(Color.CYAN);
+                    
+                    graphics.setStroke(new BasicStroke(2.5f));
                     graphics.drawLine((int) start.x, (int) start.y, (int) end.x, (int) end.y);
 
                 }
             }
         }
-
+        graphics.setPaint(trailColor);
+        
 
         final double width = 2 * radius * scale + offset;
         final double height = 2 * radius * scale + offset;
 
-  
+
 
 
         if (this instanceof ClusteredAgent) {
@@ -119,15 +119,15 @@ public class AgentPortrayal extends SimplePortrayal2D {
             final double clusteredWidth = 2 * tempAgent.getRadius() * scale + offset;
             final double clusteredHeight = 2 * tempAgent.getRadius() * scale + offset;
             graphics.drawOval(
-                    (int) Math.round(tempAgent.getCentre().x * scale + offset - clusteredWidth / 2.0), 
-                    (int) Math.round(tempAgent.getCentre().y * scale + offset - clusteredHeight / 2.0), 
+                    (int) Math.round(tempAgent.getCentre().x * scale + offset - clusteredWidth / 2.0),
+                    (int) Math.round(tempAgent.getCentre().y * scale + offset - clusteredHeight / 2.0),
                     (int) clusteredWidth, (int) clusteredHeight);
             graphics.drawLine(
-                    (int) Math.round(tempAgent.getCentre().x * scale + offset), 
-                    (int) Math.round(tempAgent.getCentre().y * scale + offset), 
-                    (int) Math.round((tempAgent.getCentre().x + tempAgent.getRadius()) * scale + offset), 
+                    (int) Math.round(tempAgent.getCentre().x * scale + offset),
+                    (int) Math.round(tempAgent.getCentre().y * scale + offset),
+                    (int) Math.round((tempAgent.getCentre().x + tempAgent.getRadius()) * scale + offset),
                     (int) Math.round((tempAgent.getCentre().y) * scale + offset));
-  
+
             return;
         }
 
@@ -147,7 +147,7 @@ public class AgentPortrayal extends SimplePortrayal2D {
                 endx = pt.x;
                 endy = pt.y;
                 graphics.drawLine(
-                        (int) Math.round(startx), (int) Math.round(starty), 
+                        (int) Math.round(startx), (int) Math.round(starty),
                         (int) Math.round(endx), (int) Math.round(endy));
 
                 startx = endx;
@@ -163,11 +163,11 @@ public class AgentPortrayal extends SimplePortrayal2D {
 
         }
 
-        
+
         graphics.setPaint(agentColor);
         graphics.fillOval(
-                (int) Math.round(startx - width / 2.0), 
-                (int) Math.round(starty - height / 2.0), 
+                (int) Math.round(startx - width / 2.0),
+                (int) Math.round(starty - height / 2.0),
                 (int) width, (int) height);
         graphics.setStroke(new BasicStroke(1.0f));
 
@@ -204,14 +204,15 @@ public class AgentPortrayal extends SimplePortrayal2D {
     public void toggleTrails() {
         trails = !trails;
     }
-    
+
     public void toggleShowVelocity() {
         showVelocity = !showVelocity;
     }
-    
+
     public void toggleShowOrcaLines() {
         showOrcaLines = !showOrcaLines;
     }
+
     public double getRadius() {
         return radius;
     }

@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import javax.vecmath.Point2d;
 import javax.xml.bind.JAXBException;
 import sim.engine.SimState;
+import sim.engine.Stoppable;
         
 /**
  * RVOModel
@@ -53,6 +54,7 @@ public class RVOModel extends SimState {
     private List<RVOAgent> agentList;
     private List<RVOObstacle> obstacleList;
     private List<AgentGenerator> agentLineList;
+    private Stoppable generatorStopper;
 
 //    //the list to keep record of every agent's status in each timestemp
 //    //each record contains a list of status for each agent
@@ -185,8 +187,11 @@ public class RVOModel extends SimState {
         return rvoSpace;
     }
 
-    LatticeSpace getLatticeSpace() {
+    public LatticeSpace getLatticeSpace() {
         return latticeSpace;
+    }
+    public Stoppable getGeneratorStoppable() {
+        return generatorStopper;
     }
 
     private void addNewObstacle(RVOObstacle obstacle) {
@@ -205,7 +210,7 @@ public class RVOModel extends SimState {
 
     private void addNewAgentLine(AgentGenerator tempAgentLine, int frequency) {
         agentLineList.add(tempAgentLine);
-        schedule.scheduleRepeating(tempAgentLine, 1, (double) frequency);
+        generatorStopper = schedule.scheduleRepeating(tempAgentLine, 1, (double) frequency);
 
     }
 

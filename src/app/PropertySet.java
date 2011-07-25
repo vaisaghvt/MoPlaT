@@ -6,6 +6,7 @@ package app;
 
 import agent.AgentPortrayal;
 import agent.RVOAgent;
+import agent.clustering.ClusteredSpace;
 import agent.latticegas.LatticeSpace;
 import environment.XMLScenarioManager;
 import java.util.logging.Level;
@@ -24,10 +25,10 @@ public class PropertySet {
         try {
             XMLScenarioManager settings = XMLScenarioManager.instance("app.params");
             SimulationParameters params = (SimulationParameters) settings.unmarshal(PropertySet.PROPERTIES_FILEPATH);
-           
+
             //MODEL PARAMETERS
             SEED = params.getSeed();
-            WORLDXSIZE =   params.getWorldXSize();
+            WORLDXSIZE = params.getWorldXSize();
             WORLDYSIZE = params.getWorldYSize();
             GRIDSIZE = params.getGridSize();
             TIMESTEP = params.getTimeStep();
@@ -36,42 +37,49 @@ public class PropertySet {
             INFOPROCESSING = params.isInfoProcessing();
             USECLUSTERING = params.isUseClustering();
             FILEPATH = XML_SOURCE_FOLDER + params.getFilePath();
-            
+
             //FOR GUI
             CHECKBOARD = params.isCheckBoard();
             CHECK_SIZE_X = params.getDefaultCheckSizeX();
             CHECK_SIZE_Y = params.getDefaultCheckSizeY();
             SCALE = params.getDefaultScale();
-            
-            
+
+
             //AGENT DISPLAY PARAMETERS
             AgentPortrayal.SHOW_ORCA_LINES = params.isShowLines();
             AgentPortrayal.SHOW_VELOCITY = params.isShowVelocity();
             AgentPortrayal.SHOW_TRAILS = params.isTrails();
-            
-            
-            
+
+
+
             //AGENT PARAMETERS
             RVOAgent.RADIUS = params.getAgentRadius();
             RVOAgent.INFO_LIMIT = params.getInfoLimit();
             RVOAgent.PREFERRED_SPEED = params.getPreferredSpeed();
             RVOAgent.SENSOR_RANGE = params.getSensorRange();
-          
+
+            if (USECLUSTERING) {
+                ClusteredSpace.ALPHA = params.getAlpha();
+                ClusteredSpace.CLUSTER_DIAMETER = (int) Math.round(
+                        ClusteredSpace.ALPHA * 2 * RVOAgent.RADIUS * 100.0);
+                ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES = params.getNumberOfClusteringSpaces();
+            }
+
             MODEL = Model.valueOf(params.getModel());
-            
-            if(LATTICEMODEL){
+
+            if (LATTICEMODEL) {
                 LatticeSpace.DRIFT = params.getDrift();
             }
-            
-            if(MODEL == PropertySet.Model.RVO2){
+
+            if (MODEL == PropertySet.Model.RVO2) {
                 RVO_2_1.RVO_EPSILON = params.getRVOEpsilon();
                 RVO_2_1.TIME_HORIZON = params.getTimeHorizon();
                 RVO_2_1.TIME_HORIZON_OBSTACLE = params.getTimeHorizonObst();
             }
-            
-            
-            
-            
+
+
+
+
 
         } catch (JAXBException ex) {
             Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);
@@ -83,7 +91,6 @@ public class PropertySet {
         RVO2, PatternBasedMotion, RVO1Standard, RVO1Acceleration, RuleBasedNew
     }
     //TODO : Be careful  about this seed... need to change for random simulation
-
     public static final String XML_SOURCE_FOLDER = "xml-resources//scenarios";
     public static String PROPERTIES_FILEPATH = XML_SOURCE_FOLDER + "//CrowdProperties//1.xml";
     public static long SEED;

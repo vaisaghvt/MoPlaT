@@ -471,7 +471,7 @@ public class RVO_2_1 implements VelocityCalculator {
 
             Vector2d relativeVelocity = new Vector2d(me.getVelocity());
             relativeVelocity.sub(otherAgent.getVelocity());
-
+ 
             double distSq = relativePosition.dot(relativePosition);
             double combinedRadius = me.getRadius() + otherAgent.getRadius();
 
@@ -504,7 +504,7 @@ public class RVO_2_1 implements VelocityCalculator {
                     u.scale((combinedRadius * invTimeHorizon) - wLength);
                 } else {
                     /* Project on legs. */
-                    final double LEG = Math.sqrt(distSq - combinedRadiusSq);
+                    final double LEG = ((distSq - combinedRadiusSq)>0)?Math.sqrt(distSq - combinedRadiusSq):0;
 
                     if (det(relativePosition, w) > 0.0f) {
                         /* Project on left LEG. */
@@ -689,7 +689,7 @@ public class RVO_2_1 implements VelocityCalculator {
             result.y = tempLineNoDirection.y;
 
         }
-
+        
         return true;
     }
 
@@ -726,11 +726,12 @@ public class RVO_2_1 implements VelocityCalculator {
             tempPoint.sub(new Vector2d(result));
 
 
-            if (det(lines.get(i).direction, tempPoint) > 0.0f) {//mhl: switched to >
+            if (det(lines.get(i).direction, tempPoint) > 0.0f) {
                 /* Result does not satisfy constraint i. Compute new optimal result. */
                 Vector2d tempResult = new Vector2d(result);
                 if (!linearProgram1(lines, i, radius, optVelocity, directionOpt, result)) {
-                    result = new Vector2d(tempResult);
+                    result.x = tempResult.x;
+                    result.x = tempResult.y;
                     return i;
                 }
             }
@@ -803,9 +804,12 @@ public class RVO_2_1 implements VelocityCalculator {
                      * it is due to small floating point error, and the current result is
                      * kept.
                      */
-
-                    result.x = tempResult.x;
-                    result.y = tempResult.y;
+//
+//                    result.x = tempResult.x;
+//                    result.y = tempResult.y;
+                    
+                    result.x =0.0f;
+                    result.y = 0.0f;
 
                 }
 

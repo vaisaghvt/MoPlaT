@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="true" displayUsed="true" direction="3" scale="20" Ysize="30" Xsize="30" name="EvacTest3">
     <obstacles>
-        <vertices y="30.0" x="0.0"/>
-        <vertices y="30.0" x="1.0"/>
         <vertices y="13.0" x="1.0"/>
+        <vertices y="30.0" x="1.0"/>
+        <vertices y="30.0" x="0.0"/>
         <vertices y="13.0" x="0.0"/>
     </obstacles>
     <obstacles>
@@ -13,10 +13,10 @@
         <vertices y="12.0" x="0.0"/>
     </obstacles>
     <obstacles>
-        <vertices y="13.0" x="16.0"/>
         <vertices y="13.0" x="30.0"/>
-        <vertices y="12.0" x="30.0"/>
+        <vertices y="13.0" x="16.0"/>
         <vertices y="12.0" x="16.0"/>
+        <vertices y="12.0" x="30.0"/>
     </obstacles>
     <obstacles>
         <vertices y="13.0" x="29.0"/>
@@ -40,7 +40,7 @@
         <endPoint y="29.0" x="28.0"/>
         <startPoint y="29.0" x="2.0"/>
         <direction>3</direction>
-        <frequency>5</frequency>
-        <number>20</number>
+        <frequency>3</frequency>
+        <number>25</number>
     </generationLines>
 </SimulationScenario>

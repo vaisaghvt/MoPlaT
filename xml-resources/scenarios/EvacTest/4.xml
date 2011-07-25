@@ -35,8 +35,8 @@
         <vertices z="0.0" y="3.9" x="4.5"/>
     </environmentGoals>
     <environmentGoals>
-        <vertices z="0.0" y="0.0" x="3.6"/>
-        <vertices z="0.0" y="0.0" x="4.5"/>
+        <vertices z="0.0" y="-10.0" x="3.6"/>
+        <vertices z="0.0" y="-10.0" x="4.5"/>
     </environmentGoals>
 
     <generationLines>

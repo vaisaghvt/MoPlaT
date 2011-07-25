@@ -334,7 +334,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     }
 
     public double getPreferredSpeed() {
-        return getPreferredSpeed();
+        return preferredSpeed;
     }
 
     class SenseThink implements Steppable {

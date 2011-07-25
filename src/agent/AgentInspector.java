@@ -12,6 +12,8 @@ package agent;
  * Description: This class defines an inspector for the RVOAgents.
  *
  */
+import app.PropertySet;
+import app.PropertySet.Model;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,7 +25,6 @@ import sim.display.GUIState;
 import sim.engine.SimState;
 import sim.portrayal.Inspector;
 import sim.portrayal.LocationWrapper;
-
 
 class AgentInspector extends Inspector {
 
@@ -46,14 +47,19 @@ class AgentInspector extends Inspector {
 
         // now let's add a Button
         Box viewBox = new Box(BoxLayout.X_AXIS);
-        JButton trailSwitch = new JButton("Toggle Trails");
-        viewBox.add(trailSwitch);
-        viewBox.add(Box.createGlue());
 
         // set up our inspector: keep the properties inspector around too
         setLayout(new BorderLayout());
         add(originalInspector, BorderLayout.CENTER);
         add(viewBox, BorderLayout.SOUTH);
+
+
+        JButton trailSwitch = new JButton("Toggle Trails");
+        viewBox.add(trailSwitch);
+        viewBox.add(Box.createGlue());
+
+
+
 
         // set what the trailSwitch does
         trailSwitch.addActionListener(new ActionListener() {
@@ -70,8 +76,46 @@ class AgentInspector extends Inspector {
                 }
             }
         });
-        
-        
+
+        if (PropertySet.MODEL == Model.RVO2) {
+            JButton orcaLineSwitch = new JButton("Toggle Orca Lines");
+            viewBox.add(orcaLineSwitch);
+            viewBox.add(Box.createGlue());
+            orcaLineSwitch.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    synchronized (state.schedule) {
+                        // clear trails
+                        agent.toggleShowOrcaLines();
+
+                        // update everything: console, inspectors, displays,
+                        // everything that might be affected by randomization
+                        console.refresh();
+                    }
+                }
+            });
+        }
+
+        JButton velocityLineSwitch = new JButton("Toggle Velocity Lines");
+        viewBox.add(velocityLineSwitch);
+        viewBox.add(Box.createGlue());
+        velocityLineSwitch.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                synchronized (state.schedule) {
+                    // clear trails
+                    agent.toggleShowVelocity();
+
+                    // update everything: console, inspectors, displays,
+                    // everything that might be affected by randomization
+                    console.refresh();
+                }
+            }
+        });
+
+
     }
 
     @Override

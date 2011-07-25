@@ -31,12 +31,14 @@ public class AgentGenerator implements Steppable {
     int directionY;
     double gap;
     List<Goals> goals;
+    private int steps;
 
     public AgentGenerator(Point2d start, Point2d end, int number, int direction,
             List<Goals> passedGoals, RVOModel model) {
         startPoint = new Point2d(start.getX(), start.getY());
         endPoint = new Point2d(end.getX(), end.getY());
-        this.generatorsPerLine = number;
+        generatorsPerLine = number;
+        steps=0;
         this.model = model;
         //0 means -x, 1 means x, 2 means y, 3 means -y
         switch (direction) {
@@ -102,7 +104,9 @@ public class AgentGenerator implements Steppable {
             model.addNewAgent(agent);
 
         }
-
-
+        steps++;
+        if(steps>20){
+            model.getGeneratorStoppable().stop();
+        }
     }
 }
