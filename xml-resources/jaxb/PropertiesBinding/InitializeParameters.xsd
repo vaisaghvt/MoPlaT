@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://params.app" xmlns="http://params.app" elementFormDefault="qualified">
+  
+
+    
+
+
+    <xs:element name="SimulationParameters">
+        <xs:complexType>
+            <xs:attribute name="InfoLimit" type="xs:double"/>
+            <xs:attribute name="PreferredSpeed" type="xs:double"/>
+            <xs:attribute name="AgentRadius" type="xs:double"/>
+            <xs:attribute name="SensorRange" type="xs:int"/>
+            
+            <xs:attribute name="ShowVelocity" type="xs:boolean"/>
+            <xs:attribute name="Trails" type="xs:boolean"/>
+            <xs:attribute name="ShowLines" type="xs:boolean"/>
+           
+            <xs:attribute name="MaxClusteringRadius" type="xs:double"/>
+            <xs:attribute name="Alpha" type="xs:int"/>
+            <xs:attribute name="ClusterDiameter" type="xs:int"/>
+            <xs:attribute name="NumberOfClusteringSpaces" type="xs:int"/>
+            
+            <xs:attribute name="Drift" type="xs:double"/>
+            
+            <xs:attribute name="DefaultScale" type="xs:int"/>
+            <xs:attribute name="DefaultCheckSizeX" type="xs:int"/>
+            <xs:attribute name="DefaultCheckSizeY" type="xs:int"/>
+            <xs:attribute name="CheckBoard" type="xs:boolean"/>
+
+
+            <xs:attribute name="Seed" type="xs:int"/>
+            <xs:attribute name="WorldXSize" type="xs:int"/>
+            <xs:attribute name="WorldYSize" type="xs:int"/>
+            <xs:attribute name="GridSize" type="xs:double"/>
+            <xs:attribute name="TimeStep" type="xs:double"/>
+           
+            <!--enum in xml... how?-->
+            <xs:attribute name="Model" type="xs:string"/>
+            <!--Isn't this there in the xml file?-->
+            <xs:attribute name="LatticeModel" type="xs:boolean"/>
+            <xs:attribute name="InfoProcessing" type="xs:boolean"/>
+            <xs:attribute name="UseClustering" type="xs:boolean"/>
+            <xs:attribute name="InitialiseFromXML" type="xs:boolean"/>
+            <xs:attribute name="FilePath" type="xs:string"/>
+
+           
+            <xs:attribute name="TimeHorizon" type="xs:double"/>
+            <xs:attribute name="TimeHorizonObst" type="xs:double"/>
+            <xs:attribute name="RVOEpsilon" type="xs:float"/>
+
+        </xs:complexType>
+    </xs:element>
+
+
+</xs:schema>

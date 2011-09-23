@@ -341,16 +341,12 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 
         @Override
         public void step(SimState ss) {
-
-            if (reachedGoal()) {
-
-                currentPosition = new Point2d(-4000, 4000);
-                goal = new Point2d(-4000, 4000);
-      
-                senseThinkAgent.stop();
-                return;
-            }
-            findPrefVelocity(); //update the preferredVelocity according to the current position and the goal
+            if (!dead) {
+                if (reachedGoal()) {
+                    RVOAgent.this.stoppableSt.stop();
+                    return;
+                }
+                findPrefVelocity(); //update the preferredVelocity according to the current position and the goal
 
             // Randomize movement for lattice model... uncomment to implement.. might be better to flag
             if (PropertySet.LATTICEMODEL == true) {
@@ -371,14 +367,21 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             Bag sensedNeighbours = mySpace.senseNeighbours(RVOAgent.this);
 
 
-            if (PropertySet.INFOPROCESSING) {
-                /**
-                 * Here we process the neighbour list that was passed to it to determine collisions
-                 */
-                List<RVOAgent> sortedList = new ArrayList<RVOAgent>();
-                determineInitialLists(sortedList, sensedNeighbours);
-                sensedNeighbours.clear();
-                sensedNeighbours.addAll(sortedList);
+                if (PropertySet.INFOPROCESSING) {
+                    /**
+                     * Here we process the neighbour list that was passed to it to determine collisions
+                     */
+                    List<RVOAgent> sortedList = new ArrayList<RVOAgent>();
+                    determineInitialLists(sortedList, sensedNeighbours);
+                    sensedNeighbours.clear();
+                    sensedNeighbours.addAll(sortedList);
+                }
+                //Don't put obstacles as Null.. instead initialise an empty set. NullPointerException will result.
+                chosenVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
+                        prefVelocity, PropertySet.TIMESTEP);
+                
+                //  for(int j=0;j<mySpace.senseNeighbours(RVOAgent.this).numObjs;j++)
+                //      System.out.println(j+".opp cluster for: "+RVOAgent.this.getId()+"is" + ((RVOAgent)(mySpace.senseNeighbours(RVOAgent.this).get(j))).getCurrentPosition());
             }
             //Don't put obstacles as Null.. instead initialise an empty set. NullPointerException will result.
             chosenVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
@@ -532,6 +535,22 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 
         @Override
         public void step(SimState ss) {
+            if (!dead) {
+                if (reachedGoal()) {
+                    dead = true;
+                    RVOAgent.this.stoppableAct.stop();
+                    return;
+                }
+                
+               
+                velocity = chosenVelocity;
+                double currentPosition_x = (currentPosition.getX()
+                        + velocity.getX() * PropertySet.TIMESTEP);
+                double currentPosition_y = (currentPosition.getY()
+                        + velocity.getY() * PropertySet.TIMESTEP);
+                setCurrentPosition(currentPosition_x, currentPosition_y);
+                getMySpace().updatePositionOnMap(RVOAgent.this, currentPosition_x,
+                        currentPosition_y);
 
             if (reachedGoal()) {
                 currentPosition = new Point2d(-4000, 4000);

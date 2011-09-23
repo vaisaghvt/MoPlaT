@@ -37,7 +37,7 @@ public class PropertySet {
             INFOPROCESSING = params.isInfoProcessing();
             USECLUSTERING = params.isUseClustering();
             FILEPATH = XML_SOURCE_FOLDER + params.getFilePath();
-
+  //          FILEPATH= XML_SOURCE_FOLDER+"//EvacTest//5.xml";
             //FOR GUI
             CHECKBOARD = params.isCheckBoard();
             CHECK_SIZE_X = params.getDefaultCheckSizeX();
@@ -76,10 +76,15 @@ public class PropertySet {
                 RVO_2_1.TIME_HORIZON = params.getTimeHorizon();
                 RVO_2_1.TIME_HORIZON_OBSTACLE = params.getTimeHorizonObst();
             }
-
-
-
-
+            
+            if(params.isUseClustering()){
+                ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES = params.getNumberOfClusteringSpaces();
+                
+            }
+            
+            
+            
+            
 
         } catch (JAXBException ex) {
             Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);

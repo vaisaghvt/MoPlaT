@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="true" displayUsed="true" direction="3" scale="8" Ysize="111" Xsize="111" name="EvacTest2">
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="true" displayUsed="true" direction="3" scale="8" Ysize="111" Xsize="111" name="2">
     <obstacles>
         <vertices y="44.0" x="0.0"/>
         <vertices y="44.0" x="53.0"/>

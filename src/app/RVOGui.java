@@ -156,7 +156,7 @@ public class RVOGui extends GUIState {
         }
         if (PropertySet.USECLUSTERING) {
             for (int j = 1; j
-                    <= ClusteredSpace.getNumberOfClusteringSpaces(); j++) {
+                    <= ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES; j++) {
                 display.attach(clusteredPortrayal[j - 1], "Cluster portrayal -" + j);
             }
         }

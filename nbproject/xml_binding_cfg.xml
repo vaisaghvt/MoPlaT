@@ -10,11 +10,11 @@
 		</bindings>
 		<catalog/>
 	</schema>
-	<schema type='-xmlschema' package='' name='Parameters'>
+	<schema type='-xmlschema' package='' name='PropertiesBinding'>
 		<xjc-options>
 		</xjc-options>
 		<schema-sources>
-			<schema-source location='xml-resources/jaxb/Parameters/InitializeParameters.xsd' origLocation='InitializeParameters.xsd'/>
+			<schema-source location='xml-resources/jaxb/PropertiesBinding/InitializeParameters.xsd' origLocation='InitializeParameters.xsd'/>
 		</schema-sources>
 		<bindings>
 		</bindings>
