@@ -6,6 +6,7 @@ package motionPlanners;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.lang.Math;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
@@ -28,10 +29,19 @@ public class SocialForce implements VelocityCalculator{
     public static double[] fiwx;    // Boundary force
     public static double[] fiwy;
     
-    final double Rv=2;  //  The view range
-    final double p=0.3; //  Panic factor
+    final double Rv=2;      // The view range
+    final double p=0.3;     // Panic factor
+    final double v0=1.0;    // Common velocity
+    final double[] M= new double[N];    // Mass of human
     
-    public double[] PreferredForce(double[] Px, double[] Py,double[] desx, double[] desy, int N){
+    /*
+    for(int i=0; i<N; i++){
+        M[i]=50 + 20*Math.random();
+    }
+    * 
+    */
+    
+    public double[] PreferredForce(double[] Px, double[] Py, double[] Vx, double[] Vy, double[] desx, double[] desy, int N){
     
         /*
          * Initialize variable
@@ -42,8 +52,11 @@ public class SocialForce implements VelocityCalculator{
         double[] Eiy = new double[N];       // Preferred direction unit vector y
         double[] vecExpectedE0jx = new double[N];
         double[] vecExpectedE0jy = new double[N];
-        double[] vecE0jx = new double[N];
-        double[] vecE0jy = new double[N];
+        double[] vecE0ix = new double[N];
+        double[] vecE0iy = new double[N];
+        double[] absE0i = new double[N];
+        double[] normE0ix = new double[N];
+        double[] normE0iy = new double[N];
         
         for(int i=0; i<N; i++){
             vecExpectedE0jx[i]=0;
@@ -81,25 +94,83 @@ public class SocialForce implements VelocityCalculator{
             vecExpectedE0jx[i]/=counter;
             vecExpectedE0jy[i]/=counter;
             
-            vecE0jx[i]=(1-p)
+            vecE0ix[i]=(1-p)*Eix[i]+p*vecExpectedE0jx[i];
+            vecE0iy[i]=(1-p)*Eiy[i]+p*vecExpectedE0jy[i];
             
+            absE0i[i]=sqrt(vecE0ix[i]*vecE0ix[i]+vecE0iy[i]*vecE0iy[i]);
+            
+            normE0ix[i]=vecE0ix[i]/absE0i[i];
+            normE0iy[i]=vecE0iy[i]/absE0i[i];
+            
+            fpx[i]=M[i]*(v0*normE0ix[i]-Vx[i])/tau;
+            fpy[i]=M[i]*(v0*normE0iy[i]-Vy[i])/tau;
         };
-        
-        
-        
-        
-        return
+
+        return fpx fpy;
                 
     }
     
-    private double InteractionForce(){
+    private double InteractionForce(double[] Px, double[] Py, double[] Vx,double[] Vy){
     
-        return
+        final int A=2000;       //N
+        final double B=0.08;    //m
+        final int k=120000;     //kg/s^2
+        final int kappa=240000; //kg/ms
+        
+        double[][] Rij = new double[N][N];
+        double[][] Dij = new double[N][N];
+        double[][] RD = new double[N][N];
+        double[][] Nijx = new double[N][N];
+        double[][] Nijy = new double[N][N];
+        double[][] Tijx = new double[N][N];
+        double[][] Tijy = new double[N][N];
+        double[][] DeltaVtji = new double[N][N];
+        double[][] fsr = new double[N][N];
+        double[][] fp = new double[N][N];
+        double[][] ff = new double[N][N];
+        
+        for(int i=0; i<N; i++){
+            for(int j=0; j<N; j++){
+                Rij[i][j] = R[i]+R[j];
+                
+                if (i==j)
+                    Dij[i][j]=1;    // eye (MATLAB)
+                else
+                    Dij[i][j] = sqrt((Px[i]-Px[j])*(Px[i]-Px[j])+(Py[i]-Py[j])*(Py[i]-Py[j]));                    
+                
+                RD[i][j]=Rij[i][j]-Dij[i][j];
+                Nijx[i][j]=(Px[i]-Px[j])/Dij[i][j];
+                Nijy[i][j]=(Py[i]-Py[j])/Dij[i][j];
+                
+                Tijx[i][j]=-Tijx[i][j];
+                Tijy[i][j]=Tijy[i][j];
+                
+                DeltaVtji[j][i]=(Vx[j]-Vx[i]).*Tijx[i][j]+(Vy[j]-Vy[i]).*Tijy[i][j];
+                
+                fsr[i][j]=A*exp(RD[i][j]/B);
+                fp[i][j]=k*g(RD[i][j]);
+                ff[i][j]=kappa*g(RD[i][j])*DeltaVtji[j][i];
+                
+                fijx[i][j]=(fsr[i][j]+fp[i][j]).*Nijx[i][j] + ff[i][j].*Tijx[i][j];
+                fijy[i][j]=(fsr[i][j]+fp[i][j]).*Nijy[i][j] + ff[i][j].*Tijy[i][j];
+            }
+        };
+        
+        
+        return fijx fijy
     }
     
     private double BoundaryForce(){
     
         return
+    }
+    
+    private double g(double x){
+        if(x>=0)
+            return x;
+        else
+            return 0;
+        
     }
     
 }
