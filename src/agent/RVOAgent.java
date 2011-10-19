@@ -65,6 +65,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      * Current position of the agent from javax.vecmath
      */
     protected Point2d currentPosition;
+    protected double mass;
+    
     /**
      * Current velocity of the agent
      */
@@ -196,6 +198,15 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         velocity.normalize();
         velocity.scale(speed);
     }
+
+    public double getMass() {
+        return mass;
+    }
+
+    public void setMass(double mass) {
+        this.mass = mass;
+    }
+    
 
     /**
      * Sets and returns the prefered velocity. Generally this is just the velocity towards goal.
