@@ -21,7 +21,7 @@ import javax.vecmath.Vector2d;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-import motionPlanners.SocialForce;
+import motionPlanners.socialforce.SocialForce;
 import motionPlanners.VelocityCalculator;
 import motionPlanners.pbm.WorkingMemory;
 import motionPlanners.pbm.WorkingMemory.CommitToHighSpeed;
@@ -66,7 +66,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      * Current position of the agent from javax.vecmath
      */
     protected Point2d currentPosition;
-    protected double mass = 60; // in KG
+    protected double mass = 80; // in KG
     
     /**
      * Current velocity of the agent
