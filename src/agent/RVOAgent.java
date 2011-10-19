@@ -362,10 +362,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         @Override
         public void step(SimState ss) {
 
-            if (reachedGoal()) {
-                senseThinkAgent.stop();
-                return;
-            }
+//            if (reachedGoal()) {
+//                senseThinkAgent.stop();
+//                return;
+//            }
             findPrefVelocity(); //update the preferredVelocity according to the current position and the goal
 
             // Randomize movement for lattice model... uncomment to implement.. might be better to flag
@@ -552,13 +552,13 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         public void step(SimState ss) {
 
 
-            if (reachedGoal()) {
-                currentPosition = new Point2d(-4000, 4000);
-                goal = new Point2d(-4000, 4000);
-                //             currentGoal++;
-                actAgent.stop();
-                return;
-            }
+//            if (reachedGoal()) {
+//                currentPosition = new Point2d(-4000, 4000);
+//                goal = new Point2d(-4000, 4000);
+//                //             currentGoal++;
+//                actAgent.stop();
+//                return;
+//            }
             velocity = chosenVelocity;
             double currentPosition_x = (currentPosition.getX()
                     + velocity.getX() * PropertySet.TIMESTEP);
