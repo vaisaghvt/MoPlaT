@@ -66,7 +66,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      * Current position of the agent from javax.vecmath
      */
     protected Point2d currentPosition;
-    protected double mass;
+    protected double mass = 60; // in KG
     
     /**
      * Current velocity of the agent
