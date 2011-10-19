@@ -93,7 +93,7 @@ public class PropertySet {
 
     public static enum Model {
 
-        RVO2, PatternBasedMotion, RVO1Standard, RVO1Acceleration, RuleBasedNew
+        RVO2, PatternBasedMotion, RVO1Standard, RVO1Acceleration, RuleBasedNew, SocialForce
     }
     //TODO : Be careful  about this seed... need to change for random simulation
     public static final String XML_SOURCE_FOLDER = "xml-resources//scenarios";
