@@ -21,6 +21,7 @@ import javax.vecmath.Vector2d;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import motionPlanners.SocialForce;
 import motionPlanners.VelocityCalculator;
 import motionPlanners.pbm.WorkingMemory;
 import motionPlanners.pbm.WorkingMemory.CommitToHighSpeed;
@@ -122,6 +123,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             velocityCalc = new RVO_1_WithAccel();
         } else if (PropertySet.MODEL == PropertySet.Model.RuleBasedNew) {
             velocityCalc = new RuleBasedNew();
+        } else if (PropertySet.MODEL == PropertySet.Model.SocialForce) {
+            velocityCalc = new SocialForce();
         }
         id = agentCount++;
 
