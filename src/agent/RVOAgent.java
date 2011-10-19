@@ -400,11 +400,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             //  for(int j=0;j<mySpace.senseNeighbours(RVOAgent.this).numObjs;j++)
             //      System.out.println(j+".opp cluster for: "+RVOAgent.this.getId()+"is" + ((RVOAgent)(mySpace.senseNeighbours(RVOAgent.this).get(j))).getCurrentPosition());
 
-            //Don't put obstacles as Null.. instead initialise an empty set. NullPointerException will result.
-            chosenVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
-                    prefVelocity, PropertySet.TIMESTEP);
-            //  for(int j=0;j<mySpace.senseNeighbours(RVOAgent.this).numObjs;j++)
-            //      System.out.println(j+".opp cluster for: "+RVOAgent.this.getId()+"is" + ((RVOAgent)(mySpace.senseNeighbours(RVOAgent.this).get(j))).getCurrentPosition());
 
         }
 
