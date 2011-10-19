@@ -5,11 +5,6 @@
 package motionPlanners;
 
 import agent.RVOAgent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.lang.Math;
-import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 import sim.util.Bag;
 
