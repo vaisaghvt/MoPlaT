@@ -107,7 +107,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         goal = new Point2d();
         checkPoints = new ArrayList<GoalLine>();
 
-
+      
         preferredSpeed = RVOAgent.PREFERRED_SPEED;
         maxSpeed = preferredSpeed * 2.0;
         velocity = new Vector2d(findPrefVelocity());
@@ -222,9 +222,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             //By 
             prefVelocity = new Vector2d(goal);
         } else if (currentGoal == checkPoints.size()) {
+
             return prefVelocity;
         } else {
-
+            
             Vector2d distance = new Vector2d(checkPoints.get(currentGoal).getCenter());
             distance.sub(currentPosition);
             if (this.getCurrentPosition().getY() < (checkPoints.get(currentGoal).getCenter().getY())) {
@@ -312,6 +313,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             checkPoints.add(tempGoalLine);
         }
 
+        
 
     }
 

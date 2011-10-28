@@ -58,7 +58,6 @@ public class RVOSpace {
 
     }
 
-    
     public Continuous2D getCurrentAgentSpace() {
         return agentSpace;
     }
@@ -119,18 +118,20 @@ public class RVOSpace {
                 }
 
 
-                obstacleSpace.setObjectLocation(rvo2Obstacle, 
-                        new Double2D(
-                            obstacle.getVertices().get(0).x, 
-                            obstacle.getVertices().get(0).y));
+                for (Point2d eachVertex : obstacle.getVertices()) {
+                    obstacleSpace.setObjectLocation(rvo2Obstacle,
+                            new Double2D(
+                            eachVertex.x,
+                            eachVertex.y));
+                }
             }
 
         } else {
             obstacleSpace.setObjectLocation(
-                    obstacle, 
+                    obstacle,
                     new Double2D(
-                        obstacle.getVertices().get(0).x, 
-                        obstacle.getVertices().get(0).y));
+                    obstacle.getVertices().get(0).x,
+                    obstacle.getVertices().get(0).y));
         }
 
 

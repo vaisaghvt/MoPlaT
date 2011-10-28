@@ -105,7 +105,7 @@ public class AgentGenerator implements Steppable {
 
         }
         steps++;
-        if(steps>20){
+        if(steps>50){
             model.getGeneratorStoppable().stop();
         }
     }

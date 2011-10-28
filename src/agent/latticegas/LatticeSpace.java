@@ -24,7 +24,6 @@ public class LatticeSpace {
 
     public static double DRIFT = 0.5;
     public static final double LATTICEGRIDSIZE = 2.0 * RVOAgent.RADIUS;
-    
     protected int numGridX;
     protected int numGridY;
     protected int goalXStart;
@@ -32,7 +31,6 @@ public class LatticeSpace {
     protected int goalXEnd;
     protected int goalYEnd;
     protected MersenneTwisterFast random;
-    
     protected double driftX;
     protected double driftY;
     protected int directionX;
@@ -48,9 +46,7 @@ public class LatticeSpace {
      * This is the model for local reference
      */
     protected RVOModel rvoModel;
-    
     private ArrayList<GoalLines> goals;
-    
 
     public LatticeSpace(int xSize, int ySize, RVOModel rm) {
 
@@ -69,7 +65,7 @@ public class LatticeSpace {
         rvoModel = rm;
         random = new MersenneTwisterFast();
         goals = new ArrayList<GoalLines>();
-     
+
     }
 
     public Int2D generateRandomLocation() {
@@ -78,10 +74,10 @@ public class LatticeSpace {
         return new Int2D(x, y);
     }
 
-
     public void addAgentAt(Double x, Double y) {
-        space.set((int)Math.round((x-(LATTICEGRIDSIZE/2)) / LATTICEGRIDSIZE),(int) Math.round((y-(LATTICEGRIDSIZE/2)) / LATTICEGRIDSIZE), 1);
-  
+        space.set((int) Math.round((x - (LATTICEGRIDSIZE / 2)) / LATTICEGRIDSIZE),
+                (int) Math.round((y - (LATTICEGRIDSIZE / 2)) / LATTICEGRIDSIZE), 1);
+
     }
 
     /**
@@ -96,17 +92,17 @@ public class LatticeSpace {
         double maxx = Double.MIN_VALUE, maxy = Double.MIN_VALUE, minx = Double.MAX_VALUE, miny = Double.MAX_VALUE;
         for (int i = 0; i < 4; i++) {
             Position vertex = tempObst.getVertices().get(i);
-            if (Math.round(vertex.getX()/LATTICEGRIDSIZE) < minx) {
-                minx = Math.round(vertex.getX()/LATTICEGRIDSIZE);
+            if (Math.round(vertex.getX() / LATTICEGRIDSIZE) < minx) {
+                minx = Math.round(vertex.getX() / LATTICEGRIDSIZE);
             }
-            if (Math.round(vertex.getY()/LATTICEGRIDSIZE) < miny) {
-                miny = Math.round(vertex.getY()/LATTICEGRIDSIZE);
+            if (Math.round(vertex.getY() / LATTICEGRIDSIZE) < miny) {
+                miny = Math.round(vertex.getY() / LATTICEGRIDSIZE);
             }
-            if (Math.round(vertex.getX()/LATTICEGRIDSIZE) > maxx) {
-                maxx = Math.round(vertex.getX()/LATTICEGRIDSIZE);
+            if (Math.round(vertex.getX() / LATTICEGRIDSIZE) > maxx) {
+                maxx = Math.round(vertex.getX() / LATTICEGRIDSIZE);
             }
-            if (Math.round(vertex.getY()/LATTICEGRIDSIZE) > maxy) {
-                maxy = Math.round(vertex.getY()/LATTICEGRIDSIZE);
+            if (Math.round(vertex.getY() / LATTICEGRIDSIZE) > maxy) {
+                maxy = Math.round(vertex.getY() / LATTICEGRIDSIZE);
             }
 
         }
@@ -128,10 +124,10 @@ public class LatticeSpace {
         rvoModel.schedule.scheduleRepeating(new LatticeStep(), 1.0);
     }
 
-     public void addGoal(Goals goal) {
+    public void addGoal(Goals goal) {
         GoalLines tempGoal = new GoalLines(
-                goal.getVertices().get(0).getX(), goal.getVertices().get(0).getY(), 
-                goal.getVertices().get(1).getX(), goal.getVertices().get(1).getX());
+                goal.getVertices().get(0).getX(), goal.getVertices().get(0).getY(),
+                goal.getVertices().get(1).getX(), goal.getVertices().get(1).getY());
         goals.add(tempGoal);
     }
 
@@ -167,8 +163,10 @@ public class LatticeSpace {
              * CAREFUL : HARDCODED FOR SCENARIOS LIKE THIS
              *
              */
-            start = new Point2d(x1/LatticeSpace.LATTICEGRIDSIZE, y1/LatticeSpace.LATTICEGRIDSIZE);
-            end = new Point2d((x2/LatticeSpace.LATTICEGRIDSIZE)-1, y2/LatticeSpace.LATTICEGRIDSIZE);
+            y1 = (y1 < 0 ? 0 : y1);
+            y2 = (y2 < 0 ? 0 : y2);
+            start = new Point2d(x1 / LatticeSpace.LATTICEGRIDSIZE, y1 / LatticeSpace.LATTICEGRIDSIZE);
+            end = new Point2d((x2 / LatticeSpace.LATTICEGRIDSIZE) - 1, y2 / LatticeSpace.LATTICEGRIDSIZE);
         }
 
         public Point2d getStart() {
@@ -179,7 +177,7 @@ public class LatticeSpace {
             return end;
         }
     }
-    
+
     class LatticeStep implements Steppable {
 
         @Override
@@ -248,13 +246,13 @@ public class LatticeSpace {
                                 for (int q = 0; q < goals.size(); q++) {
 
                                     if (Math.abs(goals.get(q).getStart().getY() - p) <= 0.1) {
-                                        goalXStart = (int)Math.round(goals.get(q).getStart().getX());
+                                        goalXStart = (int) Math.round(goals.get(q).getStart().getX());
                                         goalYStart = (int) Math.round(goals.get(q).getStart().getY());
                                         goalXEnd = (int) Math.round(goals.get(q).getEnd().getX());
                                         goalYEnd = (int) Math.round(goals.get(q).getEnd().getY());
                                         breakable = true;
 
-                                        //                                     System.out.println(" Comparing p= " + p + "with " + goals.get(q).getStart().getY());
+//                                     System.out.println(" Comparing p= " + p + "with " + goals.get(q).getStart().getY());
                                         break;
                                     }
                                 }
@@ -576,6 +574,4 @@ public class LatticeSpace {
             }
         }
     }
-
-   
 }
