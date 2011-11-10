@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="50" Ysize="10" Xsize="10" name="Default">
+    <obstacles>
+        <vertices y="0.68" x="7.24"/>
+        <vertices y="5.58" x="8.64"/>
+        <vertices y="0.66" x="8.64"/>
+    </obstacles>
+    <obstacles>
+        <vertices y="6.24" x="7.86"/>
+        <vertices y="7.98" x="0.78"/>
+        <vertices y="8.0" x="9.14"/>
+    </obstacles>
+    <generationLines>
+        <endPoint y="6.22" x="1.46"/>
+        <startPoint y="6.24" x="1.46"/>
+        <direction>3</direction>
+        <frequency>10</frequency>
+        <number>1</number>
+    </generationLines>
+</SimulationScenario>
