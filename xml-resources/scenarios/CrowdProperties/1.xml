@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--TimeStep must be small for SocialForce Model e.g. 0.01%-->
 <SimulationParameters 
 xmlns="http://params.app" 
 InfoLimit="100" 
@@ -20,15 +21,15 @@ Seed="10"
 WorldXSize="10" 
 WorldYSize="10" 
 GridSize="1" 
-TimeStep="0.05" 
+TimeStep="0.05"     
 Model="RVO2" 
-LatticeModel="true" 
-InfoProcessing="false" 
+LatticeModel="false" 
+InfoProcessing="true" 
 UseClustering="false" 
 InitialiseFromXML="true" 
-FilePath="//EvacTest//4.xml" 
+FilePath="//EvacTest//NarrowHallWay.xml" 
 CheckBoard="false" 
-TimeHorizon="0.5" 
-TimeHorizonObst="4.0" 
+TimeHorizon="2.5" 
+TimeHorizonObst="2.0" 
 RVOEpsilon="0.00005" 
 name="1"> </SimulationParameters>
