@@ -6,11 +6,9 @@ package app.creator;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -32,10 +30,7 @@ class IntroLevel extends CreatorLevel {
     public IntroLevel(ModelDetails model, JFrame frame, JLabel statusBar, JPanel buttonArea) {
         super(model, frame, statusBar, buttonArea);
         descriptionArea = new JPanel();
-
-
-
-
+          intializeDescriptionArea();
     }
 
     @Override
@@ -47,7 +42,7 @@ class IntroLevel extends CreatorLevel {
         frame.add(descriptionArea, BorderLayout.CENTER);
 
         descriptionArea.setSize(frame.getSize());
-        intializeDescriptionArea();
+      
 
         descriptionArea.setEnabled(true);
         descriptionArea.setVisible(true);
