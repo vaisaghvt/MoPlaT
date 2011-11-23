@@ -77,9 +77,9 @@ public class SocialForce implements VelocityCalculator {
             if (tempAgent.equals(me)){
                 continue;   // skip agent i itself for the calculation
             }
-            else if (tempAgent.isSocialForceObstacle()==true){
-                continue;
-            }
+//            else if (tempAgent.isSocialForceObstacle()==true){
+//                continue;
+//            }
         //If this is real agent
                 double Pxj = tempAgent.getCurrentPosition().getX();
                 double Pyj = tempAgent.getCurrentPosition().getY();
@@ -129,9 +129,9 @@ public class SocialForce implements VelocityCalculator {
             if (tempObstacle.equals(me)){
                 continue;   // skip agent i itself for the calculation
             }
-            else if (tempObstacle.isSocialForceObstacle()==false){
-                continue;
-            }
+//            else if (tempObstacle.isSocialForceObstacle()==false){
+//                continue;
+//            }
 
             double Wx = tempObstacle.getX();
             double Wy = tempObstacle.getY();

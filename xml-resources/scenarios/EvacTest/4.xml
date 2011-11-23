@@ -27,12 +27,12 @@
         <vertices y="3.9" x="7.8"/>
      </obstacles>
     <environmentGoals>
-        <vertices z="0.0" y="4.5" x="4.7"/>
-        <vertices z="0.0" y="4.5" x="5.9"/>
+        <vertices z="0.0" y="4.5" x="2.7"/>
+        <vertices z="0.0" y="4.5" x="3.9"/>
     </environmentGoals>
     <environmentGoals>
-        <vertices z="0.0" y="3.9" x="4.7"/>
-        <vertices z="0.0" y="3.9" x="5.9"/>
+        <vertices z="0.0" y="3.9" x="2.7"/>
+        <vertices z="0.0" y="3.9" x="3.9"/>
     </environmentGoals>
     <environmentGoals>
         <vertices z="0.0" y="-10.0" x="2.7"/>
@@ -43,7 +43,7 @@
         <endPoint y="11.85" x="6"/>
         <startPoint y="11.85" x="1"/>
         <direction>3</direction>
-        <frequency>25</frequency>
+        <frequency>200</frequency>
         <number>6</number>
     </generationLines>
 </SimulationScenario>
