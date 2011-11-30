@@ -303,10 +303,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         GoalLine tempGoalLine;
 
         for (int i = 0; i < goals.size(); i++) {
-            tempGoalLine = new GoalLine(goals.get(i).getVertices().get(0).getX(),
-                    goals.get(i).getVertices().get(0).getY(),
-                    goals.get(i).getVertices().get(1).getX(),
-                    goals.get(i).getVertices().get(1).getY());
+            tempGoalLine = new GoalLine(goals.get(i).getStartPoint().getX(),
+                    goals.get(i).getStartPoint().getY(),
+                    goals.get(i).getEndPoint().getX(),
+                    goals.get(i).getEndPoint().getY());
 
 
 

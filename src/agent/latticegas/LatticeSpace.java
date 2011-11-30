@@ -126,8 +126,8 @@ public class LatticeSpace {
 
     public void addGoal(Goals goal) {
         GoalLines tempGoal = new GoalLines(
-                goal.getVertices().get(0).getX(), goal.getVertices().get(0).getY(),
-                goal.getVertices().get(1).getX(), goal.getVertices().get(1).getY());
+                goal.getStartPoint().getX(), goal.getStartPoint().getY(),
+                goal.getEndPoint().getX(), goal.getEndPoint().getY());
         goals.add(tempGoal);
     }
 

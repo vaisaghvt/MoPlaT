@@ -4,7 +4,7 @@
  */
 package app.creator;
 
-import environment.geography.Agent;
+import environment.geography.Goals;
 import environment.geography.Position;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -22,16 +22,16 @@ import javax.swing.JPanel;
  *
  * @author vaisagh
  */
-class IndividualAgentAdderLevel extends CreatorLevel implements MouseListener, MouseMotionListener {
-
+public class EnvironmentGoalLineLevel extends CreatorLevel implements MouseListener, MouseMotionListener{
     private DrawingPanel interactionArea;
     private ArrayList<Position> points;
-    private ArrayList<Agent> agents;
+    private ArrayList<Goals> goalLines;
     private Position point;
     private Position prevPoint;
     private Point currentPoint;
 
-    public IndividualAgentAdderLevel(ModelDetails model, JFrame frame, JLabel statusBar, JPanel buttonArea, DrawingPanel interactionArea) {
+    public EnvironmentGoalLineLevel(ModelDetails model, JFrame frame, 
+            JLabel statusBar, JPanel buttonArea, DrawingPanel interactionArea) {
         super(model, frame, statusBar, buttonArea);
         this.interactionArea = interactionArea;
 
@@ -42,16 +42,16 @@ class IndividualAgentAdderLevel extends CreatorLevel implements MouseListener, M
         points = new ArrayList<Position>();
         prevPoint = new Position();
         point = new Position();
-        point.setX(0.0);
-        point.setY(0.0);
+        point.setX(-1.0);
+        point.setY(-1.0);
         prevPoint.setX(-1.0);
         prevPoint.setY(-1.0);
         currentPoint = new Point(0, 0);
 
-        if (model.getAgents().isEmpty()) {
-            agents = new ArrayList<Agent>();
+        if (model.getGoalLines().isEmpty()) {
+            goalLines = new ArrayList<Goals>();
         } else {
-            agents = (ArrayList<Agent>) model.getAgents();
+            goalLines = (ArrayList<Goals>) model.getGoalLines();
         }
 
 
@@ -59,8 +59,9 @@ class IndividualAgentAdderLevel extends CreatorLevel implements MouseListener, M
         clearButton.setEnabled(true);
         nextButton.setEnabled(true);
 
-        frame.setTitle(model.getTitle() + ".xml  - Create Agents -");
-        frame.setSize(model.getxSize() * model.getScale() + 8, model.getySize() * model.getScale() + 100);
+        frame.setTitle("- Create Goal Lines -" + model.getTitle() + ".xml");
+        frame.setSize(model.getxSize() * model.getScale() + 8, model.getySize() 
+                * model.getScale() + 100);
         frame.repaint();
 
 
@@ -75,7 +76,7 @@ class IndividualAgentAdderLevel extends CreatorLevel implements MouseListener, M
 
     @Override
     public void clearUp() {
-        model.setAgents(agents);
+        model.setGoalLines(goalLines);
         interactionArea.removeMouseListener(this);
         interactionArea.removeMouseMotionListener(this);
 
@@ -89,22 +90,29 @@ class IndividualAgentAdderLevel extends CreatorLevel implements MouseListener, M
 
         super.drawCurrentPoint(g, currentPoint);
 
+        if (!points.isEmpty()) {
+            super.drawPoints(g, points);
+        }
+
         if (!model.getObstacles().isEmpty()) {
             super.drawObstacles(g, model.getObstacles());
         }
-
-        if (!model.getAgentGroups().isEmpty()) {
+        
+        if(!model.getAgentGroups().isEmpty()){
             super.drawAgentGroups(g, (ArrayList) model.getAgentGroups());
         }
 
-        if (!model.getAgentLines().isEmpty()) {
+        if(!model.getAgentLines().isEmpty()){
             super.drawAgentLines(g, model.getAgentLines());
         }
-
-        if (!agents.isEmpty()) {
-            super.drawAgents(g, agents, null);
+        
+        if(!model.getAgents().isEmpty()){
+            super.drawAgents(g,model.getAgents(), null);
         }
-
+        
+        if (!goalLines.isEmpty()) {
+            super.drawGoalLines(g, goalLines);
+        }
     }
 
     @Override
@@ -121,18 +129,22 @@ class IndividualAgentAdderLevel extends CreatorLevel implements MouseListener, M
         if (!validityCheck) {
             return;
         }
-        if (points.size() < 1) {
-            for (Agent agent : this.agents) {
-                if ((Math.abs(agent.getPosition().getX() - point.getX()) < (CreatorMain.AGENT_RADIUS * 2.0))
-                        && (Math.abs(agent.getPosition().getY() - point.getY()) < (CreatorMain.AGENT_RADIUS * 2.0))) {
-                    statusBar.setText("Agent can't be created here");
-                    return;
-                }
+
+        if (prevPoint.getX() >= 0) {
+            if (Math.abs(point.getX() - prevPoint.getX()) < 0.3) {
+                point.setX(prevPoint.getX());
+            } else if (Math.abs(point.getY() - prevPoint.getY()) < 0.3) {
+                point.setY(prevPoint.getY());
+            } else {
+                point.setX(prevPoint.getX());
+                point.setY(prevPoint.getY());
+                return;
             }
+        }
 
-
-
-            statusBar.setText("Agent created at " + point.getX() + "," + point.getY() + ". Please select the goal.");
+        if (points.size() < 1) {
+            statusBar.setText("Goal line started at " + point.getX() + "," +
+                    point.getY() + ". Please select the end point.");
             Position tempStorage = new Position();
             tempStorage.setX(point.getX());
             tempStorage.setY(point.getY());
@@ -141,30 +153,35 @@ class IndividualAgentAdderLevel extends CreatorLevel implements MouseListener, M
 
 
         } else if (points.size() == 1) {
-            statusBar.setText("Agent goal set at " + point.getX() + "," + point.getY());
-            Agent tempAgent = new Agent();
+            statusBar.setText("Goal line end set at " + point.getX() + 
+                    "," + point.getY());
+            Goals tempGoalLines = new Goals();
+
             Position tempStorage = new Position();
-            tempStorage.setX(point.getX());
-            tempStorage.setY(point.getY());
-            tempAgent.setGoal(tempStorage);
-            tempAgent.setPosition(points.get(0));
+            tempStorage.setX(point.getX() > points.get(0).getX() ? point.getX() 
+                    : points.get(0).getX());
+            tempStorage.setY(point.getY() > points.get(0).getY() ? point.getY() 
+                    : points.get(0).getY());
+            tempGoalLines.setEndPoint(tempStorage);
 
+            tempStorage = new Position();
+            tempStorage.setX(point.getX() < points.get(0).getX() ? point.getX() 
+                    : points.get(0).getX());
+            tempStorage.setY(point.getY() < points.get(0).getY() ? point.getY() 
+                    : points.get(0).getY());
+            tempGoalLines.setStartPoint(tempStorage);
 
-            if (agents.size() > 0) {
-                tempAgent.setId(agents.get(agents.size() - 1).getId() + 1);
+            goalLines.add(tempGoalLines);
 
-
-            } else {
-                tempAgent.setId(1);
-
-
-            }
-            agents.add(tempAgent);
-
+            prevPoint.setX(-1.0);
+            prevPoint.setY(-1.0);
+            point.setX(-1.0);
+            point.setY(-1.0);
             points.clear();
 
 
         }
+
         interactionArea.repaint();
     }
 
@@ -182,13 +199,14 @@ class IndividualAgentAdderLevel extends CreatorLevel implements MouseListener, M
 
     @Override
     public void mouseMoved(MouseEvent me) {
-        super.calculateCurrentPoint(me, currentPoint, true);
+        super.calculateCurrentPoint(me, currentPoint, false);
         interactionArea.repaint();
     }
 
     @Override
     public void clearAllPoints() {
-        this.points.clear();
-        this.agents.clear();
+        points.clear();
+        goalLines.clear();
+        interactionArea.repaint();
     }
 }

@@ -4,7 +4,6 @@
  */
 package app.creator;
 
-import agent.latticegas.LatticeSpace;
 import environment.geography.Obstacle;
 import environment.geography.Position;
 import java.awt.BorderLayout;
@@ -14,8 +13,6 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -64,7 +61,7 @@ class ObstacleLevel extends CreatorLevel implements MouseListener, MouseMotionLi
         clearButton.setEnabled(true);
         nextButton.setEnabled(true);
         
-        frame.setTitle(model.getTitle() + ".xml  - Create Obstacles -");
+        frame.setTitle("- Create Obstacles -"+model.getTitle() + ".xml");
         frame.setSize(model.getxSize() * model.getScale() + 8, model.getySize() * model.getScale() + 100);
         frame.repaint();
 
@@ -171,7 +168,7 @@ class ObstacleLevel extends CreatorLevel implements MouseListener, MouseMotionLi
     @Override
     public void mouseMoved(MouseEvent e) {
  
-        super.calculateCurrentPoint(e,currentPoint);
+        super.calculateCurrentPoint(e,currentPoint,false);
          interactionArea.repaint();
     }
 

@@ -6,6 +6,7 @@ package app.creator;
 
 import environment.XMLScenarioManager;
 import environment.geography.Agent;
+import environment.geography.AgentGroup;
 import environment.geography.AgentLine;
 import environment.geography.Goals;
 import environment.geography.Obstacle;
@@ -35,6 +36,8 @@ class ModelDetails {
     private List<Obstacle> obstacles = new ArrayList<Obstacle>();
     private List<Agent> agents = new ArrayList<Agent>();
     private List<AgentLine> agentLines = new ArrayList<AgentLine>();
+    private List<AgentGroup> agentGroups = new ArrayList<AgentGroup> ();
+    private List<Goals> goalLines = new ArrayList<Goals> ();
 
  
     public void loadFromFile(File file) {
@@ -51,17 +54,14 @@ class ModelDetails {
             this.setObstacles(environment.getObstacles());
             this.setAgents(environment.getCrowd());
             this.setAgentLines(environment.getGenerationLines());
-
+            this.setAgentGroups(environment.getAgentGroups());
+            this.setGoalLines(environment.getEnvironmentGoals());
         } catch (JAXBException ex) {
             ex.printStackTrace();
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         }
 
-    }
-
-    public String getName() {
-        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     void saveToXMLFile() {
@@ -81,49 +81,31 @@ class ModelDetails {
             tempPoint.setX(0.0);
             tempPoint.setY(0.0);
             tempPoint.setZ(0.0);
-            temp.getVertices().add(tempPoint);
+            temp.setStartPoint(tempPoint);
             tempPoint.setX(0.0);
             tempPoint.setY(0.0);
             tempPoint.setZ(0.0);
-            temp.getVertices().add(tempPoint);
+            temp.setEndPoint(tempPoint);
             environment.getEnvironmentGoals().add(temp);
         }
 
         environment.getObstacles().clear();
-
-
-
         if (!obstacles.isEmpty()) {
-            for (int i = 0; i
-                    < obstacles.size(); i++) {
+            for (int i = 0; i < obstacles.size(); i++) {
                 Obstacle tempObstacle = new Obstacle();
-
-
-                for (int j = 0; j
-                        < obstacles.get(i).getVertices().size(); j++) {
+                for (int j = 0; j < obstacles.get(i).getVertices().size(); j++) {
                     Position tempStorage = new Position();
                     tempStorage.setX((double) obstacles.get(i).getVertices().get(j).getX());
                     tempStorage.setY((double) obstacles.get(i).getVertices().get(j).getY());
-
                     tempObstacle.getVertices().add(tempStorage);
-
-
-
                 }
-
-
                 environment.getObstacles().add(tempObstacle);
-
-
             }
         }
 
         environment.getCrowd().clear();
-
-
         if (!agents.isEmpty()) {
-            for (int i = 0; i
-                    < agents.size(); i++) {
+            for (int i = 0; i < agents.size(); i++) {
                 Agent tempAgent = new Agent();
 
                 Position start = new Position();
@@ -141,18 +123,12 @@ class ModelDetails {
                 tempAgent.setPreferedSpeed(agents.get(i).getPreferedSpeed());
                 tempAgent.setCommitmentLevel(agents.get(i).getCommitmentLevel());
                 environment.getCrowd().add(tempAgent);
-
-
-
             }
         }
 
         environment.getGenerationLines().clear();
-
-
         if (!agentLines.isEmpty()) {
-            for (int i = 0; i
-                    < agentLines.size(); i++) {
+            for (int i = 0; i < agentLines.size(); i++) {
                 AgentLine tempLine = new AgentLine();
 
                 Position start = new Position();
@@ -171,11 +147,54 @@ class ModelDetails {
                 tempLine.setDirection(agentLines.get(i).getDirection());
 
                 environment.getGenerationLines().add(tempLine);
-
-
-
             }
         }
+        
+        environment.getAgentGroups().clear();
+        if (!agentGroups.isEmpty()) {
+            for (int i = 0; i
+                    < agentGroups.size(); i++) {
+                AgentGroup tempGroup = new AgentGroup();
+
+                Position start = new Position();
+                start.setX((double) agentGroups.get(i).getStartPoint().getX());
+                start.setY((double) agentGroups.get(i).getStartPoint().getY());
+
+                Position end = new Position();
+                end.setX((double) agentGroups.get(i).getEndPoint().getX());
+                end.setY((double) agentGroups.get(i).getEndPoint().getY());
+
+                tempGroup.setStartPoint(start);
+                tempGroup.setEndPoint(end);
+
+                
+                tempGroup.setSize(agentGroups.get(i).getSize());
+                tempGroup.setDirection(agentGroups.get(i).getDirection());
+
+                environment.getAgentGroups().add(tempGroup);
+            }
+        }
+        
+        environment.getEnvironmentGoals().clear();
+        if (!goalLines.isEmpty()) {
+            for (int i = 0; i < goalLines.size(); i++) {
+                Goals tempGoalLines = new Goals();
+                
+                Position start = new Position();
+                start.setX((double) goalLines.get(i).getStartPoint().getX());
+                start.setY((double) goalLines.get(i).getStartPoint().getY());
+
+                Position end = new Position();
+                end.setX((double) goalLines.get(i).getEndPoint().getX());
+                end.setY((double) goalLines.get(i).getEndPoint().getY());
+
+                tempGoalLines.setStartPoint(start);
+                tempGoalLines.setEndPoint(end);
+
+                environment.getEnvironmentGoals().add(tempGoalLines);
+            }
+        }
+        
         XMLScenarioManager manager = XMLScenarioManager.instance("environment.geography");
         try {
 
@@ -268,5 +287,21 @@ class ModelDetails {
 
     public List<Agent> getAgents() {
         return this.agents;
+    }
+
+    public List<AgentGroup> getAgentGroups() {
+        return this.agentGroups;
+    }
+
+    public void setAgentGroups(List<AgentGroup> agentGroups) {
+        this.agentGroups = agentGroups;
+    }
+
+    public List<Goals> getGoalLines() {
+        return this.goalLines;
+    }
+    
+    public void setGoalLines(List<Goals> goalLines) {
+        this.goalLines = goalLines;
     }
 }

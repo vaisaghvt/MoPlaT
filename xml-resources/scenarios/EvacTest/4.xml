@@ -27,16 +27,16 @@
         <vertices y="3.9" x="7.8"/>
      </obstacles>
     <environmentGoals>
-        <vertices z="0.0" y="4.5" x="2.7"/>
-        <vertices z="0.0" y="4.5" x="3.9"/>
+        <startPoint z="0.0" y="4.5" x="2.7"/>
+        <endPoint z="0.0" y="4.5" x="3.9"/>
     </environmentGoals>
     <environmentGoals>
-        <vertices z="0.0" y="3.9" x="2.7"/>
-        <vertices z="0.0" y="3.9" x="3.9"/>
+        <startPoint z="0.0" y="3.9" x="2.7"/>
+        <endPoint z="0.0" y="3.9" x="3.9"/>
     </environmentGoals>
     <environmentGoals>
-        <vertices z="0.0" y="-10.0" x="2.7"/>
-        <vertices z="0.0" y="-10.0" x="3.9"/>
+        <startPoint z="0.0" y="-10.0" x="2.7"/>
+        <endPoint z="0.0" y="-10.0" x="3.9"/>
     </environmentGoals>
 
     <generationLines>

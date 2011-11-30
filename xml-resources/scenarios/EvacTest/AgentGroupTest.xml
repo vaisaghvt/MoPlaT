@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" name="AgentGroupTest" Xsize="12" Ysize="12" scale="50" direction="5" displayUsed="true" latticeModel="true" logUsed="true">
+ 
+    <obstacles>
+        <vertices x="10.5" y="3.0"/>
+        <vertices x="5.7" y="3.0"/>
+        <vertices x="5.7" y="2.4"/>
+        <vertices x="10.5" y="2.4"/>
+    </obstacles>
+    
+  
+
+    <obstacles>
+        <vertices x="1.5" y="11.1"/>
+        <vertices x="9.9" y="11.1"/>
+        <vertices x="9.9" y="11.7"/>
+        <vertices x="1.5" y="11.7"/>
+    </obstacles>
+
+       <obstacles>
+        <vertices x="4.8" y="3.0"/>
+        <vertices x="0.9" y="3.0"/>
+        <vertices x="0.9" y="2.4"/>
+        <vertices x="4.8" y="2.4"/>
+    </obstacles>
+    <obstacles>
+        <vertices x="0.9" y="3.0"/>
+        <vertices x="1.5" y="3.0"/>
+        <vertices x="1.5" y="11.7"/>
+        <vertices x="0.9" y="11.7"/>
+    </obstacles>
+    <obstacles>
+        <vertices x="10.5" y="11.7"/>
+        <vertices x="9.9" y="11.7"/>
+        <vertices x="9.9" y="3.0"/>
+        <vertices x="10.5" y="3.0"/>
+    </obstacles>
+    <environmentGoals>
+        <endPoint x="5.7" y="3.0"/>
+        <startPoint x="4.8" y="3.0"/>
+    </environmentGoals>
+    <environmentGoals>
+        <endPoint x="5.7" y="2.4"/>
+        <startPoint x="4.8" y="2.4"/>
+    </environmentGoals>
+    <environmentGoals>
+        <endPoint x="5.7" y="0.0"/>
+        <startPoint x="4.8" y="0.0"/>
+    </environmentGoals>
+    <agentGroups>
+        <endPoint x="9.6" y="10.8"/>
+        <startPoint x="1.8" y="9.9"/>
+        <direction>3</direction>
+        <size>20</size>
+    </agentGroups>
+</SimulationScenario>

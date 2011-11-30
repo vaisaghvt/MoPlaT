@@ -65,17 +65,17 @@ public class AgentGenerator implements Steppable {
             Goals tempGoal = new Goals();
             Position startPosition = new Position();
 
-            startPosition.setX(passedGoals.get(i).getVertices().get(0).getX());
-            startPosition.setY(passedGoals.get(i).getVertices().get(0).getY());
+            startPosition.setX(passedGoals.get(i).getStartPoint().getX());
+            startPosition.setY(passedGoals.get(i).getStartPoint().getY());
 
             Position endPosition = new Position();
 
-            endPosition.setX(passedGoals.get(i).getVertices().get(1).getX());
-            endPosition.setY(passedGoals.get(i).getVertices().get(1).getY());
+            endPosition.setX(passedGoals.get(i).getEndPoint().getX());
+            endPosition.setY(passedGoals.get(i).getEndPoint().getY());
 
 
-            tempGoal.getVertices().add(startPosition);
-            tempGoal.getVertices().add(endPosition);
+            tempGoal.setStartPoint(startPosition);
+            tempGoal.setEndPoint(endPosition);
             goals.add(tempGoal);
         }
 

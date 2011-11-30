@@ -6,7 +6,9 @@ package app.creator;
 
 import agent.latticegas.LatticeSpace;
 import environment.geography.Agent;
+import environment.geography.AgentGroup;
 import environment.geography.AgentLine;
+import environment.geography.Goals;
 import environment.geography.Obstacle;
 import environment.geography.Position;
 import java.awt.Color;
@@ -15,6 +17,7 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -67,12 +70,12 @@ public abstract class CreatorLevel {
         } else {
 
 
-            for (double i = 0.0; i <= xSize; i += LatticeSpace.LATTICEGRIDSIZE) {
+            for (double i = 0.0; i <= xSize; i += 2.0 * CreatorMain.AGENT_RADIUS) {
                 g.setColor(Color.black);
                 g.drawLine((int) (i * scale), 0, (int) (i * scale), (int) (ySize * scale));
             }
 
-            for (double i = 0.0; i <= ySize; i += LatticeSpace.LATTICEGRIDSIZE) {
+            for (double i = 0.0; i <= ySize; i += 2.0 * CreatorMain.AGENT_RADIUS) {
                 g.setColor(Color.black);
                 g.drawLine(0, (int) (i * scale), (int) (xSize * scale), (int) (i * scale));
             }
@@ -119,7 +122,9 @@ public abstract class CreatorLevel {
         }
     }
 
-    void calculateCurrentPoint(MouseEvent e, Point currentPoint) {
+    void calculateCurrentPoint(MouseEvent e, Point currentPoint, boolean halfway) {
+      
+        double LATTICEGRIDSIZE = CreatorMain.AGENT_RADIUS * 2.0;
         int xSize = model.getxSize();
         int ySize = model.getySize();
         int scale = model.getScale();
@@ -128,14 +133,40 @@ public abstract class CreatorLevel {
             return;
         }
 
-        currentPoint.setLocation(e.getPoint().x,e.getPoint().y);
+        currentPoint.setLocation(e.getPoint().x, e.getPoint().y);
+
+
         if (model.getLatticeSpaceFlag()) {
 
             currentPoint.setLocation(
-                    Math.round(e.getPoint().getX() / (LatticeSpace.LATTICEGRIDSIZE * scale)),
-                    Math.round(e.getPoint().getY() / (LatticeSpace.LATTICEGRIDSIZE * scale)));
-        }
+                    Math.round(e.getPoint().getX() / (LATTICEGRIDSIZE * scale)),
+                    Math.round(e.getPoint().getY() / (LATTICEGRIDSIZE * scale)));
 
+            currentPoint.setLocation(
+                        currentPoint.getX() * LATTICEGRIDSIZE * scale,
+                        currentPoint.getY() * LATTICEGRIDSIZE * scale);
+
+            
+            if (halfway) {
+                
+
+                int directionx = +1;
+                int directiony = +1;
+                if (e.getPoint().getX() > currentPoint.getX()) {
+                    directionx = +1;
+                } else {
+                    directionx = -1;
+                }
+                if (e.getPoint().getY() > currentPoint.getY()) {
+                    directiony = +1;
+                } else {
+                    directiony = -1;
+                }
+                currentPoint.setLocation(
+                        currentPoint.getX() + directionx * 0.5 * LATTICEGRIDSIZE * scale,
+                        currentPoint.getY() + directiony * 0.5 * LATTICEGRIDSIZE * scale);
+            }
+        }
         NumberFormat decimalFormat = new DecimalFormat("#0.00");
 //        statusBar.setText("Mouse at "
 //                + decimalFormat.format(currentPoint.getX() / (LatticeSpace.LATTICEGRIDSIZE * scale))
@@ -170,7 +201,7 @@ public abstract class CreatorLevel {
                 || currentPoint.getX() < 0 || currentPoint.getY() < 0) {
             return false;
         }
-        if (point.getX()>=0) {
+        if (point.getX() >= 0) {
             prevPoint.setX(point.getX());
             prevPoint.setY(point.getY());
         }
@@ -190,7 +221,7 @@ public abstract class CreatorLevel {
         point.setY(currentPoint.getY() / scale);
 
 
-        if (prevPoint.getX()>=0) {
+        if (prevPoint.getX() >= 0) {
             if (e.isControlDown()) {
 
                 if (Math.abs(point.getX() - prevPoint.getX()) < 0.3) {
@@ -236,7 +267,10 @@ public abstract class CreatorLevel {
             } else {
                 g.setColor(Color.black);
             }
-            g.fillOval((int) (startX - (0.15 * scale)), (int) (startY - (0.15 * scale)), (int) (0.3 * scale), (int) (0.3 * scale));
+            g.fillOval((int) (startX - (CreatorMain.AGENT_RADIUS * scale)),
+                    (int) (startY - (CreatorMain.AGENT_RADIUS * scale)),
+                    (int) (CreatorMain.AGENT_RADIUS * 2.0 * scale),
+                    (int) (CreatorMain.AGENT_RADIUS * 2.0 * scale));
 
 
             g.setColor(Color.CYAN);
@@ -247,4 +281,39 @@ public abstract class CreatorLevel {
     }
 
     public abstract void clearAllPoints();
+
+    void drawAgentGroups(Graphics g, ArrayList<AgentGroup> agentGroups) {
+        int scale = model.getScale();
+        for (AgentGroup tempGroup : agentGroups) {
+
+
+            double startX = tempGroup.getStartPoint().getX() * scale;
+            double startY = tempGroup.getStartPoint().getY() * scale;
+            double goalX = tempGroup.getEndPoint().getX() * scale;
+            double goalY = tempGroup.getEndPoint().getY() * scale;
+
+
+            g.setColor(Color.ORANGE);
+
+            g.drawRect((int) startX, (int) startY, (int) (goalX - startX), (int) (goalY - startY));
+
+        }
+    }
+
+    void drawGoalLines(Graphics g, ArrayList<Goals> goalLines) {
+        int scale = model.getScale();
+        for (int i = 0; i < goalLines.size(); i++) {
+
+            double startX = goalLines.get(i).getStartPoint().getX() * scale;
+            double startY = goalLines.get(i).getStartPoint().getY() * scale;
+            double goalX = goalLines.get(i).getEndPoint().getX() * scale;
+            double goalY = goalLines.get(i).getEndPoint().getY() * scale;
+
+
+            g.setColor(Color.YELLOW);
+
+            g.drawLine((int) startX, (int) startY, (int) goalX, (int) goalY);
+
+        }
+    }
 }

@@ -60,7 +60,7 @@ class AgentGeneratorLevel extends CreatorLevel implements MouseListener, MouseMo
         clearButton.setEnabled(true);
         nextButton.setEnabled(true);
 
-        frame.setTitle(model.getTitle() + ".xml  - Create Agent Generating Lines -");
+        frame.setTitle("- Create Agent Generating Lines -"+model.getTitle() + ".xml");
         frame.setSize(model.getxSize() * model.getScale() + 8, model.getySize() * model.getScale() + 100);
         frame.repaint();
 
@@ -90,16 +90,14 @@ class AgentGeneratorLevel extends CreatorLevel implements MouseListener, MouseMo
 
         super.drawCurrentPoint(g, currentPoint);
 
-
-
         if (!points.isEmpty()) {
             super.drawPoints(g, points);
-
         }
 
         if (!model.getObstacles().isEmpty()) {
             super.drawObstacles(g, model.getObstacles());
         }
+
         if (!agentLines.isEmpty()) {
             super.drawAgentLines(g, agentLines);
         }
@@ -121,7 +119,7 @@ class AgentGeneratorLevel extends CreatorLevel implements MouseListener, MouseMo
             return;
         }
 
-        
+
         if (prevPoint.getX() >= 0) {
             if (Math.abs(point.getX() - prevPoint.getX()) < 0.3) {
                 point.setX(prevPoint.getX());
@@ -146,21 +144,23 @@ class AgentGeneratorLevel extends CreatorLevel implements MouseListener, MouseMo
         } else if (points.size() == 1) {
             statusBar.setText("Agent line end set at " + point.getX() + "," + point.getY());
             AgentLine tempAgentLine = new AgentLine();
+
+
             Position tempStorage = new Position();
-            tempStorage.setX(point.getX());
-            tempStorage.setY(point.getY());
+            tempStorage.setX(point.getX() > points.get(0).getX() ? point.getX() : points.get(0).getX());
+            tempStorage.setY(point.getY() > points.get(0).getY() ? point.getY() : points.get(0).getY());
             tempAgentLine.setEndPoint(tempStorage);
+
+
             tempStorage = new Position();
-            tempStorage.setX(points.get(0).getX());
-            tempStorage.setY(points.get(0).getY());
+            tempStorage.setX(point.getX() < points.get(0).getX() ? point.getX() : points.get(0).getX());
+            tempStorage.setY(point.getY() < points.get(0).getY() ? point.getY() : points.get(0).getY());
             tempAgentLine.setStartPoint(tempStorage);
 
 
 
 
             String creationDirection;
-
-
             do {
                 Object[] possibilities = {"Up", "Down", "Left", "Right"};
                 creationDirection = "Up";
@@ -212,7 +212,7 @@ class AgentGeneratorLevel extends CreatorLevel implements MouseListener, MouseMo
                         null,
                         null,
                         "1");
-               try {
+                try {
                     Integer.parseInt(number);
                 } catch (NumberFormatException numException) {
                     continue;
@@ -220,14 +220,14 @@ class AgentGeneratorLevel extends CreatorLevel implements MouseListener, MouseMo
             } while (false);
 
 
- 
+
             tempAgentLine.setFrequency(Integer.parseInt(frequency));
             tempAgentLine.setNumber(Integer.parseInt(number));
             agentLines.add(tempAgentLine);
 
             prevPoint.setX(-1.0);
             prevPoint.setY(-1.0);
-            point.setX(-1.0) ;
+            point.setX(-1.0);
             point.setY(-1.0);
             points.clear();
 
@@ -251,7 +251,7 @@ class AgentGeneratorLevel extends CreatorLevel implements MouseListener, MouseMo
 
     @Override
     public void mouseMoved(MouseEvent me) {
-        super.calculateCurrentPoint(me, currentPoint);
+        super.calculateCurrentPoint(me, currentPoint,true);
         interactionArea.repaint();
     }
 

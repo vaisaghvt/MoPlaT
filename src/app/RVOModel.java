@@ -12,6 +12,7 @@ import environment.geography.Goals;
 import environment.geography.Obstacle;
 import environment.geography.SimulationScenario;
 import agent.latticegas.LatticeSpace;
+import environment.geography.AgentGroup;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ import javax.vecmath.Point2d;
 import javax.xml.bind.JAXBException;
 import sim.engine.SimState;
 import sim.engine.Stoppable;
-        
+
 /**
  * RVOModel
  *
@@ -39,8 +40,6 @@ import sim.engine.Stoppable;
  */
 public class RVOModel extends SimState {
 
-
-    
     private int worldXSize = PropertySet.WORLDXSIZE;
     private int worldYSize = PropertySet.WORLDYSIZE;
     private double gridSize = PropertySet.GRIDSIZE;
@@ -83,12 +82,9 @@ public class RVOModel extends SimState {
             }
         }
 
-
-
         agentList = new ArrayList<RVOAgent>();
         obstacleList = new ArrayList<RVOObstacle>();
         agentLineList = new ArrayList<AgentGenerator>();
-
 
     }
 
@@ -190,6 +186,7 @@ public class RVOModel extends SimState {
     public LatticeSpace getLatticeSpace() {
         return latticeSpace;
     }
+
     public Stoppable getGeneratorStoppable() {
         return generatorStopper;
     }
@@ -211,20 +208,17 @@ public class RVOModel extends SimState {
     private void addNewAgentLine(AgentGenerator tempAgentLine, int frequency) {
         agentLineList.add(tempAgentLine);
         generatorStopper = schedule.scheduleRepeating(tempAgentLine, 1, (double) frequency);
-
     }
 
     public static void main(String[] args) {
         // Read tutorial 2 of mason to see what this does.. or refer to documentation of this function
-        
+
         PropertySet.initializeProperties();
-       
-            
+
         doLoop(RVOModel.class, args);
         System.exit(0);
     }
 
-    
     /**
      * Initialize data from the XML file specified
      */
@@ -232,7 +226,6 @@ public class RVOModel extends SimState {
         try {
             XMLScenarioManager settings = XMLScenarioManager.instance("environment.geography");
             SimulationScenario scenario = (SimulationScenario) settings.unmarshal(PropertySet.FILEPATH);
-            
 
             if (!PropertySet.USECLUSTERING) {
                 rvoSpace = new RVOSpace(worldXSize, worldYSize, gridSize, this);
@@ -246,13 +239,8 @@ public class RVOModel extends SimState {
                 latticeSpace.scheduleLattice();
                 latticeSpace.setDirection(scenario.getDirection());
 
-                List<Goals> xmlGoalList = scenario.getEnvironmentGoals();
-                for (int i = 0; i < xmlGoalList.size(); i++) {
-                    Goals tempGoal = xmlGoalList.get(i);
-                    latticeSpace.addGoal(tempGoal);
-                }
-            }
 
+            }
 
             List<Agent> xmlAgentList = scenario.getCrowd();
             for (int i = 0; i < xmlAgentList.size(); i++) {
@@ -265,9 +253,24 @@ public class RVOModel extends SimState {
                         1.0f, 0.68f)));
                 tempRVOAgent.setPreferredSpeed(tempAgent.getPreferedSpeed());
                 tempRVOAgent.setCommitmentLevel(tempAgent.getCommitmentLevel());
+
+                List<Goals> xmlGoalList = scenario.getEnvironmentGoals();
+                if (xmlGoalList.size() > 0) {
+                    tempRVOAgent.setCheckPoints(xmlGoalList);
+                }
+
+
                 addNewAgent(tempRVOAgent);
             }
 
+            List<Goals> xmlGoalList = scenario.getEnvironmentGoals();
+            if (PropertySet.LATTICEMODEL) {
+                if (xmlGoalList.size() > 0) {
+                    for (Goals tempGoal : xmlGoalList) {
+                        latticeSpace.addGoal(tempGoal);
+                    }
+                }
+            }
 
             List<Obstacle> xmlObstacleList = scenario.getObstacles();
             for (int i = 0; i < xmlObstacleList.size(); i++) {
@@ -281,19 +284,50 @@ public class RVOModel extends SimState {
 
             List<AgentLine> xmlAgentLineList = scenario.getGenerationLines();
             for (int i = 0; i < xmlAgentLineList.size(); i++) {
-
                 Point2d start = new Point2d(xmlAgentLineList.get(i).getStartPoint().getX(), xmlAgentLineList.get(i).getStartPoint().getY());
                 Point2d end = new Point2d(xmlAgentLineList.get(i).getEndPoint().getX(), xmlAgentLineList.get(i).getEndPoint().getY());
                 AgentGenerator tempAgentLine = new AgentGenerator(start, end, scenario.getGenerationLines().get(i).getNumber(), scenario.getGenerationLines().get(i).getDirection(), scenario.getEnvironmentGoals(), this);
                 addNewAgentLine(tempAgentLine, scenario.getGenerationLines().get(i).getFrequency());
             }
 
+            List<AgentGroup> xmlAgentGroupList = scenario.getAgentGroups();
+            for (AgentGroup tempAgentGroup : xmlAgentGroupList) {
+                Point2d start = new Point2d(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY());
+                Point2d end = new Point2d(tempAgentGroup.getEndPoint().getX(), tempAgentGroup.getEndPoint().getY());
+                int numberPossibleOnWidth = (int) Math.floor((end.getX() - start.getX()) / (2.0 * RVOAgent.RADIUS));
+                int numberPossibleOnHeight = (int) Math.floor((end.getY() - start.getY()) / (2.0 * RVOAgent.RADIUS));
+                int maxPossible = numberPossibleOnWidth * numberPossibleOnHeight;
+                int spacesBetween = (int) Math.floor((maxPossible - tempAgentGroup.getSize()) / (tempAgentGroup.getSize() - 1));
+                spacesBetween++;
+                for (double position = 1;
+                        position <= maxPossible; position += spacesBetween) {
+
+                    double distanceFromStart = (RVOAgent.RADIUS + 2 * (position - 1) * RVOAgent.RADIUS);
+
+                    double x = start.getX() + (distanceFromStart % (end.getX()-start.getX()));
+                    double y = (start.getY() + (((int)(distanceFromStart / (end.getX()-start.getX()))) * RVOAgent.RADIUS * 2.0));
+
+
+                    RVOAgent agent = new RVOAgent(this.getRvoSpace());
+                    agent.setCurrentPosition(x, y);
+
+                    this.addNewAgent(agent);
+                    if (xmlGoalList.size() > 0) {
+                        agent.setCheckPoints(xmlGoalList);
+
+                    }
+
+                    agent.setVelocity(agent.findPrefVelocity());
+
+
+                }
+
+            }
+
+
         } catch (JAXBException ex) {
             Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
-    
-   
-
 }

@@ -81,7 +81,8 @@ public class AgentPortrayal extends SimplePortrayal2D {
     public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
 
         RVOAgent me = ((RVOAgent) this);
-        addPoint(new Double2D(info.draw.x, info.draw.y));
+        addPoint(new Double2D(  me.getCurrentPosition().getX() * scale, 
+                                me.getCurrentPosition().getY() * scale));
 
 
         //draw orcaLines for RVO2
@@ -156,18 +157,13 @@ public class AgentPortrayal extends SimplePortrayal2D {
             }
             final BasicStroke stroke2 = new BasicStroke(agentLineWidth);
             graphics.setStroke(stroke2);
-        } else {
-
-            startx = info.draw.x;
-            starty = info.draw.y;
-
-        }
+        } 
 
 
         graphics.setPaint(agentColor);
         graphics.fillOval(
-                (int) Math.round(startx - width / 2.0),
-                (int) Math.round(starty - height / 2.0),
+                (int) Math.round(me.getCurrentPosition().getX() * scale - width / 2.0),
+                (int) Math.round(me.getCurrentPosition().getY() * scale - height / 2.0),
                 (int) width, (int) height);
         graphics.setStroke(new BasicStroke(1.0f));
 

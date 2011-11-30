@@ -27,6 +27,7 @@ import javax.swing.JPanel;
  * @author vaisagh
  */
 public class CreatorMain implements ActionListener {
+    public static final double AGENT_RADIUS = 0.15;
 
     public JLabel statusBar = new JLabel();
     JPanel buttonArea = new JPanel();
@@ -85,12 +86,9 @@ public class CreatorMain implements ActionListener {
 
         statusBar.setForeground(Color.BLUE);
 
-
-
         frame.add(buttonArea, BorderLayout.NORTH);
         frame.add(statusBar, BorderLayout.SOUTH);
 
- 
         frame.setResizable(false);
         frame.setSize(900, 400);
         frame.setLocation(10, 10);
@@ -178,10 +176,12 @@ public class CreatorMain implements ActionListener {
 
         listOfLevels.add(new ObstacleLevel(model, frame, statusBar, buttonArea, interactionArea));
         listOfLevels.add(new AgentGeneratorLevel(model, frame, statusBar, buttonArea, interactionArea));
+        listOfLevels.add(new AgentGroupCreatorLevel(model, frame, statusBar, buttonArea, interactionArea));
         listOfLevels.add(new IndividualAgentAdderLevel(model, frame, statusBar, buttonArea, interactionArea));
         listOfLevels.add(new AgentEditorLevel(model, frame, statusBar, buttonArea, interactionArea));
+        listOfLevels.add(new EnvironmentGoalLineLevel(model, frame, statusBar, buttonArea, interactionArea));
         listOfLevels.add(new FinalLevel(model, frame, statusBar, buttonArea, interactionArea));
-
+        
 
         currentLevel = 0;
         listOfLevels.get(currentLevel).setUpLevel();
