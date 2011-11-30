@@ -196,29 +196,7 @@ public class AgentGroupCreatorLevel extends CreatorLevel implements MouseListene
          
             statusBar.setText("Agent Group end corner set at  " + point.getX() + "," + point.getY());
             
-            String creationDirection;
-            do {
-                Object[] possibilities = {"Up", "Down", "Left", "Right"};
-                creationDirection = "Up";
-                creationDirection = (String) JOptionPane.showInputDialog(
-                        null,
-                        "Which direction do you want agents to move?",
-                        "Input",
-                        JOptionPane.QUESTION_MESSAGE,
-                        null,
-                        possibilities,
-                        "Up");
-            } while (creationDirection == null);
-            if (creationDirection.equalsIgnoreCase("up")) {
-                tempAgentGroup.setDirection(3);
-            } else if (creationDirection.equalsIgnoreCase("down")) {
-                tempAgentGroup.setDirection(2);
-            } else if (creationDirection.equalsIgnoreCase("right")) {
-                tempAgentGroup.setDirection(1);
-            } else {
-                tempAgentGroup.setDirection(0);
-            }
-           
+                       
             
             String number;
             do {
@@ -282,9 +260,7 @@ public class AgentGroupCreatorLevel extends CreatorLevel implements MouseListene
                 = Math.pow((Math.ceil(Math.sqrt(numberOfAgents))),2.0) 
                     * (Math.pow(CreatorMain.AGENT_RADIUS*2, 2.0));
         
-        System.out.println("Area required ="+ minAreaRequired);
-        System.out.println("Area of region ="+ (width * height));
-        
+              
         if(minAreaRequired > width * height){
             
              statusBar.setText("Cannot fit in this area. Please choose a lower number");

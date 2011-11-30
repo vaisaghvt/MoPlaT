@@ -80,11 +80,11 @@ class ModelDetails {
             Position tempPoint = new Position();
             tempPoint.setX(0.0);
             tempPoint.setY(0.0);
-            tempPoint.setZ(0.0);
+     
             temp.setStartPoint(tempPoint);
             tempPoint.setX(0.0);
             tempPoint.setY(0.0);
-            tempPoint.setZ(0.0);
+     
             temp.setEndPoint(tempPoint);
             environment.getEnvironmentGoals().add(temp);
         }
@@ -169,7 +169,7 @@ class ModelDetails {
 
                 
                 tempGroup.setSize(agentGroups.get(i).getSize());
-                tempGroup.setDirection(agentGroups.get(i).getDirection());
+                
 
                 environment.getAgentGroups().add(tempGroup);
             }

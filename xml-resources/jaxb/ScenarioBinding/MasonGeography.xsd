@@ -5,7 +5,7 @@
     <xs:complexType name="Position">
         <xs:attribute name="x" type="xs:double"/>
         <xs:attribute name="y" type="xs:double"/>
-        <xs:attribute name="z" type="xs:double"/>
+      
     </xs:complexType>
 
   
@@ -46,7 +46,7 @@
         <xs:sequence>
             <xs:element name="endPoint" type="Position" minOccurs="1" maxOccurs="1"/>
             <xs:element name="startPoint" type="Position" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="direction" type="xs:int"/>
+      
             <xs:element name="size" type="xs:int"/>
             
         </xs:sequence>
