@@ -5,14 +5,9 @@
 package app.creator;
 
 import environment.geography.Agent;
-import environment.geography.Position;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -54,14 +49,12 @@ class AgentEditorLevel extends CreatorLevel  {
         clearButton.setEnabled(false);
         nextButton.setEnabled(true);
 
-        frame.setTitle(model.getTitle() + ".xml  - Agent Editting -");
-        frame.setSize(model.getxSize() * model.getScale() + 8, model.getySize() * model.getScale() + 100);
-        frame.repaint();
+        
 
 
         interactionArea.setBackground(Color.lightGray);
         interactionArea.setEnabled(false);
-        statusBar.setText("Agent Editting stage");
+        
         
         agentArea = new AgentDescriptionFrame(agents, this);
 
@@ -69,6 +62,7 @@ class AgentEditorLevel extends CreatorLevel  {
         frame.add(interactionArea, BorderLayout.CENTER);
         interactionArea.setCurrentLevel(this);      
         interactionArea.repaint();
+        frame.repaint();
    
     }
 
@@ -111,6 +105,11 @@ class AgentEditorLevel extends CreatorLevel  {
     @Override
     public void clearAllPoints() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public String getName() {
+        return "Agent Editor Level";
     }
 
   

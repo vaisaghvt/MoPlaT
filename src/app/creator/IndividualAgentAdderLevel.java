@@ -59,9 +59,7 @@ class IndividualAgentAdderLevel extends CreatorLevel implements MouseListener, M
         clearButton.setEnabled(true);
         nextButton.setEnabled(true);
 
-        frame.setTitle(model.getTitle() + ".xml  - Create Agents -");
-        frame.setSize(model.getxSize() * model.getScale() + 8, model.getySize() * model.getScale() + 100);
-        frame.repaint();
+        
 
 
         frame.add(interactionArea, BorderLayout.CENTER);
@@ -71,6 +69,7 @@ class IndividualAgentAdderLevel extends CreatorLevel implements MouseListener, M
         interactionArea.repaint();
         interactionArea.addMouseListener(this);
         interactionArea.addMouseMotionListener(this);
+        frame.repaint();
     }
 
     @Override
@@ -190,5 +189,10 @@ class IndividualAgentAdderLevel extends CreatorLevel implements MouseListener, M
     public void clearAllPoints() {
         this.points.clear();
         this.agents.clear();
+    }
+
+    @Override
+    public String getName() {
+        return "Agent Adder Level";
     }
 }

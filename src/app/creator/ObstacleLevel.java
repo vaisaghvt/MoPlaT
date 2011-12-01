@@ -61,8 +61,6 @@ class ObstacleLevel extends CreatorLevel implements MouseListener, MouseMotionLi
         clearButton.setEnabled(true);
         nextButton.setEnabled(true);
         
-        frame.setTitle("- Create Obstacles -"+model.getTitle() + ".xml");
-        frame.setSize(model.getxSize() * model.getScale() + 8, model.getySize() * model.getScale() + 100);
         frame.repaint();
 
 
@@ -197,6 +195,11 @@ class ObstacleLevel extends CreatorLevel implements MouseListener, MouseMotionLi
     @Override
     public void mouseDragged(MouseEvent e) {
        
+    }
+
+    @Override
+    public String getName() {
+        return "Obstacle Level";
     }
 
 

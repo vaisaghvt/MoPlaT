@@ -60,9 +60,7 @@ public class AgentGroupCreatorLevel extends CreatorLevel implements MouseListene
         clearButton.setEnabled(true);
         nextButton.setEnabled(true);
 
-        frame.setTitle(model.getTitle() + ".xml  - Create Agent Groups -");
-        frame.setSize(model.getxSize() * model.getScale() + 8, model.getySize() * model.getScale() + 100);
-        frame.repaint();
+       
 
 
         frame.add(interactionArea, BorderLayout.CENTER);
@@ -72,6 +70,7 @@ public class AgentGroupCreatorLevel extends CreatorLevel implements MouseListene
         interactionArea.repaint();
         interactionArea.addMouseListener(this);
         interactionArea.addMouseMotionListener(this);
+         frame.repaint();
     }
 
     @Override
@@ -270,5 +269,10 @@ public class AgentGroupCreatorLevel extends CreatorLevel implements MouseListene
         }
         
         return true;
+    }
+
+    @Override
+    public String getName() {
+        return "Group Creator Level";
     }
 }

@@ -84,4 +84,9 @@ class FinalLevel extends CreatorLevel {
     public void clearAllPoints() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public String getName() {
+        return "Final Level";
+    }
 }

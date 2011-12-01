@@ -316,4 +316,6 @@ public abstract class CreatorLevel {
 
         }
     }
+
+    public abstract String getName();
 }

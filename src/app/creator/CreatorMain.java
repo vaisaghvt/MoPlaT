@@ -6,7 +6,6 @@ package app.creator;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.Menu;
 import java.awt.MenuBar;
@@ -21,14 +20,15 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 /**
  *
  * @author vaisagh
  */
 public class CreatorMain implements ActionListener {
-    public static final double AGENT_RADIUS = 0.15;
 
+    public static final double AGENT_RADIUS = 0.15;
     public JLabel statusBar = new JLabel();
     JPanel buttonArea = new JPanel();
     JButton clearButton;
@@ -39,6 +39,7 @@ public class CreatorMain implements ActionListener {
     private int currentLevel;
     ArrayList<CreatorLevel> listOfLevels;
     private ModelDetails model;
+    private JProgressBar progress;
 
     public CreatorMain() {
         model = new ModelDetails();
@@ -86,18 +87,30 @@ public class CreatorMain implements ActionListener {
 
         statusBar.setForeground(Color.BLUE);
 
+        initializeLevels();
+
+        progress = new JProgressBar();
+        progress.setMinimum(0);
+        progress.setMaximum(this.listOfLevels.size() - 1);
+        progress.setValue(0);
+        progress.setStringPainted(true);
+
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new BorderLayout());
+        bottomPanel.add(progress, BorderLayout.NORTH);
+        bottomPanel.add(statusBar, BorderLayout.SOUTH);
         frame.add(buttonArea, BorderLayout.NORTH);
-        frame.add(statusBar, BorderLayout.SOUTH);
+        frame.add(bottomPanel, BorderLayout.SOUTH);
+
+        currentLevel = 0;
+        this.changeToLevel(currentLevel);
+
 
         frame.setResizable(false);
         frame.setSize(900, 400);
         frame.setLocation(10, 10);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-
-        initializeLevels();
-
 
 
 
@@ -107,13 +120,13 @@ public class CreatorMain implements ActionListener {
     public void actionPerformed(ActionEvent event) {
         String trigger = event.getActionCommand();
         if (trigger.equalsIgnoreCase("load")) {
-            if(currentLevel!=0){
+            if (currentLevel != 0) {
                 listOfLevels.get(currentLevel).clearUp();
-                currentLevel =0;
+                currentLevel = 0;
                 listOfLevels.get(currentLevel).setUpLevel();
             }
             loadFile();
-            assert currentLevel ==0;
+            assert currentLevel == 0;
             ((IntroLevel) listOfLevels.get(currentLevel)).reloadValuesFromModel();
             frame.validate();
         } else if (trigger.equalsIgnoreCase("about")) {
@@ -121,17 +134,19 @@ public class CreatorMain implements ActionListener {
         } else if (trigger.equalsIgnoreCase("next")) {
             listOfLevels.get(currentLevel).clearUp();
             currentLevel++;
+
             assert currentLevel < listOfLevels.size();
-            statusBar.setText("Level updated to " + currentLevel);
-            listOfLevels.get(currentLevel).setUpLevel();
-            frame.validate();
+            this.changeToLevel(currentLevel);
+
+
+
         } else if (trigger.equalsIgnoreCase("previous")) {
             listOfLevels.get(currentLevel).clearUp();
             currentLevel--;
+
             assert currentLevel > -1;
-            statusBar.setText("Level updated to " + currentLevel);
-            listOfLevels.get(currentLevel).setUpLevel();
-            frame.validate();
+            this.changeToLevel(currentLevel);
+
         } else if (trigger.equalsIgnoreCase("finish and save")) {
 
 
@@ -181,14 +196,22 @@ public class CreatorMain implements ActionListener {
         listOfLevels.add(new AgentEditorLevel(model, frame, statusBar, buttonArea, interactionArea));
         listOfLevels.add(new EnvironmentGoalLineLevel(model, frame, statusBar, buttonArea, interactionArea));
         listOfLevels.add(new FinalLevel(model, frame, statusBar, buttonArea, interactionArea));
-        
 
-        currentLevel = 0;
-        listOfLevels.get(currentLevel).setUpLevel();
-        frame.validate();
+
+
     }
 
     public static void main(String[] args) {
         CreatorMain creator = new CreatorMain();
+    }
+
+    private void changeToLevel(int currentLevel) {
+        progress.setValue(currentLevel);
+        listOfLevels.get(currentLevel).setUpLevel();
+        frame.validate();
+        frame.setTitle("-" + listOfLevels.get(currentLevel).getName() + "-" + model.getTitle() + ".xml");
+        frame.setSize(model.getxSize() * model.getScale() + 8, model.getySize() * model.getScale() + 100);
+        statusBar.setText(listOfLevels.get(currentLevel).getName());
+        frame.validate();
     }
 }

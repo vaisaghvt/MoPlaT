@@ -60,8 +60,6 @@ class AgentGeneratorLevel extends CreatorLevel implements MouseListener, MouseMo
         clearButton.setEnabled(true);
         nextButton.setEnabled(true);
 
-        frame.setTitle("- Create Agent Generating Lines -"+model.getTitle() + ".xml");
-        frame.setSize(model.getxSize() * model.getScale() + 8, model.getySize() * model.getScale() + 100);
         frame.repaint();
 
 
@@ -260,5 +258,10 @@ class AgentGeneratorLevel extends CreatorLevel implements MouseListener, MouseMo
         points.clear();
         agentLines.clear();
         interactionArea.repaint();
+    }
+
+    @Override
+    public String getName() {
+        return "Factory Line Level";
     }
 }

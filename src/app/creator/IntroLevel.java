@@ -48,10 +48,8 @@ class IntroLevel extends CreatorLevel {
         descriptionArea.setVisible(true);
 
         descriptionArea.repaint();
-        frame.setTitle("Enter Properties");
+        
         frame.repaint();
-
-
     }
 
     @Override
@@ -150,5 +148,10 @@ class IntroLevel extends CreatorLevel {
         ySize.setText(Integer.toString(model.getySize()));
         scale.setText(Integer.toString(model.getScale()));
         latticeModel.setSelected(model.getLatticeSpaceFlag());
+    }
+
+    @Override
+    public String getName() {
+        return "Model Details Level";
     }
 }

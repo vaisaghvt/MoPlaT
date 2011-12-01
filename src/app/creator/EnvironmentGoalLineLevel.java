@@ -59,10 +59,7 @@ public class EnvironmentGoalLineLevel extends CreatorLevel implements MouseListe
         clearButton.setEnabled(true);
         nextButton.setEnabled(true);
 
-        frame.setTitle("- Create Goal Lines -" + model.getTitle() + ".xml");
-        frame.setSize(model.getxSize() * model.getScale() + 8, model.getySize() 
-                * model.getScale() + 100);
-        frame.repaint();
+      
 
 
         frame.add(interactionArea, BorderLayout.CENTER);
@@ -72,6 +69,8 @@ public class EnvironmentGoalLineLevel extends CreatorLevel implements MouseListe
         interactionArea.repaint();
         interactionArea.addMouseListener(this);
         interactionArea.addMouseMotionListener(this);
+        
+        frame.repaint();
     }
 
     @Override
@@ -208,5 +207,10 @@ public class EnvironmentGoalLineLevel extends CreatorLevel implements MouseListe
         points.clear();
         goalLines.clear();
         interactionArea.repaint();
+    }
+
+    @Override
+    public String getName() {
+        return "Checkpoint Adder Level";
     }
 }
