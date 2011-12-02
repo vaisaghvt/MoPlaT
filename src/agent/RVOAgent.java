@@ -67,7 +67,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      */
     protected Point2d currentPosition;
     protected double mass = 80; // in KG
-    
     /**
      * Current velocity of the agent
      */
@@ -107,7 +106,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         goal = new Point2d();
         checkPoints = new ArrayList<GoalLine>();
 
-      
+
         preferredSpeed = RVOAgent.PREFERRED_SPEED;
         maxSpeed = preferredSpeed * 2.0;
         velocity = new Vector2d(findPrefVelocity());
@@ -209,7 +208,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public void setMass(double mass) {
         this.mass = mass;
     }
-    
 
     /**
      * Sets and returns the prefered velocity. Generally this is just the velocity towards goal.
@@ -225,24 +223,14 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 
             return prefVelocity;
         } else {
-            
+
             Vector2d distance = new Vector2d(checkPoints.get(currentGoal).getCenter());
             distance.sub(currentPosition);
-            if (this.getCurrentPosition().getY() < (checkPoints.get(currentGoal).getCenter().getY())) {
-                if (currentGoal < checkPoints.size()) {
-                    //change goal once checkpoint is reached
-                    currentGoal++;
-                    if (currentGoal == checkPoints.size()) {
-                        return prefVelocity;
-                    }
-                }
-
-
-            } else if (this.getCurrentPosition().getX() > (checkPoints.get(currentGoal).getStart().getX() + RVOAgent.RADIUS)
-                    && this.getCurrentPosition().getX() < (checkPoints.get(currentGoal).getEnd().getX() - RVOAgent.RADIUS)) {
-
-                // Just move towards doorway not to center of doorway
-                checkPoints.get(currentGoal).center.x = this.getCurrentPosition().getX();
+            if (distance.length() < this.radius * 1.0) {
+                currentGoal++;
+            }
+            if (currentGoal == checkPoints.size()) {
+                return prefVelocity;
             }
             prefVelocity = new Vector2d(checkPoints.get(currentGoal).getCenter());
         }
@@ -313,7 +301,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             checkPoints.add(tempGoalLine);
         }
 
-        
+
 
     }
 
@@ -622,6 +610,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         }
 
         public Point2d getCurrentGoal() {
+
             return checkPoints.get(currentGoal).getCenter();
         }
     }

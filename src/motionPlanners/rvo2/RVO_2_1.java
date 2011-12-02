@@ -3,8 +3,10 @@ package motionPlanners.rvo2;
 import utility.Line;
 import environment.Obstacle.RVO2Obstacle;
 import agent.RVOAgent;
+import environment.RVOSpace;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 import motionPlanners.VelocityCalculator;
@@ -28,7 +30,6 @@ public class RVO_2_1 implements VelocityCalculator {
      * Stores the orcalines for calculation
      */
     List<Line> orcaLines;
-    
     /**
      * TIME_HORIZON 	float (time) 	The minimal amount of time for which the
      * agent's velocities that are computed by the simulation are safe with
@@ -59,23 +60,46 @@ public class RVO_2_1 implements VelocityCalculator {
 
     @Override
     public Vector2d calculateVelocity(RVOAgent me,
-            Bag neighbors, Bag obses, Vector2d preferredVelocity, double timeStep) {
+            Bag neighbors, Bag obstacleBag, Vector2d preferredVelocity, double timeStep) {
 
         orcaLines.clear();
-        
+
+
+        TreeMap<Double, RVO2Obstacle> obses = new TreeMap<Double, RVO2Obstacle>();
+        for (Object tempObject : obstacleBag) {
+            RVO2Obstacle tempObstacle = (RVO2Obstacle) tempObject;
+            double distanceToObstacleLine;
+            if (!obses.containsValue(tempObstacle)) {
+                distanceToObstacleLine = RVOSpace.calcDistanceToLineSegment(tempObstacle.getPoint(), tempObstacle.getNext().getPoint(), me.getCurrentPosition());
+                obses.put((Double) distanceToObstacleLine, tempObstacle);
+            }
+
+            if (!obses.containsValue(tempObstacle.getPrev())) {
+                distanceToObstacleLine = RVOSpace.calcDistanceToLineSegment(tempObstacle.getPoint(), tempObstacle.getPrev().getPoint(), me.getCurrentPosition());
+                obses.put((Double) distanceToObstacleLine, tempObstacle.getPrev());
+            }
+
+
+        }
+
+
+
+
+
+
 
         Vector2d newVelocity = new Vector2d(preferredVelocity);
 
-         final double invTimeHorizonObst = 1.0f / TIME_HORIZON_OBSTACLE;
+        final double invTimeHorizonObst = 1.0f / TIME_HORIZON_OBSTACLE;
 
 
 
         /* Create obstacle ORCA lines. */
-        for (int i = 0; i < obses.size(); i++) {
+        for (RVO2Obstacle obstacleFromList : obses.values()) {
 
 
-           
-            RVO2Obstacle obstacle1 = (RVO2Obstacle) obses.get(i);
+
+            RVO2Obstacle obstacle1 = obstacleFromList;
             RVO2Obstacle obstacle2 = obstacle1.getNext();
 //            System.out.println(obstacle1.getPoint());
             Vector2d obstacle1UnitDir = new Vector2d(obstacle1.getNext().getPoint());
@@ -105,7 +129,8 @@ public class RVO_2_1 implements VelocityCalculator {
             boolean alreadyCovered = false;
 
             for (int j = 0; j < orcaLines.size(); ++j) {
-                if (checkCovered(invTimeHorizonObst, relativePosition1, relativePosition2, orcaLines.get(j), me)) {
+                if (checkCovered(invTimeHorizonObst, relativePosition1,
+                        relativePosition2, orcaLines.get(j), me)) {
                     alreadyCovered = true;
 //                    System.out.println("Covered");
                     break;
@@ -208,7 +233,7 @@ public class RVO_2_1 implements VelocityCalculator {
 
                 obstacle2 = obstacle1;
 
-                final double LEG1 = ((distSq1 - radiusSq)<0)?0:Math.sqrt(distSq1 - radiusSq);
+                final double LEG1 = ((distSq1 - radiusSq) < 0) ? 0 : Math.sqrt(distSq1 - radiusSq);
 
                 leftLegDirection = new Vector2d(relativePosition1.getX() * LEG1 - relativePosition1.getY() * me.getRadius(), relativePosition1.getX() * me.getRadius() + relativePosition1.getY() * LEG1);
                 rightLegDirection = new Vector2d(relativePosition1.getX() * LEG1 + relativePosition1.getY() * me.getRadius(), negRelativePosition1.getX() * me.getRadius() + relativePosition1.getY() * LEG1);
@@ -227,7 +252,7 @@ public class RVO_2_1 implements VelocityCalculator {
 
                 obstacle1 = obstacle2;
 
-                final double LEG2 = ((distSq2 - radiusSq)<0)?0:Math.sqrt(distSq2 - radiusSq);
+                final double LEG2 = ((distSq2 - radiusSq) < 0) ? 0 : Math.sqrt(distSq2 - radiusSq);
                 leftLegDirection = new Vector2d(relativePosition2.getX() * LEG2 - relativePosition2.getY() * me.getRadius(), relativePosition2.getX() * me.getRadius() + relativePosition2.getY() * LEG2);
                 rightLegDirection = new Vector2d(relativePosition2.getX() * LEG2 + relativePosition2.getY() * me.getRadius(), negRelativePosition2.getX() * me.getRadius() + relativePosition2.getY() * LEG2);
                 leftLegDirection.scale(1.0f / distSq2);
@@ -334,8 +359,8 @@ public class RVO_2_1 implements VelocityCalculator {
             final double TLEFT = (velocityMinusLeft.dot(leftLegDirection));
             final double TRIGHT = (velocityMinusRight.dot(rightLegDirection));
 
-            if ((T < 0.0f && TLEFT < 0.0f) || 
-                    (obstacle1.equals(obstacle2) && TLEFT < 0.0f && TRIGHT < 0.0f)) {
+            if ((T < 0.0f && TLEFT < 0.0f)
+                    || (obstacle1.equals(obstacle2) && TLEFT < 0.0f && TRIGHT < 0.0f)) {
                 /* Project on left cut-off circle. */
 
 //                System.out.println("Project on left cut off");
@@ -471,7 +496,7 @@ public class RVO_2_1 implements VelocityCalculator {
 
             Vector2d relativeVelocity = new Vector2d(me.getVelocity());
             relativeVelocity.sub(otherAgent.getVelocity());
- 
+
             double distSq = relativePosition.dot(relativePosition);
             double combinedRadius = me.getRadius() + otherAgent.getRadius();
 
@@ -504,7 +529,7 @@ public class RVO_2_1 implements VelocityCalculator {
                     u.scale((combinedRadius * invTimeHorizon) - wLength);
                 } else {
                     /* Project on legs. */
-                    final double LEG = ((distSq - combinedRadiusSq)>0)?Math.sqrt(distSq - combinedRadiusSq):0;
+                    final double LEG = ((distSq - combinedRadiusSq) > 0) ? Math.sqrt(distSq - combinedRadiusSq) : 0;
 
                     if (det(relativePosition, w) > 0.0f) {
                         /* Project on left LEG. */
@@ -589,7 +614,7 @@ public class RVO_2_1 implements VelocityCalculator {
 
 
         return ((det(a, line.direction) - invTimeHorizonObst * me.getRadius()) >= -RVO_EPSILON
-             && (det(b, line.direction) - invTimeHorizonObst * me.getRadius()) >= -RVO_EPSILON);
+                && (det(b, line.direction) - invTimeHorizonObst * me.getRadius()) >= -RVO_EPSILON);
 
     }
 
@@ -689,7 +714,7 @@ public class RVO_2_1 implements VelocityCalculator {
             result.y = tempLineNoDirection.y;
 
         }
-        
+
         return true;
     }
 
@@ -807,8 +832,8 @@ public class RVO_2_1 implements VelocityCalculator {
 //
 //                    result.x = tempResult.x;
 //                    result.y = tempResult.y;
-                    
-                    result.x =0.0f;
+
+                    result.x = 0.0f;
                     result.y = 0.0f;
 
                 }

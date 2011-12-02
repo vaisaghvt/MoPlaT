@@ -5,7 +5,11 @@
 package environment.Obstacle;
 
 
+import app.RVOGui;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import javax.vecmath.Point2d;
+import sim.portrayal.DrawInfo2D;
 
 /**
  * RVO2Obstacle
@@ -79,5 +83,15 @@ public class RVO2Obstacle extends RVOObstacle{
             return true;
         }
         return false;
+    }
+    
+    @Override
+    public void draw(Object object, Graphics2D graphics, DrawInfo2D info){
+         graphics.setColor(Color.black);
+
+        graphics.drawLine((int)(point.getX()*RVOGui.scale),
+                (int)(point.getY()*RVOGui.scale),
+                (int)(nextObstacle.getPoint().getX()*RVOGui.scale),
+                (int)(nextObstacle.getPoint().getY()*RVOGui.scale));
     }
 }

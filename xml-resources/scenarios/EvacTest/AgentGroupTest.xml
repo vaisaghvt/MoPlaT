@@ -44,9 +44,9 @@
         <startPoint x="5.4" y="0.0"/>
     </environmentGoals>
     <agentGroups>
-        <endPoint x="9.6" y="10.8"/>
-        <startPoint x="6.9" y="9.0"/>
+        <endPoint x="9.9" y="10.8"/>
+        <startPoint x="1.8" y="9.0"/>
         <direction>3</direction>
-        <size>20</size>
+        <size>50</size>
     </agentGroups>
 </SimulationScenario>

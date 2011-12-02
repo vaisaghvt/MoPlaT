@@ -83,7 +83,7 @@ public class RVOModel extends SimState {
         }
 
         agentList = new ArrayList<RVOAgent>();
-        obstacleList = new ArrayList<RVOObstacle>();
+        //obstacleList = new ArrayList<RVOObstacle>();
         agentLineList = new ArrayList<AgentGenerator>();
 
     }
@@ -153,7 +153,7 @@ public class RVOModel extends SimState {
 
         rvoSpace = null;
         agentList = new ArrayList<RVOAgent>();
-        obstacleList = new ArrayList<RVOObstacle>();
+        //obstacleList = new ArrayList<RVOObstacle>();
         agentLineList = new ArrayList<AgentGenerator>();
         RVOAgent.agentCount = 0;
 
@@ -192,7 +192,7 @@ public class RVOModel extends SimState {
     }
 
     private void addNewObstacle(RVOObstacle obstacle) {
-        obstacleList.add(obstacle);
+        //obstacleList.add(obstacle);
         rvoSpace.addNewObstacle(obstacle);
     }
 
