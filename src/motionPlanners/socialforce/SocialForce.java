@@ -50,8 +50,8 @@ public class SocialForce implements VelocityCalculator {
         final int kappaj = 24000;  //Published value = 240000 kg/ms
         
         // Constant for agent-wall interaction
-        final int Aw = 2000;       //
-        final double Bw = 0.08;    //
+        final int Aw = 5000;       //
+        final double Bw = 0.1;    //
         final int kw = 12000;      //
         final int kappaw = 24000;  //
 
