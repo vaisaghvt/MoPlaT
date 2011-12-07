@@ -2,6 +2,8 @@ package app;
 
 import agent.AgentGenerator;
 import agent.RVOAgent;
+import agent.RVOAgent.Act;
+import agent.RVOAgent.SenseThink;
 import agent.clustering.ClusteredSpace;
 import environment.Obstacle.RVOObstacle;
 import environment.RVOSpace;
@@ -20,6 +22,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.vecmath.Point2d;
 import javax.xml.bind.JAXBException;
+import sim.engine.RandomSequence;
+import sim.engine.Schedule;
+import sim.engine.Sequence;
 import sim.engine.SimState;
 import sim.engine.Stoppable;
 
@@ -55,7 +60,7 @@ public class RVOModel extends SimState {
     private List<AgentGenerator> agentLineList;
     private Stoppable generatorStopper;
 
-//    //the list to keep record of every agent's status in each timestemp
+//    //the list to keep record of every agent's status in each timestep
 //    //each record contains a list of status for each agent
 //    //for each agent, there is a list to record all the necessary status (e.g., velocity, position etc)
 //    public ArrayList<ArrayList<ArrayList>> records;
@@ -141,6 +146,7 @@ public class RVOModel extends SimState {
                     rvoSpace,
                     new Color(Color.HSBtoRGB(0.7f - (float) i / (float) numAgentsPerSide, 1.0f, 0.68f))));
         }
+        this.scheduleAgents();
 //        this.addNewAgent(new RVOAgent( new Point2d(8,3.5), new Point2d(2,3.5)
 //        , this.rvoSpace, new Color(Color.HSBtoRGB(1.0f, 1.0f, 0.68f))));
 
@@ -158,13 +164,25 @@ public class RVOModel extends SimState {
         RVOAgent.agentCount = 0;
 
     }
+    
+    public void scheduleAgents(){
+        List<SenseThink> senseThinkAgents = new ArrayList<SenseThink>();
+        
+        List<Act> actAgents = new ArrayList<Act>();
+        for(RVOAgent agent: agentList){
+            senseThinkAgents.add(agent.getSenseThink());
+            actAgents.add(agent.getAct());
+        }
+        
+//        senseThinkStoppable = mySpace.getRvoModel().schedule.scheduleRepeating(senseThinkAgent, 2, 1.0);
+//        actStoppable = mySpace.getRvoModel().schedule.scheduleRepeating(actAgent, 3, 1.0);
+//        (new RVOAgent(this.rvoSpace)).scheduleAgent();
+        schedule.scheduleRepeating(Schedule.EPOCH,2,new RandomSequence(senseThinkAgents.toArray(new SenseThink[]{})),1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH,3,new Sequence(actAgents.toArray(new Act[]{})),1.0);
+    }
 
     public List<RVOAgent> getAgentList() {
         return agentList;
-    }
-
-    public static double getTimeStep() {
-        return PropertySet.TIMESTEP;
     }
 
     public int getWorldYSize() {
@@ -197,7 +215,7 @@ public class RVOModel extends SimState {
     }
 
     public void addNewAgent(RVOAgent a) {
-        a.scheduleAgent();
+        a.createSteppables();
         agentList.add(a);
         rvoSpace.updatePositionOnMap(a, a.getX(), a.getY());
         if (PropertySet.LATTICEMODEL) {
@@ -328,6 +346,6 @@ public class RVOModel extends SimState {
         } catch (JAXBException ex) {
             Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        this.scheduleAgents();
     }
 }

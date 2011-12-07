@@ -33,10 +33,8 @@ public class RVO2Obstacle extends RVOObstacle{
     RVO2Obstacle prevObstacle;
 
     public RVO2Obstacle() {
-        isConvex = true;
-        point = new Point2d();
-  
-    }
+         point = new Point2d();
+     }
 
     public RVO2Obstacle(boolean isConvex, Point2d point) {
         this.isConvex = isConvex;

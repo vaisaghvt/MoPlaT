@@ -618,7 +618,7 @@ public class RVO_2_1 implements VelocityCalculator {
 
     }
 
-    private double det(Vector2d a, Vector2d b) {
+    public static double det(Vector2d a, Vector2d b) {
         //modified...had a mistake.
         return a.getX() * b.getY() - a.getY() * b.getX();
     }

@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
+import motionPlanners.rvo2.RVO_2_1;
 import sim.field.continuous.Continuous2D;
 import sim.util.Bag;
 import sim.util.Double2D;
@@ -110,6 +111,12 @@ public class RVOSpace {
                 }else{
                     obstacles.get(i).setNext(obstacles.get(i+1));
                 }
+             
+                if(obstacle.getVertices().size() ==2){
+                    obstacles.get(i).setIsConvex(true);
+                }else {
+                    obstacles.get(i).setIsConvex(leftOf(obstacles.get(i).getPrev().getPoint(),obstacles.get(i).getPoint(),obstacles.get(i).getNext().getPoint()));
+                }
                 
                 obstacleSpace.setObjectLocation(obstacles.get(i), new Double2D(
                     obstacles.get(i).getPoint().getX(),
@@ -199,6 +206,21 @@ public class RVOSpace {
     
     private static double absSq(Vector2d bMinusA) {
         return bMinusA.dot(bMinusA);
+    }
+
+    private boolean leftOf(Point2d a, Point2d b, Point2d c) {
+        Vector2d aMinusC = new Vector2d(a);
+        aMinusC.sub(c);
+        
+        Vector2d bMinusA = new Vector2d(b);
+        bMinusA.sub(a);
+        
+        
+       if(Double.compare(RVO_2_1.det(aMinusC, bMinusA), 0.0f)>0){
+           return true;
+       }else{
+           return false;
+       }
     }
 
 }

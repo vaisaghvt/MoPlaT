@@ -96,8 +96,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      */
     protected VelocityCalculator velocityCalc;
     protected CommitToHighSpeed commitmentLevel;
-    protected Stoppable senseThinkAgent;
-    protected Stoppable actAgent;
+    protected Stoppable senseThinkStoppable;
+    protected Stoppable actStoppable;
+    private SenseThink senseThinkAgent;
+    private Act actAgent;
 
     public RVOAgent(RVOSpace mySpace) {
         super(); //for portraying the trails on the agentportrayal layer
@@ -259,11 +261,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         this.mySpace = space;
     }
 
-    public void scheduleAgent() {
-        senseThinkAgent = mySpace.getRvoModel().schedule.scheduleRepeating(new SenseThink(), 2, 1.0);
-        actAgent = mySpace.getRvoModel().schedule.scheduleRepeating(new Act(), 3, 1.0);
-    }
-
     /**
      * Returns the predicted position i time steps in the future based on linear dead reckoning.
      *
@@ -347,13 +344,27 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         return new MyProxy();
     }
 
-    class SenseThink implements Steppable {
+    public SenseThink getSenseThink() {
+        return this.senseThinkAgent;
+    }
+
+    public Act getAct() {
+        return this.actAgent;
+    }
+
+    public void createSteppables() {
+        this.senseThinkAgent = new SenseThink();
+        this.actAgent = new Act();
+
+    }
+
+    public class SenseThink implements Steppable {
 
         @Override
         public void step(SimState ss) {
 
 //            if (reachedGoal()) {
-//                senseThinkAgent.stop();
+//                senseThinkStoppable.stop();
 //                return;
 //            }
             findPrefVelocity(); //update the preferredVelocity according to the current position and the goal
@@ -536,7 +547,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      * Implementation of Removable step is to make sure agents die after exiting 
      * the simulation area
      */
-    class Act implements Steppable {
+    public class Act implements Steppable {
 
         @Override
         public void step(SimState ss) {
@@ -546,7 +557,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 //                currentPosition = new Point2d(-4000, 4000);
 //                goal = new Point2d(-4000, 4000);
 //                //             currentGoal++;
-//                actAgent.stop();
+//                actStoppable.stop();
 //                return;
 //            }
             velocity = chosenVelocity;
