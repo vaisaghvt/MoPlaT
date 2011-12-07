@@ -5,6 +5,7 @@
 package motionPlanners.socialforce;
 
 import agent.RVOAgent;
+import app.PropertySet;
 import javax.vecmath.Vector2d;
 import motionPlanners.VelocityCalculator;
 import sim.util.Bag;
@@ -16,7 +17,7 @@ import javax.vecmath.Point2d;
  * @author steven
  */
 public class SocialForce implements VelocityCalculator {
-
+    
     private double g(double x) {
         if (x >= 0) // Psudeo kernel 
         {
@@ -70,6 +71,27 @@ public class SocialForce implements VelocityCalculator {
         double fijx = 0;    //  X-direction interaction force initialization
         double fijy = 0;    //  Y-direction interaction force initialization
         
+        // #####################################################################
+        // PRECALCULATE WALL FORCE GRID
+        // #####################################################################
+        int N0x = 10*PropertySet.WORLDXSIZE;        // Total number of cell in X direction
+        int N0y = 10*PropertySet.WORLDYSIZE;        // Total number of cell in Y direction
+        double Xmin=0;                              // Minimum x point of terrain
+        double Xmax=PropertySet.WORLDXSIZE;         // Maximum x point of terrain
+        double Ymin=0;                              // Minimum y point of terrain
+        double Ymax=PropertySet.WORLDYSIZE;         // Maximum y point of terrain
+                
+        double[] vertexx = new double[] {0,0,5,5};      // Vertex coordinate x
+        double[] vertexy = new double[] {-5,0,0,-5};    // Vertex coordinate y
+        
+        double[][][] preFw = PrecalculateForces.PreCalcForce(N0x,N0y,vertexx,vertexy,Xmin,Xmax,Ymin,Ymax);
+        double[][] Fw = preFw[0];
+        double[][] Fwx = preFw[1];
+        double[][] Fwy = preFw[2];
+        
+        //
+        // Update everytime step for every neighbour
+        //
         for (int i = 0; i < neighbors.size(); i++) {
 
             RVOAgent tempAgent = (RVOAgent) neighbors.get(i);
@@ -117,50 +139,60 @@ public class SocialForce implements VelocityCalculator {
         double Vxint = (fijx) / Mi * timeStep;
         double Vyint = (fijy) / Mi * timeStep;
 
-        // #################################################################
-        // BOUNDARY FORCE
-        // #################################################################
-        double fiwx = 0;    //  X-direction interaction force initialization
-        double fiwy = 0;    //  Y-direction interaction force initialization
-
-        for (int i = 0; i < neighbors.size(); i++) {
-            RVOAgent tempObstacle = (RVOAgent) neighbors.get(i);
-            
-            if (tempObstacle.equals(me)){
-                continue;   // skip agent i itself for the calculation
-            }
-//            else if (tempObstacle.isSocialForceObstacle()==false){
-//                continue;
-//            }
-
-            double Wx = tempObstacle.getX();
-            double Wy = tempObstacle.getY();
-            double Diw = Math.sqrt((Pxi - Wx) * (Pxi - Wx) + (Pyi - Wy) * (Pyi - Wy));
-//            if (Diw < 0.01) {
-//                //System.out.println("ERR! Diw<0.01. Diw " + Diw + " Pxi: " + Pxi + " Wx: " + Wx);
-//                Diw = 1;
-//            }
-
-            double RD = Rw - Diw;
-
-            double Niwx = (Pxi - Wx) / Diw;
-            double Niwy = (Pyi - Wy) / Diw;
-
-            double Tiwx = -Niwy;    //Tangential component vector 
-            double Tiwy = Niwx;
-
-            double DeltaVtji = Vxi * Tiwx + Vyi * Tiwy;
-
-            double fsr = Aw * Math.exp(RD / Bw);
-            double fp = kw * g(RD);
-            double ff = kappaw * g(RD) * DeltaVtji;
-
-            fiwx += (fsr + fp) * Niwx + ff * Tiwx;
-            fiwy += (fsr + fp) * Niwy + ff * Tiwy;
-
-        }
+//         #################################################################
+//         BOUNDARY FORCE
+//         #################################################################
         
+//        double fiwx = 0;    //  X-direction interaction force initialization
+//        double fiwy = 0;    //  Y-direction interaction force initialization
+//
+//        for (int i = 0; i < neighbors.size(); i++) {
+//            RVOAgent tempObstacle = (RVOAgent) neighbors.get(i);
+//            
+//            if (tempObstacle.equals(me)){
+//                continue;   // skip agent i itself for the calculation
+//            }
+////            else if (tempObstacle.isSocialForceObstacle()==false){
+////                continue;
+////            }
+//
+//            double Wx = tempObstacle.getX();
+//            double Wy = tempObstacle.getY();
+//            double Diw = Math.sqrt((Pxi - Wx) * (Pxi - Wx) + (Pyi - Wy) * (Pyi - Wy));
+////            if (Diw < 0.01) {
+////                //System.out.println("ERR! Diw<0.01. Diw " + Diw + " Pxi: " + Pxi + " Wx: " + Wx);
+////                Diw = 1;
+////            }
+//
+//            double RD = Rw - Diw;
+//
+//            double Niwx = (Pxi - Wx) / Diw;
+//            double Niwy = (Pyi - Wy) / Diw;
+//
+//            double Tiwx = -Niwy;    //Tangential component vector 
+//            double Tiwy = Niwx;
+//
+//            double DeltaVtji = Vxi * Tiwx + Vyi * Tiwy;
+//
+//            double fsr = Aw * Math.exp(RD / Bw);
+//            double fp = kw * g(RD);
+//            double ff = kappaw * g(RD) * DeltaVtji;
+//
+//            fiwx += (fsr + fp) * Niwx + ff * Tiwx;
+//            fiwy += (fsr + fp) * Niwy + ff * Tiwy;
+//
+//        }
+//        
+//        
+//        double Vxwall = (fiwx) / Mi * timeStep;
+//        double Vywall = (fiwy) / Mi * timeStep;
         
+        // #################################################################
+        // BOUNDARY FORCE FIELD
+        // #################################################################
+        double[] Fwi = PrecalculateForces.averageSurroundForce(Pxi,Pyi,Xmax,Ymax,N0x,N0y,Fw,Fwx,Fwy);
+        double fiwx = Fwi[0];
+        double fiwy = Fwi[1];
         double Vxwall = (fiwx) / Mi * timeStep;
         double Vywall = (fiwy) / Mi * timeStep;
 
