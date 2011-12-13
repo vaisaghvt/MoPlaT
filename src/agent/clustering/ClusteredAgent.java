@@ -17,6 +17,7 @@ package agent.clustering;
  *
  */
 
+import utility.PrecisePoint;
 import agent.RVOAgent;
 import environment.RVOSpace;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class ClusteredAgent extends RVOAgent {
         super(rvoSpace);
         maxRadius = MAXCLUSTERRADIUS;
         radius = agent.getRadius();
-        velocity = new Vector2d(agent.getVelocity());
+        velocity = new PrecisePoint(agent.getVelocity().getX(), agent.getVelocity().getY());
         setCentre(new Point2d(agent.getCurrentPosition()));
         agents = new ArrayList<RVOAgent>();
         agents.add(agent);
@@ -69,11 +70,11 @@ public class ClusteredAgent extends RVOAgent {
      * @return location of center of the cluster.
      */
     public Point2d getCentre() {
-        return currentPosition;
+        return this.getCurrentPosition();
     }
 
     public final void setCentre(Point2d centre) {
-        this.currentPosition = new Point2d(centre);
+        this.setCurrentPosition(centre.getX(),centre.getY());
     }
     
     public double getMaxRadius() {
@@ -124,9 +125,10 @@ public class ClusteredAgent extends RVOAgent {
             double newCentreY = ((this.getCentre().y * this.agents.size()) + agent.getY()) / (agents.size() + 1);
             this.setCentre(new Point2d(newCentreX, newCentreY));
 
-            velocity.scale(agents.size() - 1);
-            velocity.add(agent.getVelocity());
-            velocity.scale(1.0 / agents.size());
+            Vector2d tempVelocity = new Vector2d(velocity.toVector());
+            tempVelocity.scale(agents.size() - 1);
+            tempVelocity.add(agent.getVelocity());
+            tempVelocity.scale(1.0 / agents.size());
 
             double maxDistance = Double.MIN_VALUE;
 
@@ -143,6 +145,7 @@ public class ClusteredAgent extends RVOAgent {
 
 
 //            System.out.println("Within cluster oledi\n***************");
+            this.velocity = new PrecisePoint(tempVelocity.getX(),tempVelocity.getY());
             return true;
         } else if ((distanceFromCentreToAgent + this.getRadius()) < (2.0 * maxRadius)) {
 //            System.out.println("Can be fitted in this cluster");
@@ -165,10 +168,10 @@ public class ClusteredAgent extends RVOAgent {
             this.setCentre(new Point2d(newCentreX, newCentreY));
 
 
-
-            velocity.scale(agents.size() - 1);
-            velocity.add(agent.getVelocity());
-            velocity.scale(1.0 / agents.size());
+            Vector2d tempVelocity = new Vector2d(velocity.toVector());
+            tempVelocity.scale(agents.size() - 1);
+            tempVelocity.add(agent.getVelocity());
+            tempVelocity.scale(1.0 / agents.size());
 
 
             agents.add(new RVOAgent(agent));
@@ -182,6 +185,7 @@ public class ClusteredAgent extends RVOAgent {
                 }
             }
             this.setRadius(maxDistance + RVOAgent.RADIUS);
+            this.velocity = new PrecisePoint(tempVelocity.getX(),tempVelocity.getY());
             return true;
         }
         return false;

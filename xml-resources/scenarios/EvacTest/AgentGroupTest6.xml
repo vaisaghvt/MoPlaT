@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" name="AgentGroupTest6" Xsize="12" Ysize="12" scale="50" direction="5" displayUsed="true" latticeModel="true" logUsed="true">
+    <roadMap x="5.7" y="3.6"/>
+    <roadMap x="5.7" y="1.8"/>
+    <roadMap x="5.7" y="0.0"/>
+    <roadMap x="5.7" y="-400.16"/>
+    <obstacles>
+        <vertices x="5.4" y="2.4"/>
+        <vertices x="5.4" y="3.0"/>
+        <vertices x="1.5" y="3.0"/>
+        <vertices x="1.5" y="11.1"/>
+        <vertices x="9.9" y="11.1"/>
+        <vertices x="9.9" y="3.0"/>
+        <vertices x="6.0" y="3.0"/>
+        <vertices x="6.0" y="2.4"/>
+        <vertices x="10.5" y="2.4"/>
+        <vertices x="10.5" y="11.7"/>
+        <vertices x="0.9" y="11.7"/>
+        <vertices x="0.9" y="2.4"/>
+    </obstacles> 
+    <agentGroups>
+        <endPoint x="9.3" y="10.9"/>
+        <startPoint x="1.8" y="3.6"/>
+        <size>300</size>
+    </agentGroups>
+</SimulationScenario>

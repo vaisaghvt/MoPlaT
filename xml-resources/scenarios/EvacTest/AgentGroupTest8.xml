@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" name="AgentGroupTest8" Xsize="12" Ysize="12" scale="50" direction="5" displayUsed="true" latticeModel="true" logUsed="true">
+     <roadMap x="5.7" y="3.8"/>
+    <roadMap x="5.7" y="1.6"/>
+    <roadMap x="5.7" y="0.0"/>
+    <roadMap x="5.7" y="-400.16"/>
+   
+    <agentGroups>
+        <endPoint x="9.3" y="10.9"/>
+        <startPoint x="1.8" y="3.6"/>
+        <size>300</size>
+    </agentGroups>
+</SimulationScenario>

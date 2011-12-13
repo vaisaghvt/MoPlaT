@@ -26,7 +26,7 @@ import sim.engine.SimState;
 import sim.portrayal.Inspector;
 import sim.portrayal.LocationWrapper;
 
-class AgentInspector extends Inspector {
+public class AgentInspector extends Inspector {
 
     public Inspector originalInspector;
 
@@ -66,6 +66,7 @@ class AgentInspector extends Inspector {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                
                 synchronized (state.schedule) {
                     // clear trails
                     agent.toggleTrails();

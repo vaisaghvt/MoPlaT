@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import javax.xml.bind.JAXBException;
 import motionPlanners.rvo2.RVO_2_1;
 import app.params.SimulationParameters;
+import utility.Geometry;
 
 /**
  *
@@ -57,7 +58,8 @@ public class PropertySet {
             RVOAgent.INFO_LIMIT = params.getInfoLimit();
             RVOAgent.PREFERRED_SPEED = params.getPreferredSpeed();
             RVOAgent.SENSOR_RANGE = params.getSensorRange();
-
+            
+            Geometry.RVO_EPSILON = params.getRVOEpsilon();
             if (USECLUSTERING) {
                 ClusteredSpace.ALPHA = params.getAlpha();
                 ClusteredSpace.CLUSTER_DIAMETER = (int) Math.round(
@@ -72,7 +74,7 @@ public class PropertySet {
             }
 
             if (MODEL == PropertySet.Model.RVO2) {
-                RVO_2_1.RVO_EPSILON = params.getRVOEpsilon();
+                
                 RVO_2_1.TIME_HORIZON = params.getTimeHorizon();
                 RVO_2_1.TIME_HORIZON_OBSTACLE = params.getTimeHorizonObst();
             }

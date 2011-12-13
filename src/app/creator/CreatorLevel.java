@@ -318,4 +318,17 @@ public abstract class CreatorLevel {
     }
 
     public abstract String getName();
+
+    void drawRoadMap(Graphics g, ArrayList<Position> roadMapPoints) {
+         int scale = model.getScale();
+        for (int i = 0; i < roadMapPoints.size()-1; i++) {
+             double startX = roadMapPoints.get(i).getX() * scale;
+            double startY = roadMapPoints.get(i).getY() * scale;
+            double goalX = roadMapPoints.get(i+1).getX() * scale;
+            double goalY = roadMapPoints.get(i+1).getY() * scale;
+            
+            g.setColor(Color.YELLOW);
+            g.drawLine((int) startX, (int) startY, (int) goalX, (int) goalY);
+        }
+    }
 }

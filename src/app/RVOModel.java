@@ -15,6 +15,7 @@ import environment.geography.Obstacle;
 import environment.geography.SimulationScenario;
 import agent.latticegas.LatticeSpace;
 import environment.geography.AgentGroup;
+import environment.geography.Position;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -164,21 +165,21 @@ public class RVOModel extends SimState {
         RVOAgent.agentCount = 0;
 
     }
-    
-    public void scheduleAgents(){
+
+    public void scheduleAgents() {
         List<SenseThink> senseThinkAgents = new ArrayList<SenseThink>();
-        
+
         List<Act> actAgents = new ArrayList<Act>();
-        for(RVOAgent agent: agentList){
+        for (RVOAgent agent : agentList) {
             senseThinkAgents.add(agent.getSenseThink());
             actAgents.add(agent.getAct());
         }
-        
+
 //        senseThinkStoppable = mySpace.getRvoModel().schedule.scheduleRepeating(senseThinkAgent, 2, 1.0);
 //        actStoppable = mySpace.getRvoModel().schedule.scheduleRepeating(actAgent, 3, 1.0);
 //        (new RVOAgent(this.rvoSpace)).scheduleAgent();
-        schedule.scheduleRepeating(Schedule.EPOCH,2,new RandomSequence(senseThinkAgents.toArray(new SenseThink[]{})),1.0);
-        schedule.scheduleRepeating(Schedule.EPOCH,3,new Sequence(actAgents.toArray(new Act[]{})),1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH, 2, new RandomSequence(senseThinkAgents.toArray(new SenseThink[]{})), 1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH, 3, new Sequence(actAgents.toArray(new Act[]{})), 1.0);
     }
 
     public List<RVOAgent> getAgentList() {
@@ -270,12 +271,8 @@ public class RVOModel extends SimState {
                         new Color(Color.HSBtoRGB((float) i / (float) xmlAgentList.size(),
                         1.0f, 0.68f)));
                 tempRVOAgent.setPreferredSpeed(tempAgent.getPreferedSpeed());
+                tempRVOAgent.setMaximumSpeed(tempAgent.getPreferedSpeed() * 2.0);
                 tempRVOAgent.setCommitmentLevel(tempAgent.getCommitmentLevel());
-
-                List<Goals> xmlGoalList = scenario.getEnvironmentGoals();
-                if (xmlGoalList.size() > 0) {
-                    tempRVOAgent.setCheckPoints(xmlGoalList);
-                }
 
 
                 addNewAgent(tempRVOAgent);
@@ -300,6 +297,17 @@ public class RVOModel extends SimState {
                 }
             }
 
+
+            List<Position> xmlRoadMap = scenario.getRoadMap();
+            if (!xmlRoadMap.isEmpty()) {
+                List<Point2d> actualRoadMap = new ArrayList<Point2d>();
+                for (Position point : xmlRoadMap) {
+                    actualRoadMap.add(new Point2d(point.getX(), point.getY()));
+                }
+                rvoSpace.addRoadMap(actualRoadMap);
+            }
+
+
             List<AgentLine> xmlAgentLineList = scenario.getGenerationLines();
             for (int i = 0; i < xmlAgentLineList.size(); i++) {
                 Point2d start = new Point2d(xmlAgentLineList.get(i).getStartPoint().getX(), xmlAgentLineList.get(i).getStartPoint().getY());
@@ -310,8 +318,21 @@ public class RVOModel extends SimState {
 
             List<AgentGroup> xmlAgentGroupList = scenario.getAgentGroups();
             for (AgentGroup tempAgentGroup : xmlAgentGroupList) {
+                
                 Point2d start = new Point2d(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY());
                 Point2d end = new Point2d(tempAgentGroup.getEndPoint().getX(), tempAgentGroup.getEndPoint().getY());
+                if(tempAgentGroup.getSize()==1){
+                    double x = (start.getX()+end.getX()) /2;
+                    double y = (start.getY()+end.getY()) /2;
+                    RVOAgent agent = new RVOAgent(this.getRvoSpace());
+                    agent.setCurrentPosition(x, y);
+
+                    this.addNewAgent(agent);
+                    if (rvoSpace.hasRoadMap()) {
+                        agent.setGoal(rvoSpace.getFinalGoal());
+                    }
+                    break;
+                }
                 int numberPossibleOnWidth = (int) Math.floor((end.getX() - start.getX()) / (2.0 * RVOAgent.RADIUS));
                 int numberPossibleOnHeight = (int) Math.floor((end.getY() - start.getY()) / (2.0 * RVOAgent.RADIUS));
                 int maxPossible = numberPossibleOnWidth * numberPossibleOnHeight;
@@ -322,27 +343,20 @@ public class RVOModel extends SimState {
 
                     double distanceFromStart = (RVOAgent.RADIUS + 2 * (position - 1) * RVOAgent.RADIUS);
 
-                    double x = start.getX() + (distanceFromStart % (end.getX()-start.getX()));
-                    double y = (start.getY() + (((int)(distanceFromStart / (end.getX()-start.getX()))) * RVOAgent.RADIUS * 2.0));
+                    double x = start.getX() + (distanceFromStart % (end.getX() - start.getX()));
+                    double y = (start.getY() + (((int) (distanceFromStart / (end.getX() - start.getX()))) * RVOAgent.RADIUS * 2.0));
 
 
                     RVOAgent agent = new RVOAgent(this.getRvoSpace());
                     agent.setCurrentPosition(x, y);
 
                     this.addNewAgent(agent);
-                    if (xmlGoalList.size() > 0) {
-                        agent.setCheckPoints(xmlGoalList);
-
+                    if (rvoSpace.hasRoadMap()) {
+                        agent.setGoal(rvoSpace.getFinalGoal());
                     }
-
-                    agent.setVelocity(agent.findPrefVelocity());
-
-
+                    //          agent.setVelocity(agent.findPrefVelocity());
                 }
-
             }
-
-
         } catch (JAXBException ex) {
             Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);
         }

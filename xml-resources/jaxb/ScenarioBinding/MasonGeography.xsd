@@ -57,6 +57,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="crowd" type="Agent" minOccurs="1" maxOccurs="unbounded"/>
+                <xs:element name="roadMap" type="Position" minOccurs="1" maxOccurs="unbounded"/>
                 <xs:element name="obstacles" type="Obstacle" minOccurs="1" maxOccurs="unbounded"/>
                 <xs:element name="environmentGoals" type="Goals" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="generationLines" type="AgentLine" minOccurs="0" maxOccurs="unbounded"/>

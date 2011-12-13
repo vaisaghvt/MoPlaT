@@ -38,6 +38,7 @@ class ModelDetails {
     private List<AgentLine> agentLines = new ArrayList<AgentLine>();
     private List<AgentGroup> agentGroups = new ArrayList<AgentGroup> ();
     private List<Goals> goalLines = new ArrayList<Goals> ();
+    private List<Position> roadMap;
 
  
     public void loadFromFile(File file) {
@@ -51,6 +52,7 @@ class ModelDetails {
             if (environment.isLatticeModel() != null) {
                 this.setLatticeModel(environment.isLatticeModel());
             }
+            this.setRoadMap(environment.getRoadMap());
             this.setObstacles(environment.getObstacles());
             this.setAgents(environment.getCrowd());
             this.setAgentLines(environment.getGenerationLines());
@@ -195,6 +197,20 @@ class ModelDetails {
             }
         }
         
+        environment.getRoadMap().clear();
+        if (!roadMap.isEmpty()) {
+            for (int i = 0; i < roadMap.size(); i++) {
+                
+                
+                Position roadMapPoint = new Position();
+                roadMapPoint.setX((double) roadMap.get(i).getX());
+                roadMapPoint.setY((double) roadMap.get(i).getY());
+
+                
+                environment.getRoadMap().add(roadMapPoint);
+            }
+        }
+        
         XMLScenarioManager manager = XMLScenarioManager.instance("environment.geography");
         try {
 
@@ -303,5 +319,13 @@ class ModelDetails {
     
     public void setGoalLines(List<Goals> goalLines) {
         this.goalLines = goalLines;
+    }
+
+    public List<Position> getRoadMap() {
+        return this.roadMap;
+    }
+
+    public void setRoadMap(List<Position> roadMap) {
+        this.roadMap = roadMap;
     }
 }
