@@ -67,4 +67,39 @@ public class PrecisePoint {
         }
         return vectorValue;
     }
+
+    @Override
+    public String toString() {
+        return "PrecisePoint{" + "x=" + x + ", y=" + y + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 29 * hash + (this.x != null ? this.x.hashCode() : 0);
+        hash = 29 * hash + (this.y != null ? this.y.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PrecisePoint other = (PrecisePoint) obj;
+        if (this.x.compareTo(other.x)!=0){
+            return false;
+        }
+        if (this.y.compareTo(other.y)!=0) {
+            return false;
+        }
+        return true;
+    }
+    
+ 
+    
+    
 }
