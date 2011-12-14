@@ -43,8 +43,8 @@ public class SocialForceObstacle extends ObstaclePortrayal{
             
             Point2d location = new Point2d(bufStaticAgentX,bufStaticAgentY);
             RVOAgent tempAgent = new RVOAgent(location, location, mySpace, Color.black);
-            tempAgent.setSocialForceObstacle(true);
-            
+//            tempAgent.setSocialForceObstacle(true);
+//            
             mySpace.getCurrentAgentSpace().setObjectLocation(
             tempAgent,
             new Double2D(location.x,location.y));
