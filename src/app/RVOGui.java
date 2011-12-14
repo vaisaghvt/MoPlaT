@@ -134,8 +134,6 @@ public class RVOGui extends GUIState {
      */
     @Override
     public void init(Controller c) {
-
-
         super.init(c);
 
         // Make the Display2D.  We'll have it display stuff later.

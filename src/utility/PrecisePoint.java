@@ -99,7 +99,16 @@ public class PrecisePoint {
         return true;
     }
     
- 
+    //@hunan added
+    public void scale(double n){
+        setX(this.getX()* n);
+        setY(this.getY()* n);
+    }
     
-    
+    //@hunan added
+    public void add(Point2d toPoint) {
+        setX(this.getX() + toPoint.getX());
+        setY(this.getY() + toPoint.getY());
+    }
+   
 }

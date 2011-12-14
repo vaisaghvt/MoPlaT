@@ -2,35 +2,64 @@ package motionPlanners.pbm;
 
 import agent.RVOAgent;
 import app.PropertySet;
+import app.RVOModel;
 import java.awt.Color;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MoveAction;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 import motionPlanners.pbm.WorkingMemory.STRATEGY;
 
 public class Decision {
-
-    RVOAgent myAgent;
-    RVOAgent targetAgent;
+    RVOAgent me;
+    int targetID;
     WorkingMemory wm;
     boolean left; //from which side of the target to execute the strategy
     private STRATEGY currentStrategy; //current action = MOVE or current executing strategy (selected)
     int instructedTime; //number of frames, within which to execute the strategy
-    //backup copy of start position and velocity for the use of steering back behavior in avoid and overtake strategy execution
-    Point2d startPosbefExe;
-    Vector2d startPosVel;
+    
+    int midIndex;
+    int targetIndex; //column index of the target in the stp
+    
+    //for the desired spatial pattern to occur in the current STP instance p1
+    int t1;
 
-    public Vector2d getStartPosDirection() {
-        return startPosVel;
+    //for recording of whether the matching fail is because of failed for overtaking or both overtaking and following
+    boolean overtakeFlag;
+  
+    //for overtaking strategy
+    Vector2d startVelocity;
+    Point2d startPosition;
+
+    public Point2d getStartPosition() {
+        return startPosition;
     }
 
-    public Point2d getStartPosbefAvoid() {
-        return startPosbefExe;
+    public Vector2d getStartVelocity() {
+        return startVelocity;
+    }
+    
+    
+    public Decision(WorkingMemory wm) {
+        this.wm = wm;
+        me = wm.getMyAgent();
+        targetID = -1;
+        targetIndex = -1;  
+        left = true; //default left
+        instructedTime = -1;
+        midIndex = 5;
+        this.currentStrategy = STRATEGY.MOVE;
+        overtakeFlag=false;
     }
 
     public STRATEGY getCurrentStrategy() {
         return currentStrategy;
     }
 
+   private void setCurrentStrategy(STRATEGY strategy) {
+        this.currentStrategy = strategy;
+        this.wm.getAction().finishCurrentStrategy = false;
+    }
+    
     public boolean isLeft() {
         return left;
     }
@@ -39,604 +68,8 @@ public class Decision {
         return instructedTime;
     }
 
-    public RVOAgent getTargetAgent() {
-        return targetAgent;
-    }
-    static int threshold; //number of continuous 0s required for perceiving as true available space (used in grouping)
-    int tta; //time to first row of the 2d array based on the relative speed of me and the centerGroup
-    int midIndex;
-    int targetIndex; //agent index of the target, =-1 if there is no target returned
-    int targetGroup; //values can be -1, 0 or 1 to represent the Focus (information of the group in the center front)
-
-    public int getThreshold() {
-        return threshold;
-    }
-
-    public Decision(WorkingMemory wm) {
-        this.wm = wm;
-        myAgent = wm.getMyAgent();
-        targetAgent = null;
-        left = true;
-        instructedTime = 0;
-        midIndex = wm.getVision().spacepattern[0][0].length / 2;
-        targetIndex = -1; //if centerGroup == 0, no strategy is needed, so no target should be selected
-        targetGroup = 0; //center front is not blocked
-        tta = Integer.MAX_VALUE;
-        threshold = (int) Math.ceil(myAgent.getPersonalSpaceFactor()); //consider personal space when considering whether a space is available during pattern formation
-        this.currentStrategy = STRATEGY.MOVE;
-    }
-
-    //each time when updating all agents' states, this function is called before execute specific action in Action class
-    public boolean needNewDicison() {
-        if (wm.getAction().frameFromLastDecision >= wm.getVision().getPf() * 10 || wm.getAction().violateExpectation || wm.getAction().finishCurrentStrategy || this.currentStrategy == STRATEGY.MOVE) {
-            wm.getAction().frameFromLastDecision = 0; //reset frame counter for new strategy execution
-            wm.getVision().setStrategySelected(false);
-            return true;
-        } else {
-            wm.getVision().setStrategySelected(true);
-            return false;
-        }
-    }
-
-    /**
-     * Main method called to calculate new strategy. Strategy selection is
-     * based on two things:
-     * 1. The input from the vision system (pattern)
-     * 2. The high  level cognitive strategy selection (i.e., preferred strategy).
-     */
-    private void selectNewStrategy() {
-        System.out.println("start decision on which strategy to select at current situation");
-        //1. form 3D array to represent the SA at current frame
-
-        //call grouping function (personal space is considered here)
-        //return column index of the POTENTIAL target at the edge of the center group next to the available space
-        targetIndex = spatialGrouping(wm, 0);
-
-        if (targetIndex == -1 && targetGroup == 2) {
-            System.out.println("case 1. No space to execute steering strategy, resolve to instinctive reactions"); //maybe slow down
-            wm.getMyAgent().setColor(Color.yellow);
-            this.setCurrentStrategy(STRATEGY.SUDDENSLOW);
-        } else if (targetIndex == -1 && targetGroup == 0) {
-            System.out.println("case 2. No one is blocking myAgent's way in front");
-            this.setCurrentStrategy(STRATEGY.MOVE);
-            wm.getAction().finishCurrentStrategy = true;
-        } else {
-            //expect how many frames from now on can me rich the boundary of the first attention range
-            System.out.println("target is " + targetAgent + "   " + targetAgent.getId() + " " + targetAgent.getVelocity());
-            int t1 = calculateTTA(myAgent, targetAgent);
-            System.out.println("time to reach the perceived space is " + t1 + "frames");
-            //2. mimic the CHECKUP TABLE against experience for "steering strategy verification"
-            //This part is only for agents whose preferred speed is fast
-            if (wm.ps_discrete != WorkingMemory.PreferredSpeed_Discrete.SLOW) {
-//                //the center in front is not blocked
-//                if (targetGroup == 0) {
-//                    this.setCurrentStrategy(STRATEGY.MOVE);
-//                    System.out.println("myAgent: no obstacle blocked my way in front, move as usual");
-//                    //   wm.getAction().updateState(); //call default action, no strategy is to be executed
-//                    //if no strategy is selected at current frame, in the next frame, it will make decision again
-//                    wm.getAction().finishCurrentStrategy = true;
-//                } //the front center is blocked and there is someone coming towards myAgent, which creates higher threat for collision than those moving in same direction
-                if (targetGroup == -1) {
-                    if (wm.getMyAgent().getCommitementLevel() != WorkingMemory.CommitToHighSpeed.HIGHCOMMITMENT) {
-                        boolean matchforavoid = patternMatching(-1, t1);
-                        if (matchforavoid) {
-                            System.out.println("case 3-1. Pattern-Matched successful for Avoiding");
-                            this.setCurrentStrategy(STRATEGY.AVOID);
-                            //record the current position and velocity of myAgent for steering back and checking "ahead"
-                            //create a copy of myAgent's current position for the use of steerback() function
-                            startPosbefExe = new Point2d(wm.getMyAgent().getCurrentPosition());
-                            startPosVel = new Vector2d(wm.getMyAgent().getVelocity());
-                            startPosVel.normalize();
-                            //      wm.getAction().execute(STRATEGY.AVOID, targetAgent, left, instructedTime);
-                        } else {
-                            //instinctive reactions(slideaside or stop) when no space on either side of the avoiding target
-                            System.out.println("case 3-1. Pattern didnt successfully matched for Avoiding, executing Sidesliding");
-                            this.setCurrentStrategy(STRATEGY.SIDESLIDING);
-                        }
-                    } else { //commitToHIghSpeed is HIGH
-                        this.setCurrentStrategy(STRATEGY.MOVE);
-//                        wm.getAction().finishCurrentStrategy = true;
-                        //in this case, the goal of "AVOID" never can achive, so new decision needs to be made next frame
-                    }
-                } //the front center is blocked by a gourp of agents with same direction as myAgent
-                else if (targetGroup == 1) {
-                    if (wm.getMyAgent().getCommitementLevel() != WorkingMemory.CommitToHighSpeed.HIGHCOMMITMENT) {
-                        //check spacepattern for both phase 1 and phase 2
-                        //the agent is committed to more levels in the pattern-matching, it is more cautious
-                        boolean matchforovertake_1n2 = patternMatching(2, t1);
-                        if (matchforovertake_1n2) {
-                            //within verifybyPhase(2), should set side and instructedTime accordingly
-                            System.out.println("case 4-1. Patternlevels-Matched both 2 phases successful for Overtaking (high commitment level for agent)");
-                            this.setCurrentStrategy(STRATEGY.OVERTAKE);
-                            //create a copy of myAgent's current position for the use of steerback() function
-                            startPosbefExe = new Point2d(wm.getMyAgent().getCurrentPosition());
-                            startPosVel = new Vector2d(wm.getMyAgent().getVelocity());
-                            startPosVel.normalize();
-                        } else {
-                            System.out.println("case 4-2. Pattern-Matched both 2 phases failed for Overtaking, executing following instead (high commitment for agent)");
-                            this.setCurrentStrategy(STRATEGY.FOLLOW);
-                            wm.getAction().finishCurrentStrategy = true; //prompt the agent to make new decision next frame
-                        }
-                    } else {
-                        //commitment level to high speed is high, which means less requirement on environment, as long as phase 1 got space, will start to overtake
-                        boolean matchforovertake_1 = patternMatching(1, t1);
-                        if (matchforovertake_1) {
-                            System.out.println("case 5-1. Pattern-Matched phase 1 successful for Overtaking,start executing Overtaking (low commitment of strategy planning for agent)");
-                            this.setCurrentStrategy(STRATEGY.OVERTAKE);
-                            startPosbefExe = new Point2d(wm.getMyAgent().getCurrentPosition());
-                            startPosVel = new Vector2d(wm.getMyAgent().getVelocity());
-                            startPosVel.normalize();
-                        } else {
-                            this.setCurrentStrategy(STRATEGY.FOLLOW);
-                            System.out.println("case 5-2. Pattern-Matched phase 1 failed for Overtaking,start executing Following instead (low commitment of strategy planning for agent)");
-                            wm.getAction().finishCurrentStrategy = true;
-                        }
-                    }
-                }
-            } //for agents, whose preferred speed is slow
-            else {
-                //TODO: here, actually no much steering strategy for agents whoes preferredVelocity is slow
-                //For future work, can consider "active follow" here, not as the backup strategy for overtaking.
-                //in "active follow", 2 things to do
-                /*
-                 * 1. grouping of agents according to 1) position (2d array in single frame) 2) velocity similarity (number of frames to maintain the similar group along different frames (3d))
-                 * 2. choice of group to follow depends on 1) direction deviation from current velocity
-                 *    2) speed change from current velocity 3) direction deviation from current goal
-                 */
-            }
-        }
-    }
-
-    /**
-     * This is similar to TTC in RVO, calculate time to available 
-     * space beside the target agent targetAgt
-     * @param myAgt - myAgt
-     * @param targetAgt - targetAgent
-     * @return
-     */
-    protected int calculateTTA(RVOAgent myAgt, RVOAgent targetAgt) {
-        int frameNum = Integer.MAX_VALUE; //agent myAgt can never collide with agent targetAgt
-        Vector2d relativeS = new Vector2d(myAgt.getVelocity());
-        relativeS.sub(targetAgt.getVelocity());
-        double distanceToMove = Integer.MAX_VALUE; //if the relative speed vector doesnt cut the relative circle
-
-        Point2d p1 = myAgt.getCurrentPosition();
-        Point2d p2 = targetAgt.getCurrentPosition();
-        Vector2d pa2pb = new Vector2d(p2);
-        pa2pb.sub(p1);
-        double relativeDistance = pa2pb.length();
-
-        //TODO, shall we use radius or radius*personalSpaceFactor here?
-        double relativeRadius = myAgt.getRadius() + targetAgt.getRadius();
-        //define line's formulae representing the vector of relative speed
-        //y-ya - slope(x-xa)=0
-        double slope = Math.tan(relativeS.y / relativeS.x);
-        //distance of p2 to the line
-        double d = (float) Math.abs(p2.y - p1.y - slope * (p2.x - p1.x)) / Math.sqrt(1 + slope * slope);
-
-        if (d > relativeRadius) {
-            return frameNum; //never will reach the perceived space beside the potential target
-        } else {
-            double m = Math.sqrt(relativeRadius * relativeRadius - d * d);
-            distanceToMove = Math.sqrt(relativeDistance * relativeDistance - d * d) - m;
-            frameNum = (int) ((distanceToMove / relativeS.length()) / PropertySet.TIMESTEP); //if within 1 frames can reach, return 0
-            return frameNum;
-        }
-    }
-
-    /**
-     * calculate TTA based on the maximum speed of Agent a
-     *
-     * @param a
-     * @param b
-     * @return
-     */
-    protected int calculateTTA_MaxSpeed(RVOAgent a, RVOAgent b) {
-        int frameNum = Integer.MAX_VALUE; //agent a can never collide with agent b
-        Vector2d relativeS = new Vector2d(a.getVelocity());
-        relativeS.normalize();
-        relativeS.scale(wm.getAction().getMaxSpeed());
-        relativeS.sub(b.getVelocity());
-        double distanceToMove = Integer.MAX_VALUE; //if the relative speed vector doesnt cut the relative circle
-
-        Point2d p1 = a.getCurrentPosition();
-        Point2d p2 = b.getCurrentPosition();
-        Vector2d pa2pb = new Vector2d(p2);
-        pa2pb.sub(p1);
-        double relativeDistance = pa2pb.length();
-
-        //TODO, shall we use radius or radius*personalSpaceFactor here?
-        double relativeRadius = a.getRadius() + b.getRadius();
-        //define line's formulae representing the vector of relative speed
-        //y-ya - slope(x-xa)=0
-        double slope = Math.tan(relativeS.y / relativeS.x);
-        //distance of p2 to the line
-        double d = (float) Math.abs(p2.y - p1.y - slope * (p2.x - p1.x)) / Math.sqrt(1 + slope * slope);
-
-        if (d > relativeRadius) {
-            return frameNum; //never will reach the perceived space beside the potential target
-        } else {
-            double m = Math.sqrt(relativeRadius * relativeRadius - d * d);
-            distanceToMove = Math.sqrt(relativeDistance * relativeDistance - d * d) - m;
-            frameNum = (int) ((distanceToMove / relativeS.length()) / PropertySet.TIMESTEP);
-            return frameNum;
-        }
-    }
-
-    /**
-     * Return the target agent index. target is selected from a group, which is 
-     * based on the array and personal space set parameter "left", to indicate
-     * from which side of the current moving direction gonna this agent execute 
-     * the strategy also set the groupCenter to indicate whether the center 
-     * group is 0 or -1 or 1(corresponding to different preferred strategy)
-     *
-     * @param wm
-     * @param frame
-     * @return
-     */
-    //  for group center (focus of the pattern)
-        /*
-     * xxxx1-11xxxxxx
-     * xxxx-111xxxxxx
-     * xxxx-10-1xxxxx
-     * assumptions here:
-     * 1. -1 is more important
-     * 2. continuous 0, including the midIndex, need to meet threshold: myspace/bodysize
-     */
-    /*
-     * here, it just check briefly whether the first row at the current frame got available space that meets the personal space
-     * later when this is done, more detailed check involving time factor will be carried out in verifybyPhase() function
-     */
-    //grouping agents for the first row in current frame based on direction and personal space
-    private int spatialGrouping(WorkingMemory wm, int frame) {
-
-        Point2d spaceIndecies = new Point2d(0, wm.getVision().spacepattern[0][0].length - 1);
-
-        /*
-         * previously,  check all 3 levels of attention for possible target, now only check the first level, because targets far away
-         * from the first attention range is too dynamic to monitor, leave it to the pattern-matching process
-         */
-        //    int tempRow [] = new int[wm.getVision().spacepattern[frame][0].length];
-        //   for(int x = 0; x <wm.getVision().spacepattern[frame][0].length; x++)
-        //      tempRow[x] = wm.getVision().spacepattern[frame][0][x];
-        //get the space indecies, in the array, which meets 2 requirements
-        //1. got at least threshold number of continuous 0s
-        //2. the space is nearest to the midIndex
-        spaceIndecies = getSpaceIndecies(wm.getVision().spacepattern[frame][0], threshold);
-
-        if (spaceIndecies.x == -1) {
-            System.out.println("for the first attention level, there is no available space observed");
-            //targetGroup ==2 means no available space in front.
-            targetGroup = 2;
-            return -1;
-        } else {
-            if (spaceIndecies.x <= midIndex && spaceIndecies.y >= midIndex) {
-                System.out.println("for the first attention level, there is no obstacle observed");
-                //if there is available space in center front
-                targetGroup = 0;
-                return -1;
-            } else if (spaceIndecies.y < midIndex) {
-                left = true;
-                targetAgent = wm.getVision().spacepattern_agt[frame][0][(int) spaceIndecies.y + 1];
-                //targetGroup ==1 means there is space for overtaking the target group
-                if (wm.getVision().spacepattern[frame][0][(int) (spaceIndecies.y + 1)] == 1) {
-                    targetGroup = 1;
-                } //targetGroup ==-1 means there is space for avoiding the target group
-                else {
-                    targetGroup = -1;
-                }
-                return (int) (spaceIndecies.y + 1);
-            } else {
-                left = false;
-                targetAgent = wm.getVision().spacepattern_agt[frame][0][(int) spaceIndecies.x - 1];
-                if (wm.getVision().spacepattern[frame][0][(int) (spaceIndecies.x - 1)] == 1) {
-                    targetGroup = 1;
-                } else {
-                    targetGroup = -1;
-                }
-                return (int) (spaceIndecies.x - 1);
-            }
-        }
-    }
-
-    /**
-     * Takes an array and finds the set of continuous zeros nearest to the
-     * midpoint of the array which is at least of length th
-     *
-     * @param array
-     * @param th (threshold)
-     * @return
-     */
-    public Point2d getSpaceIndecies(final int[] array, int th) {
-        int midPoint = array.length / 2;
-        int curLeft = -1;
-        int curRight = -1;
-        int minDistance = Integer.MAX_VALUE;
-
-        int leftStartI = midPoint;
-        boolean foundLeftStart = false;
-        int leftCount = 0;
-
-        for (int i = 0; i < array.length; i++) {
-            if (!foundLeftStart) {//no start point yet
-                if (array[i] == 0) {
-                    leftStartI = i;
-                    leftCount = 0;
-                    foundLeftStart = true;
-                }
-            } else {
-                //next start point
-
-                if (array[i] == 0 && i != array.length - 1) { //still zeros and not at end of line
-                    leftCount++;
-                } else {
-                    if (i == array.length - 1 && array[i] == 0) {
-                        leftCount++; //special case of zero at the end, need to add the extra zero count
-                    }
-                    if (leftCount >= th - 1) {
-                        if (leftStartI <= midPoint && leftStartI + leftCount - 1 >= midPoint) {
-                            return new Point2d(leftStartI, leftStartI + leftCount);//pass over middle
-                        }
-                        if (Math.abs(leftStartI - midPoint) < minDistance || Math.abs(leftStartI + leftCount - midPoint) < minDistance) {
-                            curLeft = leftStartI;
-                            curRight = leftStartI + leftCount;
-                            minDistance = Math.min(Math.abs(curLeft - midPoint), Math.abs(curRight - midPoint));
-                        }
-                    }
-                    foundLeftStart = false;
-                }
-            }
-
-
-        }
-        return new Point2d(curLeft, curRight);
-    }
-
-//    public static void main(String args[]) {
-//        int[] test = {0, 0, 1, 0, 0, 0, 0, 0, 0};
-//        //  Decision d = new Decision();
-//        Point2d test2 = Decision.getSpaceIndecies(test, 2);
-//        System.out.println("Index: " + test2);
-//
-//    }
-    /**
-     * currently, just a simple function to MODEL phase-by-phase pattern-matching process
-     *
-     * @param strategyID
-     * @param t1
-     * @return
-     */
-    private boolean patternMatching(int strategyID, int t1) {
-        boolean success = false; //initial value
-        switch (strategyID) {
-            //in principle, this case 0 can never be achieved
-            case 0:
-                System.out.println("No need to match pattern");
-                success = false;
-                break;
-            //pattern matching for avoiding
-            case -1:
-                if (targetIndex < 0) {
-                    System.out.println("no potential target for avoiding");
-                    success = false;
-                } else {
-                    System.out.println("Need to match pattern for side-avoiding");
-                    success = verifySpace_phase1(t1);
-                }
-                break;
-            //pattern matching for overtaking phase 1 (catching up)
-            case 1:
-                System.out.println("Need to match pattern for phase 1 of overtaking");
-                if (targetIndex < 0) {
-                    System.out.println("no potential target for overtaking");
-                    success = false;
-                } else {
-                    success = verifySpace_phase1(t1);
-                }
-                break;
-            //pattern matching for both phase 1 and phase 2 in overtaking
-            case 2:
-                System.out.println("Need to match pattern for both phase 1 and phase 2 of overtaking");
-                if (targetIndex < 0) {
-                    System.out.println("no potential target for overtaking");
-                    success = false;
-                } else {
-                    success = verifySpace_phase1n2(t1);
-                }
-                break;
-        }
-        return success;
-    }
-
-    //
-    /**
-     * in the function, need to perform pattern-matching for phase 1 overtaking
-     * or side-avoiding need to set instructedTime according to the matching condition
-     *
-     * @param t
-     * @return
-     */
-    private boolean verifySpace_phase1(int t) {
-        boolean success1 = false;
-        int T = 0;
-
-        //though in verifyStrategy(), first row has been checked for 001 or 00-1 pattern
-        //still need to recheck here coz from current position of me to the boundary of attention_multi[0] takes t frames
-        //during these t frames, targetIndex may change already, that is why target agent was retrieved before this function
-
-        //pf == 20 currently
-        if (t > wm.getVision().getPf()) {
-            t = wm.getVision().getPf(); //decision can only be made based on information within prediction
-        }
-
-        //here, need to think whether the 00-1 and 001 patterns need to last for T or, need to appear at t
-        /*
-         * currently, I think should be lasting for T, because during this period, if any information changed
-         * on the focus area (001 or 00-1), then new decision should be made, coz it is the closest area that can cost highest level of threat to myAgent
-         */
-
-        for (int i = 0; i < t; i++) {
-            //along different slices of 2d array, try to find how many frames from now has the pattern 001 or 00-1 last
-            for (int j = 0; j < wm.getVision().spacepattern[0][0].length; j++) {
-                //1. since the column index in the array can be changed for the target agent, so we need to find this agent first using the agent's reference itself
-                if (wm.getVision().spacepattern_agt[i][0][j] == targetAgent) {
-                    //if previously, during selction of target in spatialGrouping(), the available space is on the left of the target
-                    if (left) {
-                        int checksum = 0;
-                        if (j - threshold >= 0) {
-                            for (int k = j - 1; k > j - threshold - 1; k--) {
-                                checksum += Math.abs(wm.getVision().spacepattern[i][0][k]);
-                            }
-                            if (checksum == 0) {
-                                T++;
-                            }
-                            //here, condition can be even stronger by specifying that me.vision.spacepattern[i][1][k]!=-1
-                            //but may be needed (consider reference from back rows) or not (anyway, this 00 needs to be considered along time t, so if currently, there is -1 at the back row, it is most probably 00 wont exist in next time frame)
-                        }
-                    } else {
-                        int checksum = 0;
-                        if (j + threshold <= wm.getVision().spacepattern[0][0].length - 1) {
-                            for (int l = j + 1; l < j + threshold + 1; l++) {
-                                checksum += Math.abs(wm.getVision().spacepattern[i][0][l]);
-                            }
-                            if (checksum == 0) {
-                                T++;
-                            }
-                        }
-                    }
-                    break;
-                } else {
-                    continue;
-                }
-            }
-        }
-        if (T == 0) {
-            success1 = false;
-        } //if existing space pattern lasts longer than the period of time when myAgent can get to the position with the max speed
-        else if (T >= calculateTTA_MaxSpeed(myAgent, targetAgent)) {
-            if (T >= t) {
-                instructedTime = t;
-            } else {
-                instructedTime = T; //me needs to increase speed according to the shorter instructed time T to reach the 0 at first row in the 2d array
-            }
-            success1 = true;
-            System.out.println("space is available for phase 1: catching up for " + instructedTime + " frames");
-        } else {
-            if (T >= 20) {
-                success1 = true;
-                instructedTime = T;
-            } else {
-                success1 = false; //even with max speed, me still cannot reach the available space within period of T from now on
-                System.out.println("space for phase 1: catching up is only available for " + T + " frames, myAgent cannot make it");
-            }
-        }
-        return success1;
-    }
-
-    /**
-     *
-     *
-     * @param t
-     * @return
-     */
-    private boolean verifySpace_phase1n2(int t) {
-        boolean success1n2 = false;
-//        boolean success1 = verifySpace_phase1(t);
-//
-//        if (success1) {
-//            //  here, if success1 is successful, assume me will occupy that space, where will becomes my vision center in the array
-//            //  targetIndex_phase2 is no much use, but need to get the return value from spatialGrouping(). it will be -1 if the center of the 1st array at frame[instructedTime] is 0
-//            int targetIndex_phase2 = spatialGrouping(wm, instructedTime); //generate new "targetGroup", "left", "targetIndex" for phase 2 (phase 1 is believed to finish within instructedTime)
-//            if (targetIndex_phase2 == -1 && targetGroup == 0) {
-//                success1n2 = true;
-//                System.out.println("space also available for phase 2: by-passing");
-//            } else {
-//                System.out.println("space not available for phase 2: by-passing");
-//            }
-//        }
-        /*
-         * Need to rewrite these part, basically, it is doing something similar to verifySpace_phase1
-         * because if wannt verifySpace both for phase 1 and phase 2, the spatial patterns can be extended from only first row in each frame
-         * to two rows in each frame, e.g, not only 001 or 00-1 needs to be existing along t frames, but also there should be "0" in the second row of array
-         * behind either of the "0"s in the first row
-         */
-        int T = 0;
-
-        if (t > wm.getVision().getPf()) {
-            t = wm.getVision().getPf(); //decision can only be made based on information within prediction
-        }
-
-        //here, need to think whether the 00-1 and 001 patterns need to last for T or, need to appear at t
-        /*
-         * currently, I think should be lasting for T, because during this period, if any information changed
-         * on the focus area (001 or 00-1), then new decision should be made, coz it is the closest area that can cost highest level of threat to myAgent
-         */
-
-        for (int i = 0; i < t; i++) {
-            //along different slices of 2d array, try to find how many frames from now has the pattern 001 or 00-1 last
-            for (int j = 0; j < wm.getVision().spacepattern[0][0].length; j++) {
-                //1. since the column index in the array can be changed for the target agent, so we need to find this agent first using the agent's reference itself
-                if (wm.getVision().spacepattern_agt[i][0][j] == targetAgent) {
-                    if (left) {
-                        int checksum_1stRow = 0;
-                        int checkbit_2ndRow = 1;
-                        if (j - threshold >= 0) {
-                            //to check whether 001 or 00-1 pattern exist in the first row in frame i
-                            for (int k = j - 1; k > j - threshold - 1; k--) {
-                                checksum_1stRow += Math.abs(wm.getVision().spacepattern[i][0][k]); //for threshold number of columns, all need to be 0
-                                //to check whether 0 exist at the second row in frame i behind the 0 in the first row
-                                //maybe later, can add in third row for most experienced person
-                                checkbit_2ndRow *= Math.abs(wm.getVision().spacepattern[i][1][k]); //within threshold number of columns, as long as 1 columns is 0 in the second row
-                            }
-
-                            if (checksum_1stRow == 0 && checkbit_2ndRow == 0) {
-                                T++;
-                            }
-                            //here, condition can be even stronger by specifying that me.vision.spacepattern[i][1][k]!=-1
-                            //but may be needed (consider reference from back rows) or not (anyway, this 00 needs to be considered along time t, so if currently, there is -1 at the back row, it is most probably 00 wont exist in next time frame)
-                        }
-                    } else {
-                        int checksum_1stRow = 0;
-                        int checkbit_2ndRow = 1;
-                        if (j + threshold <= wm.getVision().spacepattern[0][0].length - 1) {
-                            for (int l = j + 1; l < j + threshold + 1; l++) {
-                                checksum_1stRow += Math.abs(wm.getVision().spacepattern[i][0][l]);
-                                checkbit_2ndRow *= Math.abs(wm.getVision().spacepattern[i][1][l]); //within threshold number of columns, as long as 1 columns is 0 in the second row
-
-                            }
-                            if (checksum_1stRow == 0 && checkbit_2ndRow == 0) {
-                                T++;
-                            }
-                        }
-                    }
-                    break;
-                } else {
-                    continue;
-                }
-            }
-        }
-        if (T == 0) {
-            success1n2 = false;
-        } //if existing space pattern lasts longer than the period of time when myAgent can get to the position with the max speed
-        else if (T >= calculateTTA_MaxSpeed(myAgent, targetAgent)) {
-            if (T >= t) {
-                instructedTime = t;
-            } else {
-                instructedTime = T; //me needs to increase speed according to the shorter instructed time T to reach the 0 at first row in the 2d array
-            }
-            success1n2 = true;
-            System.out.println("space is available for phase 1: catching up for " + instructedTime + " frames");
-        } else {
-            if (T >= 20) {
-                success1n2 = true;
-                instructedTime = T;
-            } else {
-                success1n2 = false; //even with max speed, me still cannot reach the available space within period of T from now on
-                System.out.println("space for phase 1: catching up is only available for " + T + " frames, myAgent cannot make it");
-            }
-        }
-
-        return success1n2;
+    public int getTargetAgentID() {
+        return targetID;
     }
 
     void execute() {
@@ -645,8 +78,374 @@ public class Decision {
         }
     }
 
-    private void setCurrentStrategy(STRATEGY strategy) {
-        this.currentStrategy = strategy;
-        this.wm.action.setFinishedStrategy(false);
+    //each time when updating all agents' states, this function is called before execute specific action in Action class
+    public boolean needNewDicison() {
+        if (wm.getAction().frameFromLastDecision >= wm.getVision().getPf() * 1.3 || wm.getMyAgent().violateExpectancy || wm.getAction().finishCurrentStrategy 
+                || this.currentStrategy == STRATEGY.FOLLOW) {
+            wm.getAction().frameFromLastDecision = 0; //reset frame counter for new strategy execution
+            wm.getVision().setStrategySelected(false);          
+            startPosition = new Point2d(me.getCurrentPosition());
+            startVelocity = new Vector2d(me.getVelocity());
+            return true;
+        } else {
+            wm.getVision().setStrategySelected(true);
+            return false;
+        }
+    }
+    
+    private void selectNewStrategy() {
+        //setCurrentStrategy(STRATEGY.FOLLOW);
+        //The current prototypical patterns are only designed and only necessary for fast pedestrians
+        
+        if(wm.ps_discrete!= motionPlanners.pbm.WorkingMemory.PreferredSpeed_Discrete.SLOW){
+            double fit=0; //used to measure the fit value of mathcing, 0 not matched at all, 1 perfect match
+            int bestFitPattern = -1;
+            int numMatchedFrames =0;
+                      
+            for(int i=0; i<wm.getExperience().getAllExpInstances().size(); i++){
+                //here, it is different from RPD, where the best fit is used rather than the first meet the thrshold
+                //this is because we do not know which threshold value is good according to the matching function defined yet
+                //but later can be changed to be aligned with RPD easily by giving threshold values properly
+                
+                //get the fit value of the 2 stps from the Matching function
+                double match = stpMatching(numMatchedFrames, wm, wm.getVision().getSpacepattern(), wm.getExperience().getAllExpInstances().get(i).getPrototypicalSTP());
+                if(fit < match){
+                    fit = match;
+                    bestFitPattern = i;
+                } 
+            }//end of for, choose the best matched empirical instance
+          
+          //inside Matching(wm, p1,p2), should set target, instructedTime , left
+          
+           if(bestFitPattern>=0){
+              //set the current strategy according to the matched experience instance 
+                setCurrentStrategy(wm.getExperience().getAllExpInstances().get(bestFitPattern).getEmpiricalStg());
+           
+//           else{
+//               //almost cant happen
+//               System.out.println("FOLLOW is selected");
+//               setCurrentStrategy(STRATEGY.FOLLOW);
+//           }
+//           if(this.currentStrategy!=STRATEGY.MOVE) 
+                wm.getVision().setStrategySelected(true);
+//           else wm.getVision().setStrategySelected(false);
+           
+            findTarget(currentStrategy, numMatchedFrames);
+           }
+        }//end of preferredSpeed>1 (FAST)
+        else{
+            setCurrentStrategy(STRATEGY.MOVE);
+            wm.getVision().setStrategySelected(false);
+        }
+    }
+    
+        /*
+     * Hierarchical STPattern Matching process, returns a final matching value between[0,1]
+     * given wm (the agent) and two comparing STPs
+     * return the matching fit value (0-1), 0 not matched, 1 perfect match
+     * At the same time, edit the 4 variables in wm: target, targetColumnIndex, left, instructedTime
+     */
+    private double stpMatching(int count, WorkingMemory wm, STPattern p1, STPattern p2){
+        //matching value for each prototypical value
+        
+        //everytime, clean the count of numMatchedFrames first
+        count = 0;
+        motionPlanners.pbm.WorkingMemory.strategymatchingCommitment commit = me.getCommitementLevel();
+        
+        double match=0.0;
+            //TODO: get a score for the match  between p1 and p2
+            //TODO: according to the commitmentlevel of the agent, process the match and result a final match score 
+            //Theoretically, should apply a general matching mechanism between p1 and p2,however, we manually to check some constituents 
+            //that are in prototypical STP for different steering strategys now, which means we do not use p2 now
+
+            //If Prototypical STP is for MOVE
+        if(p2.getValue(0, 0, 5)==0){
+            int requiredMatch =0;
+            int maxMatch = (int) (Math.ceil((3.6/wm.getMyAgent().getPrefVelocity().length())/PropertySet.TIMESTEP));
+            switch(commit){
+                case HIGHCOMMITMENT:
+                    requiredMatch= (int) Math.round(0.2 * maxMatch); // 3.6/(1.3*1.2-1) / TIMESTEP = 7*20 = 140  increase around 1.2 times of speed during catch up
+                    break;
+                case MIDCOMMITMENT:
+                    requiredMatch= (int)Math.round(0.1 * maxMatch); //  3.6/(1.3*1.5-1) 
+                    break;
+                case LOWCOMMITMENT:
+                    requiredMatch= 1;  // once see the chance now, just start
+                    break;
+                default: 
+                    break;              
+            }
+        
+            for(int i=0; i< wm.getVision().getPf()+1; i++){
+                if(p1.getValue(i, 0, 5)==0){
+                    //the current frame has most impact (requiredMatch), the last frame has less (0)
+                    count++; 
+                }else{
+                    break;
+                }
+            }
+            // count = (requiredMatch + 0.5 requiredMatch + 0.25 requiredMarch + ....)
+//            double totalMatch = 1-Math.pow(0.5, requiredMatch);
+            match = count / requiredMatch; //match with MOVE
+            if(match>1) match =1;
+        }
+        //for prototypical STP of SIde-AVOID
+        else if(p2.getValue(0, 0, 5)==-1){
+            int requiredMatch =0;
+            int maxMatch = (int) (Math.ceil((1.8/wm.getMyAgent().getPrefVelocity().length())/PropertySet.TIMESTEP));
+            switch(commit){
+                case HIGHCOMMITMENT:
+                    requiredMatch= (int) Math.round(0.2 * maxMatch); 
+                    break;
+                case MIDCOMMITMENT:
+                    requiredMatch= (int) Math.round(0.1 * maxMatch); 
+                    break;
+                case LOWCOMMITMENT:
+                    requiredMatch= 1;  // once see the chance now, just start
+                    break;
+                default: 
+                    break;              
+            }
+            for(int i=0; i<wm.getVision().getPf()+1; i++){  //for side-avoid, two parties walking towards each other
+                if(p1.getValue(0, 0, 5)== -1){
+                    match++;
+                }else{
+                    break;
+                }
+            }
+            match = match / requiredMatch; //match with AVOID
+            if(match>1) match =1;
+        }
+        //for OVERTAKE or FOLLOW
+        else{     
+//            int count = 0;
+            overtakeFlag=true;
+//            match++; //once enter this, has to enable the count to be >=0 for follow and overtake
+            int requiredMatch =0;
+            int maxMatch = (int) (wm.getVision().getPf());
+            switch(commit){
+                case HIGHCOMMITMENT:
+                    requiredMatch= (int) Math.round(0.6 * maxMatch); 
+                    break;
+                case MIDCOMMITMENT:
+                    requiredMatch= (int) Math.round(0.3 * maxMatch); 
+                    break;
+                case LOWCOMMITMENT:
+                    requiredMatch= 1;  // once see the chance now, just start
+                    break;
+                default: 
+                    break;              
+            }
+            for(int j=0; j< wm.getVision().getPf()+1; j++){
+                //look for coditional "01" (the constitute for Overtake STP) in different slices from p1
+                int OtargetCurrentIndex = checkConstituteOVERTAKE(j, p1);
+                if(OtargetCurrentIndex>=0 && OtargetCurrentIndex<=10){
+                    count++;
+                    if(j==0){
+                        targetIndex = OtargetCurrentIndex;
+                        targetID=wm.getVision().getSpacepattern_agt().getPattern()[0][0][targetIndex];
+                        if(OtargetCurrentIndex<=5) left = true;
+                        else left = false;
+                    }
+                }else{
+                    break;
+                }
+            }
+            match = match / requiredMatch;
+            if(match>1) match =1;
+        }    
+        return match;
+    }
+    
+
+ private int checkConstituteOVERTAKE(int frame, STPattern p1){
+     int currentTargetIndex=-1;
+     
+     int leftTIndex = -1;
+     int rightTIndex = 11;
+     //index ==1: for overtake
+
+     //search for the left half
+     for(int i = 5; i> 2; i--){
+        if(p1.getValue(frame, 0, i)==1 && p1.getValue(frame, 0, i-1)==0 
+        && p1.getValue(frame, 1, i)!=-1 && p1.getValue(frame, 1, i-1)==0 ){
+            leftTIndex=i;
+        }
+     }
+     //search for the right half
+     for(int j = 5; j<8; j++){
+        if(p1.getValue(frame, 0, j)==1 && p1.getValue(frame, 0, j+1)==0
+        && p1.getValue(frame,1,j)!= -1 && p1.getValue(frame, 1, j+1)==0 ){
+            rightTIndex=j;
+        }
+     }
+     
+     if((5-leftTIndex) <= (rightTIndex-5)){
+         currentTargetIndex = leftTIndex;
+     }else{
+         currentTargetIndex = rightTIndex;
+     } 
+     return currentTargetIndex;
+ }
+    
+    /*
+     * Based on the current selected strategy to specify target and left
+     * based on match*RequiredMax = matched number of frames, can calculate the time, where the existing perceived spatial pattern exist for
+     * then can specify T (: from now until T, have to finish the potential strategy, then increase speed accordingly)
+     */
+    private void findTarget(STRATEGY currentStrategy, int matchedFrames) {        
+        if(currentStrategy==STRATEGY.AVOID){
+           int leftEdgeIndex = -1;
+           int rightEdgeIndex = 11;
+            
+           //find left edge index of the potential avoiding group
+           for(int i=4; i>2; i--){
+                if(wm.getVision().getSpacepattern().getValue(0, 0, i)==-1){
+                    leftEdgeIndex = i;
+               }
+           }
+            //find the right potential edge of the avoiding group
+           for(int j=6;j<8;j++){
+               if(wm.getVision().getSpacepattern().getValue(0, 0, j)==-1){
+                  rightEdgeIndex = j;
+               }
+           }
+           //prefer left
+           int edgeIndex = leftEdgeIndex;
+           left = true;
+
+           if(rightEdgeIndex-5<5-leftEdgeIndex){
+               edgeIndex= rightEdgeIndex;
+               left = false;
+           }
+           else if(rightEdgeIndex-5==5-leftEdgeIndex){
+               if(wm.getVision().getSpacepattern().getValue(0, 0, leftEdgeIndex-1)==0) edgeIndex=leftEdgeIndex;
+               else if(wm.getVision().getSpacepattern().getValue(0, 0, rightEdgeIndex+1)==0) {
+                   edgeIndex=rightEdgeIndex;
+                   left = false;
+               }else{
+                   int densityLeft = 0;
+                   int densityRight = 0;
+                   for(int k=leftEdgeIndex; k>=leftEdgeIndex-2; k--)
+                       for(int l = 1; l<=2;l++){
+                           //for 1 at row 1 has more attention impact  than a 1 in row 2, the significance can is scaled by abs(1.7-j)
+                           densityLeft += Math.abs(wm.getVision().getSpacepattern().getValue(0, l, k))* Math.abs(l-1.7);
+                   }
+                   for(int m=rightEdgeIndex; m<=rightEdgeIndex+2; m++)
+                       for(int n = 1; n<=2; n++){
+                           densityRight += Math.abs(wm.getVision().getSpacepattern().getValue(0, n, m)) * Math.abs(n-1.7);
+                   }
+                   if(densityLeft<=densityRight) edgeIndex=leftEdgeIndex;
+                   else{
+                       edgeIndex=rightEdgeIndex;
+                       left=false;
+                   }
+               } 
+           }
+           if(edgeIndex>=0 && edgeIndex<=10){    
+               targetID = wm.getVision().getSpacepattern_agt().getValue(0, 0, edgeIndex);
+               
+//               int requiredMatch =0;
+//               int maxMatch = (int) (Math.ceil((1.8/wm.getMyAgent().getVelocity().length())/RVOModel.getTimeStep()));
+//               switch(wm.commitmentLevel){
+//                    case HIGHCOMMITMENT:
+//                        requiredMatch= (int) Math.round(0.6 * maxMatch); 
+//                        break;
+//                    case MIDCOMMITMENT:
+//                        requiredMatch= (int) Math.round(0.3 * maxMatch); 
+//                        break;
+//                    case LOWCOMMITMENT:
+//                        requiredMatch= 1;  // once see the chance now, just start
+//                        break;
+//                    default: 
+//                        break;              
+//               }
+//               t1= (int) (match * requiredMatch);
+               t1= matchedFrames;
+           }
+           else System.out.println("Error: steering strategy AVOID was selected but without valid target to avoid");
+           return;
+        } //end of SIDE-AVOID
+        else if(currentStrategy==STRATEGY.MOVE){        
+            targetID=-1;
+            targetIndex=-1;
+            return;
+        }
+        else if(currentStrategy==STRATEGY.OVERTAKE){
+//            int requiredMatch =0;
+//            int maxMatch = (int) (wm.getVision().getPf()/RVOModel.getTimeStep());
+//
+//            switch(wm.commitmentLevel){
+//               case HIGHCOMMITMENT:
+//                    requiredMatch= (int) Math.round(0.6 * maxMatch); 
+//                    break;
+//                case MIDCOMMITMENT:
+//                    requiredMatch= (int) Math.round(0.3 * maxMatch); 
+//                    break;
+//                case LOWCOMMITMENT:
+//                    requiredMatch= 1;  // once see the chance now, just start
+//                    break;
+//                default: 
+//                    break;           
+//            }
+            //when the match of "OVERTAKE" does not meet the number of frames as required by commitment
+            t1 = (int)(matchedFrames);
+            
+            Point2d myPos = wm.getMyAgent().getCurrentPosition();
+            RVOAgent targetAgent = wm.getAgent(wm.getVision().getSensedAgents(), targetID);
+            Point2d targetPos = targetAgent.getCurrentPosition();
+            double distanceToTarget = myPos.distance(targetPos);
+            
+            //if using the max speed of the agent still cannot reach where the target is (estimate the distance for cathing up)
+            if((wm.getMyAgent().getMaxSpeed()- targetAgent.getVelocity().length()) * t1 * PropertySet.TIMESTEP < distanceToTarget){
+                currentStrategy= STRATEGY.FOLLOW;
+                System.out.println("The perceived spatial pattern for OVERTAKE does not exist long enough for me to overtake, FOLLOW instead");
+            }else{
+                System.out.println("SELECT to OVERTAKE");
+                return;
+            }
+        }
+        //for FOLLOW
+        System.out.println("selecting target for FOLLOW...");
+        STPattern p1 = wm.getVision().getSpacepattern();
+        STPattern p1_agt = wm.getVision().getSpacepattern_agt();
+        
+        double signifiedDensity_left = 0.0;
+        double signifiedDensity_right = 0.0;
+        
+        //which means FOLLOW because there are not enough frames to meet OVERTAKE, but at the current frame, it can OVERTAKE
+        //the potential OVERTAKE target and side has been set based on Frame0
+        if(targetID>=0){
+            //maintain targetID and left that as to be overtaken
+            return;
+        }
+        //has to follow from the beginning (frame 0 even cannot allow OVERTAKE)
+        else{
+            //simply set to follow the agent in the middle
+           targetID = p1_agt.getValue(0, 0, 5);
+            //side to follow based on the heuristic of signifiedDensity value
+           double valueSignificance;
+
+           for(int i=0; i<p1.getPattern()[0].length; i++)
+                for(int j=1; j<3;j++){
+                    for(int k=3;k<5;k++){
+                        //a -1 gives a significance of 1.5 of that of a 1
+                        //a -1 or 1 at row 1 gives a significance of 2.0 that of at row 2
+                        valueSignificance = 1.0;
+                        if(p1.getValue(i, j, k)==-1) valueSignificance = 1.5;
+                        signifiedDensity_left += Math.abs(p1.getValue(i, j, k))* valueSignificance * (3-j);
+                    }
+                    for(int l=6;l<8;l++){
+                        //a -1 gives a significance of 1.5 of that of a 1
+                        //a -1 or 1 at row 1 gives a significance of 2.0 that of at row 2
+                        valueSignificance = 1.0;
+                        if(p1.getValue(i, j, l)== -1) valueSignificance = 1.5;
+                        signifiedDensity_right += Math.abs(p1.getValue(i, j, l))* valueSignificance * (3-j);
+                    }
+                }
+            if(signifiedDensity_left <= signifiedDensity_right) left = true;
+            else left = false;
+            return;
+        }
     }
 }

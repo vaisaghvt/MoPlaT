@@ -28,7 +28,7 @@ import javax.swing.JProgressBar;
  */
 public class CreatorMain implements ActionListener {
 
-    public static final double AGENT_RADIUS = 0.15;
+    public static final double AGENT_RADIUS = 0.22;
     public JLabel statusBar = new JLabel();
     JPanel buttonArea = new JPanel();
     JButton clearButton;
