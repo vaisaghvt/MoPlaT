@@ -14,10 +14,10 @@ import java.util.ArrayList;
  */
 public class Experience extends ArrayList {
     private RVOAgent agent;
-    protected ArrayList<ExperienceInstance> expBase;
+    private ArrayList<ExperienceInstance> expBase;
 
-    public Experience(WorkingMemory wm){
-        agent = wm.getMyAgent();
+    public Experience(RVOAgent agent){
+        this.agent = agent;
         expBase = new ArrayList<ExperienceInstance>();
     }
     
@@ -25,7 +25,7 @@ public class Experience extends ArrayList {
      * add a new exp instance
      */
     public void addExpInstance(ExperienceInstance ei){
-        expBase.add(ei);
+        expBase.add(0, ei);
     }
     
     /*

@@ -38,6 +38,9 @@ public class Decision {
         return startVelocity;
     }
     
+    public int getT1(){
+        return t1;
+    }
     
     public Decision(WorkingMemory wm) {
         this.wm = wm;
@@ -80,7 +83,7 @@ public class Decision {
 
     //each time when updating all agents' states, this function is called before execute specific action in Action class
     public boolean needNewDicison() {
-        if (wm.getAction().frameFromLastDecision >= wm.getVision().getPf() * 1.3 || wm.getMyAgent().violateExpectancy || wm.getAction().finishCurrentStrategy 
+        if (wm.getAction().frameFromLastDecision >= wm.getDecision().getT1() || wm.getMyAgent().violateExpectancy || wm.getAction().finishCurrentStrategy 
                 || this.currentStrategy == STRATEGY.FOLLOW) {
             wm.getAction().frameFromLastDecision = 0; //reset frame counter for new strategy execution
             wm.getVision().setStrategySelected(false);          
@@ -100,14 +103,18 @@ public class Decision {
         if(wm.ps_discrete!= motionPlanners.pbm.WorkingMemory.PreferredSpeed_Discrete.SLOW){
             double fit=0; //used to measure the fit value of mathcing, 0 not matched at all, 1 perfect match
             int bestFitPattern = -1;
-            int numMatchedFrames =0;
-                      
+            
+            //[0].Matched frame number for AVOID [1]: count for OVERTAKE  [2]: count for MOVE
+            int[] numMatchedFrames =new int[3];
+            
+            //the 3 prototypical patterns for the experiences are in the order of 0. AVOID 1.OVERTAKE 2.MOVE
             for(int i=0; i<wm.getExperience().getAllExpInstances().size(); i++){
                 //here, it is different from RPD, where the best fit is used rather than the first meet the thrshold
                 //this is because we do not know which threshold value is good according to the matching function defined yet
                 //but later can be changed to be aligned with RPD easily by giving threshold values properly
                 
                 //get the fit value of the 2 stps from the Matching function
+                //here, the numMatchedFrames need to be specifically allocate for each comparing steering strategy
                 double match = stpMatching(numMatchedFrames, wm, wm.getVision().getSpacepattern(), wm.getExperience().getAllExpInstances().get(i).getPrototypicalSTP());
                 if(fit < match){
                     fit = match;
@@ -145,11 +152,11 @@ public class Decision {
      * return the matching fit value (0-1), 0 not matched, 1 perfect match
      * At the same time, edit the 4 variables in wm: target, targetColumnIndex, left, instructedTime
      */
-    private double stpMatching(int count, WorkingMemory wm, STPattern p1, STPattern p2){
+    private double stpMatching(int[] count, WorkingMemory wm, STPattern p1, STPattern p2){
         //matching value for each prototypical value
         
         //everytime, clean the count of numMatchedFrames first
-        count = 0;
+//        count = 0;
         motionPlanners.pbm.WorkingMemory.strategymatchingCommitment commit = me.getCommitementLevel();
         
         double match=0.0;
@@ -179,14 +186,14 @@ public class Decision {
             for(int i=0; i< wm.getVision().getPf()+1; i++){
                 if(p1.getValue(i, 0, 5)==0){
                     //the current frame has most impact (requiredMatch), the last frame has less (0)
-                    count++; 
+                    count[2]++; 
                 }else{
                     break;
                 }
             }
             // count = (requiredMatch + 0.5 requiredMatch + 0.25 requiredMarch + ....)
 //            double totalMatch = 1-Math.pow(0.5, requiredMatch);
-            match = count / requiredMatch; //match with MOVE
+            match = count[2] / requiredMatch; //match with MOVE
             if(match>1) match =1;
         }
         //for prototypical STP of SIde-AVOID
@@ -208,12 +215,12 @@ public class Decision {
             }
             for(int i=0; i<wm.getVision().getPf()+1; i++){  //for side-avoid, two parties walking towards each other
                 if(p1.getValue(0, 0, 5)== -1){
-                    match++;
+                    count[0]++;
                 }else{
                     break;
                 }
             }
-            match = match / requiredMatch; //match with AVOID
+            match = count[0] / requiredMatch; //match with AVOID
             if(match>1) match =1;
         }
         //for OVERTAKE or FOLLOW
@@ -240,7 +247,7 @@ public class Decision {
                 //look for coditional "01" (the constitute for Overtake STP) in different slices from p1
                 int OtargetCurrentIndex = checkConstituteOVERTAKE(j, p1);
                 if(OtargetCurrentIndex>=0 && OtargetCurrentIndex<=10){
-                    count++;
+                    count[1]++;
                     if(j==0){
                         targetIndex = OtargetCurrentIndex;
                         targetID=wm.getVision().getSpacepattern_agt().getPattern()[0][0][targetIndex];
@@ -251,7 +258,7 @@ public class Decision {
                     break;
                 }
             }
-            match = match / requiredMatch;
+            match = count[1] / requiredMatch;
             if(match>1) match =1;
         }    
         return match;
@@ -293,7 +300,7 @@ public class Decision {
      * based on match*RequiredMax = matched number of frames, can calculate the time, where the existing perceived spatial pattern exist for
      * then can specify T (: from now until T, have to finish the potential strategy, then increase speed accordingly)
      */
-    private void findTarget(STRATEGY currentStrategy, int matchedFrames) {        
+    private void findTarget(STRATEGY currentStrategy, int[] matchedFrames) {        
         if(currentStrategy==STRATEGY.AVOID){
            int leftEdgeIndex = -1;
            int rightEdgeIndex = 11;
@@ -361,7 +368,7 @@ public class Decision {
 //                        break;              
 //               }
 //               t1= (int) (match * requiredMatch);
-               t1= matchedFrames;
+               t1= matchedFrames[0];
            }
            else System.out.println("Error: steering strategy AVOID was selected but without valid target to avoid");
            return;
@@ -369,6 +376,7 @@ public class Decision {
         else if(currentStrategy==STRATEGY.MOVE){        
             targetID=-1;
             targetIndex=-1;
+            t1=matchedFrames[2];
             return;
         }
         else if(currentStrategy==STRATEGY.OVERTAKE){
@@ -389,7 +397,7 @@ public class Decision {
 //                    break;           
 //            }
             //when the match of "OVERTAKE" does not meet the number of frames as required by commitment
-            t1 = (int)(matchedFrames);
+            t1 = matchedFrames[1];
             
             Point2d myPos = wm.getMyAgent().getCurrentPosition();
             RVOAgent targetAgent = wm.getAgent(wm.getVision().getSensedAgents(), targetID);

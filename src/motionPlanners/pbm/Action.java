@@ -433,8 +433,13 @@ public class Action {
         switch (selectedStrategy) {
             case MOVE:
                 //follow the rough preferredVel towatds its goal
-                selectedVelocity = wm.getMyAgent().getPrefVelocity();
-                System.out.println("moving");
+                if(frameFromLastDecision>=T){
+                    finishCurrentStrategy=true;
+                }else{
+                    selectedVelocity = wm.getMyAgent().getPrefVelocity();
+                    frameFromLastDecision++;
+                    System.out.println("moving");
+                }
                 break;
             case FOLLOW:
                 System.out.println("executing follow steering strategy now");

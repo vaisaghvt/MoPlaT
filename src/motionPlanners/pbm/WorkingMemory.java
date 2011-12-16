@@ -107,7 +107,7 @@ public class WorkingMemory implements VelocityCalculator {
 //            commitmentLevel = CommitToHighSpeed.HIGHCOMMITMENT;
 //        }
 //      commitmentLevel = ag.getCommitementLevel();
-        experience = new Experience(this);
+        experience = new Experience(myAgent);
         
         //@hunan: currently hardcode the prototypical pattern for each strategy now.
          //------------------for MOVE -------------------------------------------------
@@ -120,7 +120,7 @@ public class WorkingMemory implements VelocityCalculator {
         stp_move.setSlice(0,p_move); //follow has only 1 phase, only need to set pf==0
 
         ExperienceInstance ei_move = new ExperienceInstance(STRATEGY.MOVE, stp_move);
-        experience.add(ei_move);
+        experience.addExpInstance(ei_move);
   
    /*
         //------------------for follow -------------------------------------------------
@@ -133,11 +133,11 @@ public class WorkingMemory implements VelocityCalculator {
         stp_follow.setSlice(0,p_follow); //follow has only 1 phase, only need to set pf==0
 
         ExperienceInstance ei_follow = new ExperienceInstance(STRATEGY.AVOID, stp_follow);
-        experience.add(ei_follow);
+        experience.addExpInstance(ei_follow);
         //------------------------------------------------------------------------------
    */
         
-        //-----------for OVERTAKE and FOLLOW------------------------------------------------------
+        //-----------for OVERTAKE (and FOLLOW)------------------------------------------------------
         STPattern stp_ot = new STPattern(0,3,11);
         int p_ot_phase1 [][]={
         {8,8,8,8,0,1,1,1,8,8,8},
@@ -157,10 +157,10 @@ public class WorkingMemory implements VelocityCalculator {
 //        stp_ot.setSlice(ot+1,p_ot_phase2); //for the 11th frame for the phase 2
 
         ExperienceInstance ei_ot = new ExperienceInstance(STRATEGY.OVERTAKE, stp_ot);
-        experience.add(ei_ot);
+        experience.addExpInstance(ei_ot);
         //----------------------------------------------------------------------------
         
-         //-----------for avoid--------------------------------------------------------
+         //-----------for AVOID--------------------------------------------------------
         STPattern stp_avoid = new STPattern(0,3,11);
         int p_avoid [][]={
             {8,8,8,8,8,-1,8,8,8,8,8},
@@ -171,7 +171,7 @@ public class WorkingMemory implements VelocityCalculator {
         stp_avoid.setSlice(0,p_avoid); //side-avoid has only 1 phase, only need to set pf==0
 
         ExperienceInstance ei_avoid = new ExperienceInstance(STRATEGY.AVOID, stp_avoid);
-        experience.add(ei_avoid);
+        experience.addExpInstance(ei_avoid);
         //----------------------------------------------------------------------------
     }//end of WorkingMemory Constructor
     
@@ -219,6 +219,7 @@ public class WorkingMemory implements VelocityCalculator {
         //execute vision system and update pattern if necessary.
         vision.execute(neighbors);
         decision.execute();
+        
         RVOAgent targetAgent = getAgent(neighbors, decision.getTargetAgentID());
         Vector2d startVelocity = decision.getStartVelocity();
         Point2d startPosition = decision.getStartPosition();

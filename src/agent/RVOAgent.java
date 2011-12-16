@@ -388,8 +388,9 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                    else{
                        //the actual vel violate the prefVel given by the Steering strategy
                        violateExpectancy = true;
-                   }
+                   }                
                    chosenVelocity = new PrecisePoint(tempVelocity.getX(), tempVelocity.getY());
+//                   chosenVelocity = new PrecisePoint(prefVelocity.getX(), prefVelocity.getY());
                 }
                 else{
                     //default as towards the goal
