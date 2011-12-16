@@ -10,74 +10,75 @@ package motionPlanners.socialforce;
  */
 public class PrecalculateForces {
     
-    //
+    // ////////////////////////////////////////////////////////////
     // Average over surrounding force
-    //
+    // ////////////////////////////////////////////////////////////
     public static double[] averageSurroundForce(double Pxi, double Pyi, double Xmax, double Ymax, int N0x, int N0y, double[][] F, double[][] Fx, double[][] Fy) {
-        int cellix = (int) (Pxi/Xmax)*N0x;
-        int celliy = (int) (Pyi/Ymax)*N0y;
+        int cellix = (int) (Pxi/Xmax)*(N0x);    // X cell number of agent
+        int celliy = (int) (Pyi/Ymax)*(N0y);    // Y cell number of agent
         
         int[] neighbouricelly;
         int[] neighbouricellx;
         
         // Check cell boundary condition
-        if (cellix==1 && celliy==1){   // Left Top corner
-            neighbouricelly = new int[] {2,1,2};
-            neighbouricellx = new int[] {1,2,2};
+        if (cellix==0 && celliy==0){   // Left Top corner
+            neighbouricelly = new int[] {1,0,1};    //{2,1,2};
+            neighbouricellx = new int[] {0,1,1};    //{1,2,2};
         }
-        else if (cellix==1 && celliy== N0y){     // Right top corner
-            neighbouricelly = new int[] {N0y-1,N0y-1,N0y};
-            neighbouricellx = new int[] {1,2,2};
+        else if (cellix==0 && celliy== N0y-1){     // Right top corner
+            neighbouricelly = new int[] {N0y-2,N0y-2,N0y-1};    //{N0y-1,N0y-1,N0y};
+            neighbouricellx = new int[] {0,1,1};                //{1,2,2};
         }
-        else if (cellix==N0x && celliy== 1){     // Left bottom corner
-            neighbouricelly = new int[] {1,2,2};
-            neighbouricellx = new int[] {N0x-1,N0x,N0x-1};
+        else if (cellix==N0x-1 && celliy== 0){     // Left bottom corner
+            neighbouricelly = new int[] {0,1,1};    //{1,2,2};
+            neighbouricellx = new int[] {N0x-2,N0x-1,N0x-2};  //{N0x-1,N0x,N0x-1};
         }
-        else if (cellix==N0x && celliy== N0y){    // Right bottom corner
-            neighbouricelly = new int[] {N0y-1,N0y-1,N0y-1};
-            neighbouricellx = new int[] {N0x,N0x-1,N0x};
+        else if (cellix==N0x-1 && celliy== N0y-1){    // Right bottom corner
+            neighbouricelly = new int[] {N0y-2,N0y-2,N0y-2};    //{N0y-1,N0y-1,N0y-1};
+            neighbouricellx = new int[] {N0x-1,N0x-2,N0x-1};        //{N0x,N0x-1,N0x};
         }
-        else if (cellix==1){    // Top row all column
-            neighbouricellx = new int[] {1,1,2,2,2};
-            neighbouricelly = new int[] {celliy-1,celliy+1,celliy-1,celliy,celliy+1};
+        else if (cellix==0){    // Top row all column
+            neighbouricellx = new int[] {0,0,1,1,1};    //{1,1,2,2,2};
+            neighbouricelly = new int[] {celliy-2,celliy,celliy-2,celliy-1,celliy};   //{celliy-1,celliy+1,celliy-1,celliy,celliy+1}
         }
-        else if (celliy==N0y){   // Right column all row
-            neighbouricellx = new int[] {cellix-1,cellix+1,cellix-1,cellix,cellix+1};
-            neighbouricelly = new int[] {N0y,N0y,N0y-1,N0y-1,N0y-1};
+        else if (celliy==N0y-1){   // Right column all row
+            neighbouricellx = new int[] {cellix-2,cellix,cellix-2,cellix-1,cellix};   //{cellix-1,cellix+1,cellix-1,cellix,cellix+1};
+            neighbouricelly = new int[] {N0y-1,N0y-1,N0y-2,N0y-2,N0y-2};        //{N0y,N0y,N0y-1,N0y-1,N0y-1};
         }
-        else if (cellix==N0x){   // Bottom row all column
-            neighbouricellx = new int[] {N0x,N0x,N0x-1,N0x-1,N0x-1};
-            neighbouricelly = new int[] {celliy-1,celliy+1,celliy-1,celliy,celliy+1};
+        else if (cellix==N0x-1){   // Bottom row all column
+            neighbouricellx = new int[] {N0x-1,N0x-1,N0x-2,N0x-2,N0x-2};    //{N0x,N0x,N0x-1,N0x-1,N0x-1};
+            neighbouricelly = new int[] {celliy-2,celliy,celliy-2,celliy-1,celliy};   //{celliy-1,celliy+1,celliy-1,celliy,celliy+1};
         }
-        else if (celliy==1){    // Left column all row
-            neighbouricellx = new int[] {cellix-1,cellix+1,cellix-1,cellix,cellix+1};
-            neighbouricelly = new int[] {1,1,2,2,2};
+        else if (celliy==0){    // Left column all row
+            neighbouricellx = new int[] {cellix-2,cellix,cellix-2,cellix-1,cellix};   //{cellix-1,cellix+1,cellix-1,cellix,cellix+1};
+            neighbouricelly = new int[] {0,0,1,1,1};    //{1,1,2,2,2};
         }
         else{   // Otherwise
-            neighbouricellx = new int[] {cellix,cellix,cellix+1,cellix+1,cellix+1,cellix-1,cellix-1,cellix-1};
-            neighbouricelly = new int[] {celliy-1,celliy+1,celliy-1,celliy,celliy+1,celliy-1,celliy,celliy+1};
+            neighbouricellx = new int[] {cellix-1,cellix-1,cellix,cellix,cellix,cellix-2,cellix-2,cellix-2};  //{cellix,cellix,cellix+1,cellix+1,cellix+1,cellix-1,cellix-1,cellix-1};
+            neighbouricelly = new int[] {celliy-2,celliy,celliy-2,celliy-1,celliy,celliy-2,celliy-1,celliy};  //{celliy-1,celliy+1,celliy-1,celliy,celliy+1,celliy-1,celliy,celliy+1};
         }
         
         // Collecting neighbour Force magnitude and direction for averaging
         int Nneighbour = neighbouricellx.length;
-        double[] FAvg = new double[Nneighbour+1];
-        double[] FxAvg = new double[Nneighbour+1];
-        double[] FyAvg = new double[Nneighbour+1];
+        double[] FAvg = new double[Nneighbour];   // Force magnitude
+        double[] FxAvg = new double[Nneighbour];  // Force direction
+        double[] FyAvg = new double[Nneighbour];
         for (int i = 0; i<Nneighbour; i++){
             // Assigning value into buffer
             FAvg[i] = F[neighbouricelly[i]][neighbouricellx[i]];
             FxAvg[i] = Fx[neighbouricelly[i]][neighbouricellx[i]];
             FyAvg[i] = Fy[neighbouricelly[i]][neighbouricellx[i]];
+            
         }
-        FAvg[Nneighbour] = F[celliy][cellix];
-        FxAvg[Nneighbour] = Fx[celliy][cellix];
-        FyAvg[Nneighbour] = Fy[celliy][cellix];
+        FAvg[Nneighbour-1] = F[celliy][cellix];
+        FxAvg[Nneighbour-1] = Fx[celliy][cellix];
+        FyAvg[Nneighbour-1] = Fy[celliy][cellix];
         
         // Average over the force
         double meanFAvg = 0;
         double meanFxAvg = 0;
         double meanFyAvg = 0;
-        for (int i = 0; i<Nneighbour+1; i++){
+        for (int i = 0; i<Nneighbour; i++){
             meanFAvg += FAvg[i];
             meanFxAvg += FxAvg[i];
             meanFyAvg += FyAvg[i];
@@ -85,6 +86,8 @@ public class PrecalculateForces {
         meanFAvg = meanFAvg/Nneighbour;
         meanFxAvg = meanFxAvg/Nneighbour;
         meanFyAvg = meanFyAvg/Nneighbour;
+        
+        
 
         double Fxi = -meanFxAvg*meanFAvg;
         double Fyi = -meanFyAvg*meanFAvg;
@@ -92,9 +95,9 @@ public class PrecalculateForces {
         return new double[]{Fxi,Fyi};
     }
 
-    //
+    // ////////////////////////////////////////////////////////////
     // MATLAB linspace function
-    //
+    // ////////////////////////////////////////////////////////////
     private static double[] linearSpaceVector(double a, double b, int c){
         // Create a vector of c elements starting with a, interval difference
         // of intervalValue until b.
@@ -121,10 +124,6 @@ public class PrecalculateForces {
             double B_wall = 1;             //10  Steepness of the wall
             double A_corner = A_wall;      //5 Diameter of the pole
             double B_corner = B_wall;	//5 Steepness of the pole
-//
-//            // The vertex in cartesian coordinate
-//            double[] vertexx = new double[] {0,0,5,5};
-//            double[] vertexy = new double[] {-5,0,0,-5};
 
             // Initialize every cell of force
             double[][] F = new double[N0y][N0x];
@@ -142,8 +141,8 @@ public class PrecalculateForces {
 
             for (int p=0; p<Nvertex; p++){
                 // Vector point from vertex p+1 to p
-                double bx = vertexx[p+1]-vertexx[p];
-                double by = vertexy[p+1]-vertexy[p];
+                double bx = vertexx[(p+1)%Nvertex]-vertexx[p];
+                double by = vertexy[(p+1)%Nvertex]-vertexy[p];
                 double normb = Math.sqrt(bx*bx+by*by);
                 double bxhat = bx/normb;
                 double byhat = by/normb;
@@ -191,8 +190,8 @@ public class PrecalculateForces {
                         ////////////////////////////////////////////////////////////
                         // Half pole at 2nd (p+1) end of wall //////////////////////
                         ////////////////////////////////////////////////////////////
-                        rx = x[i]-vertexx[p+1];
-                        ry = y[j]-vertexy[p+1];
+                        rx = x[i]-vertexx[(p+1)%Nvertex];
+                        ry = y[j]-vertexy[(p+1)%Nvertex];
                         normr = Math.sqrt(rx*rx+ry*ry);
 
                         ax = bx;
@@ -251,7 +250,7 @@ public class PrecalculateForces {
 
             // Dot product of the force field matrix
             for (int i=0; i<N0x; i++){
-                for (int j=0; j<N0y; i++){
+                for (int j=0; j<N0y; j++){
                     Fx[j][i] = Fx[j][i]*F[j][i];
                     Fy[j][i] = Fy[j][i]*F[j][i];
                 }
