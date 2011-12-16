@@ -9,14 +9,14 @@
     </crowd>
     <crowd>
         <goal y="2.75" x="18.0"/>
-        <position y="2.725" x="3.0"/>
+        <position y="2.725" x="5.0"/>
         <id>2</id>
         <preferedSpeed>0.8</preferedSpeed>
         <commitmentLevel>3</commitmentLevel>
     </crowd>
     <crowd>
         <goal y="3.175" x="18.0"/>
-        <position y="3.175" x="3.025"/>
+        <position y="3.175" x="5.025"/>
         <id>3</id>
         <preferedSpeed>0.8</preferedSpeed>
         <commitmentLevel>3</commitmentLevel>

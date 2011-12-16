@@ -64,7 +64,7 @@ public class Perception {
         NEAR, MIDDIUM, FAR, OUTBOUND
     }
     
-    public static double[] predefinedColumns ={21, 37.8, 54.6, 68.6, 82.6, 96.6, 110.6, 124.6, 141.4, 158.2, 179.2};
+    public static double[] predefinedColumns ={21, 16.8, 16.8, 14, 14, 14, 14, 14, 16.8, 16.8, 21};
     
     //the old constructor but more robust
     public Perception(int attenuationLevel, int pf, double bodyRadius, double distToObst, double vr, double vl, WorkingMemory wm) {

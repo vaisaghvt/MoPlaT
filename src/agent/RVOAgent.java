@@ -368,29 +368,29 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                             prefVelocity, PropertySet.TIMESTEP);
 
                     //use RVO2 as the motion adjustment mechanism to ensure collision free.
-                   VelocityCalculator velocityCalc2 = new RVO_2_1();
-
-                   Vector2d tempVelocity = velocityCalc2.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
-                            prefVelocity, PropertySet.TIMESTEP);
-
-                    //Check expectancies according to the difference b/t prefVel and the actualVel (chosenVel)
-                   //the comparison of two vectors (velocities) depends both on direction and speed as follows
-                   Vector2d diff_V = new Vector2d(tempVelocity);
-                   diff_V.sub(prefVelocity);
-                   double diff_Speed = diff_V.length();
-                   double diff_Direction_cosine = Math.cos(tempVelocity.angle(prefVelocity));
-
-                   // To check whether the speed within variance of 0.2 and direction within angle of 10 degree
-                   if (diff_Speed <= 0.2 && diff_Direction_cosine >= Math.cos(10*Math.PI/180)) {
-                        //TODO: add in count to record the number of steps PBM gets good results for evaluation purpose later
-                       violateExpectancy = false;
-                    }
-                   else{
-                       //the actual vel violate the prefVel given by the Steering strategy
-                       violateExpectancy = true;
-                   }                
-                   chosenVelocity = new PrecisePoint(tempVelocity.getX(), tempVelocity.getY());
-//                   chosenVelocity = new PrecisePoint(prefVelocity.getX(), prefVelocity.getY());
+//                   VelocityCalculator velocityCalc2 = new RVO_2_1();
+//
+//                   Vector2d tempVelocity = velocityCalc2.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
+//                            prefVelocity, PropertySet.TIMESTEP);
+//
+//                    //Check expectancies according to the difference b/t prefVel and the actualVel (chosenVel)
+//                   //the comparison of two vectors (velocities) depends both on direction and speed as follows
+//                   Vector2d diff_V = new Vector2d(tempVelocity);
+//                   diff_V.sub(prefVelocity);
+//                   double diff_Speed = diff_V.length();
+//                   double diff_Direction_cosine = Math.cos(tempVelocity.angle(prefVelocity));
+//
+//                   // To check whether the speed within variance of 0.2 and direction within angle of 10 degree
+//                   if (diff_Speed <= 0.2 && diff_Direction_cosine >= Math.cos(10*Math.PI/180)) {
+//                        //TODO: add in count to record the number of steps PBM gets good results for evaluation purpose later
+//                       violateExpectancy = false;
+//                    }
+//                   else{
+//                       //the actual vel violate the prefVel given by the Steering strategy
+//                       violateExpectancy = true;
+//                   }                
+//                   chosenVelocity = new PrecisePoint(tempVelocity.getX(), tempVelocity.getY());
+                   chosenVelocity = new PrecisePoint(prefVelocity.getX(), prefVelocity.getY());
                 }
                 else{
                     //default as towards the goal

@@ -358,10 +358,10 @@ public class Action {
         double ahead = Geometry.sameDirection(directionToTarget, startVel);
         //ahead> 0 means angle <90, means, myAgent still not cross target agt yet
         if (ahead > 0) {
-            if (frameFromLastDecision >= T) {
-                violateExpectation = true;
-                return;
-            }
+//            if (frameFromLastDecision >= T) {
+//                violateExpectation = true;
+//                return;
+//            }
           //here, the finishCurrentStrategy condition can be more restricted as once there is enuf for space already moving towards its goal, no need to further deviate
            Point2d targetGoalPos = agt.getGoal();
            Point2d myGoal = wm.getMyAgent().getGoal();
@@ -405,7 +405,7 @@ public class Action {
                 return;
             }      
             Vector2d deviatedVel = approachSide(agt, left);
-            deviatedVel.scale(wm.getMyAgent().getPreferredSpeed()* 0.9);
+            deviatedVel.scale(wm.getMyAgent().getPreferredSpeed()* 0.95);
             selectedVelocity = new Vector2d(deviatedVel);
         } else {
             finishCurrentStrategy = true;
