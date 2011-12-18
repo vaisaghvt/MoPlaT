@@ -4,6 +4,10 @@ package motionPlanners.pbm;
 import agent.RVOAgent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 import sim.util.Bag;
@@ -27,7 +31,10 @@ public class Perception {
 
     // A flag used to indicate when there is strategy selected.
     private boolean strategySelected;
-    
+
+    //Added for sort the sensedAgent in the order of their distances to myAgent
+    TreeMap<Double, RVOAgent> obsesAgents;
+
     //new added to extend attention with different attenuation levels
     //e.g., {1,2,4...}
     //number of attenuation levels can be specified by different agents
@@ -85,6 +92,8 @@ public class Perception {
         spacepattern_agtID = new STPattern(pf, attenuationLevel,(int)(Math.ceil(visionRange / angle)));
 
         strategySelected =  false;
+
+        obsesAgents = new TreeMap<Double, RVOAgent>();
     }
     
     //The new constructor for the new unevenly distributed columns, but hardcoded many parameters
@@ -104,6 +113,7 @@ public class Perception {
         spacepattern = new STPattern(pf,3,11);
         spacepattern_agtID = new STPattern(pf,3,11);
         strategySelected =  false;
+        obsesAgents = new TreeMap<Double, RVOAgent>();
     }
     /**
      * Local helper function to determine angle between this and target agent
@@ -181,10 +191,15 @@ public class Perception {
                 if(countAngle<angleToLeftBoundary_1){
                     continue;
                 }
-                else if(countAngle>=angleToLeftBoundary_1 && countAngle<=angleToLeftBoundary_2){
+                else if(countAngle>=angleToLeftBoundary_2){
                     columnIndex.add(i);
+                    break;
                 }
-                else break;
+                else{            
+                    columnIndex.add(i);
+                    continue;
+                }
+//                else break;
             }      
         } 
         //else: the agent at position p2 is not within the vision range of me
@@ -204,8 +219,11 @@ public class Perception {
                 Arrays.fill(spacepattern.getPattern()[i][j], 0);//current frame, all attention levels, all space available
             }
 
-            for (Object o : sensedAgents) {
-                RVOAgent agent = (RVOAgent) o;
+            Set set = obsesAgents.entrySet();
+            Iterator itr = set.iterator();
+            while(itr.hasNext()){
+                Map.Entry myEntry = (Map.Entry)itr.next();
+                RVOAgent agent = (RVOAgent) myEntry.getValue();
                 RVOAgent me = wm.getMyAgent();
                 
                 Point2d myNextPos = new Point2d(me.getNextPosition(i));
@@ -262,7 +280,7 @@ public class Perception {
                                 if (samedirection && spacepattern.getValue(i, rowIndex, column)==0) {
                                     spacepattern.setValue(i, rowIndex, column, 1);
                                     spacepattern_agtID.setValue(i, rowIndex, column, agent.getId());
-                                } else if(!samedirection ){
+                                } else if(!samedirection && spacepattern.getValue(i, rowIndex, column)==0){
                                     spacepattern.setValue(i, rowIndex, column, -1);
                                     spacepattern_agtID.setValue(i, rowIndex, column, agent.getId()); 
                                     //currently, the agtID is not correct as always the last agent ID to be checked is filled in the array*************todo**************
@@ -282,6 +300,17 @@ public class Perception {
      */
     public void execute(Bag sensedAgents) {
         this.sensedAgents = sensedAgents;
+      
+        for (Object tempObject : sensedAgents) {
+            RVOAgent tempAgent = (RVOAgent) tempObject;
+            double distanceToMe;
+            if (!obsesAgents.containsValue(tempAgent)) {
+                Vector2d meToAgent = new Vector2d(tempAgent.getCurrentPosition());
+                meToAgent.sub(this.wm.getMyAgent().getCurrentPosition());
+                distanceToMe = meToAgent.length();
+                obsesAgents.put((Double) distanceToMe, tempAgent);
+            }
+        }
         if (!strategySelected) { //if no strategy (e.g., violation)
             this.setSpacePattern(); //execute pattern recognition system
         }
