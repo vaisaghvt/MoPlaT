@@ -120,7 +120,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         maxSpeed = preferredSpeed * 2.0;
         findPrefVelocity();
 
-
         if (PropertySet.MODEL == PropertySet.Model.RVO2) {
             velocityCalc = new RVO_2_1();
         } else if (PropertySet.MODEL == PropertySet.Model.PatternBasedMotion) {
@@ -151,13 +150,18 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         id = otherAgent.getId();
         agentCount--;
     }
-
+    
+    /*
+     * Currently, used by HUNAN to create agents from XML with goal set and initial speed set to the preferredVelocity rather than (0,0)
+     */
     public RVOAgent(Point2d startPosition, Point2d goal, RVOSpace mySpace, Color col) {
         this(mySpace);
         setColor(col);
         currentPosition = new PrecisePoint(startPosition.getX(), startPosition.getY());
         this.goal = goal;
         findPrefVelocity();
+        //set the initial velocity of each agent to its initial preferred velocity towards its goal
+        velocity = new PrecisePoint(prefVelocity.getX(),prefVelocity.getY());
     }
 
     public Point2d getGoal() {
@@ -300,9 +304,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             case 3:
                 commitmentLevel = strategymatchingCommitment.HIGHCOMMITMENT;
                 break;
-
         }
-
     }
 
     public double getPreferredSpeed() {
@@ -342,7 +344,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         public void step(SimState ss) {
             if (!dead) {
                 if (reachedGoal()) {
-
                     RVOAgent.this.dead = true;
                     return;
                 }

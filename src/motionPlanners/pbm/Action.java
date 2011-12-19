@@ -65,7 +65,6 @@ public class Action {
         target = null;
         this.wm = wm;      
         selectedVelocity = new Vector2d(wm.getMyAgent().getVelocity());
-
         frameFromLastDecision = 0;
         violateExpectation = false;
         finishCurrentStrategy = false;
@@ -114,7 +113,7 @@ public class Action {
         locationToMove.normalize();
         locationToMove.negate();
         locationToMove.scale(preferGap);
-        locationToMove.add(agt.getCurrentPosition());
+//        locationToMove.add(agt.getCurrentPosition());
         
         MersenneTwisterFast random = wm.getMyAgent().getMySpace().getRvoModel().random;
         if (left) {
@@ -124,8 +123,9 @@ public class Action {
         }
 
 //        rotate2d(locationToMove, randomAngle);
-        //rotate the vector around agt's position clokcwise by randomAngle
-        rotate2dAroundaPoint(locationToMove, agt.getCurrentPosition(), randomAngle);
+        //rotate the vector around (0,0) clokcwise by randomAngle
+        rotate2d(locationToMove, randomAngle);
+        locationToMove.add(agt.getCurrentPosition());
         return locationToMove;
     }
 
@@ -136,19 +136,19 @@ public class Action {
      * @param angle
      * @return
      */
-    private static void rotate2d(Vector2d v, double angle) {
+    private void rotate2d(Vector2d v, double angle) {
         double newx = v.x * Math.cos(angle) - v.y * Math.sin(angle);
         double newy = v.x * Math.sin(angle) + v.y * Math.cos(angle);
-        v.x = newx;
-        v.y = newy;
+        v.setX(newx);
+        v.setY(newy);
     }
 
     //rotate vector2d v around point p clockwise by angle
     private void rotate2dAroundaPoint(Vector2d v, Point2d p, double angle){
         double newx = (v.x-p.x) * Math.cos(angle) - (v.y-p.y) * Math.sin(angle) + p.x;
         double newy = (v.y-p.y) * Math.cos(angle) + (v.x-p.x) * Math.sin(angle) + p.y;
-        v.x = newx;
-        v.y = newy;
+        v.setX(newx);
+        v.setY(newy);
     }
     /**
      * for helper function testing
@@ -157,9 +157,9 @@ public class Action {
 //    public static void main(String args[]){
 //        Vector2d v = new Vector2d(1,0);
 //        Point2d p = new Point2d(1,1);
-//        double angle = Math.PI / 4;
-//        Action.rotate2d(v,angle);
-//        Action.rotate2dAroundaPoint(v, p, angle);
+//        double angle = Math.PI / 2;
+////        rotate2d(v,angle);
+//        rotate2dAroundaPoint(v, p, angle);
 //        System.out.print("new vector is " + v.x + ", " + v.y );
 //    }
     /**
@@ -194,8 +194,9 @@ public class Action {
 
         Vector2d directionToTarget = new Vector2d(agt.getCurrentPosition());
         directionToTarget.sub(wm.getMyAgent().getCurrentPosition());
-        double ahead = utility.Geometry.sameDirection(directionToTarget, startVel);
-
+//        double ahead = utility.Geometry.sameDirection(directionToTarget, startVel);
+        double ahead = utility.Geometry.sameDirection(directionToTarget, agt.getVelocity());
+        
         if (ahead >= 0) {//this agent is behind the target and trying to catch up
             if (frameFromLastDecision >= T) {
                 violateExpectation = true;
@@ -204,9 +205,9 @@ public class Action {
             //execute catching up behavior in phase 1 of overtaking
             CatchUp(agt, left, T);
 
-        } else if (ahead > -0.65) {
+        } else if (ahead > -0.8) {
             Vector2d passAheadVel = new Vector2d(startVel);
-            passAheadVel.scale(wm.getMyAgent().getPreferredSpeed());
+            passAheadVel.scale(wm.getMyAgent().getPreferredSpeed()*1.1);
             selectedVelocity.set(passAheadVel);
         }
         else{
@@ -235,12 +236,13 @@ public class Action {
         //if this method is called in "approachToTarget during Side-Avoiding"
         locationToMove.normalize();
 //        locationToMove.add(agt.getCurrentPosition());
-        rotate2dAroundaPoint(locationToMove, agt.getCurrentPosition(), angle);
+//        rotate2dAroundaPoint(locationToMove, agt.getCurrentPosition(), angle);
+        rotate2d(locationToMove,angle);
         
         if (wm.getDecision().getCurrentStrategy() == STRATEGY.OVERTAKE) {
-            locationToMove.scale(this.wm.getMyAgent().getRadius() * (1+this.wm.getMyAgent().getPersonalSpaceFactor())
-                    + agt.getRadius() * (1+agt.getPersonalSpaceFactor()) 
-                    + 2 * (this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() + 1) * this.wm.getMyAgent().getRadius());
+            locationToMove.scale(this.wm.getMyAgent().getRadius() * (1+this.wm.getMyAgent().getPersonalSpaceFactor())+ agt.getRadius() * (1+agt.getPersonalSpaceFactor())
+//                    + 2 * (this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() + 0) * this.wm.getMyAgent().getRadius()
+                    );
         } else if (wm.getDecision().getCurrentStrategy() == STRATEGY.AVOID) {
             locationToMove.scale(0.5*this.wm.getMyAgent().getRadius() * (1+this.wm.getMyAgent().getPersonalSpaceFactor())
                     + 0.5 * agt.getRadius() * (1+agt.getPersonalSpaceFactor()) 
@@ -261,16 +263,20 @@ public class Action {
     private void CatchUp(RVOAgent agt, boolean fromLeft, int T) {
         Vector2d catchUpVelocity = approachSide(agt, fromLeft);
         catchUpVelocity.sub(wm.getMyAgent().getCurrentPosition());
+        catchUpVelocity.normalize();
         catchUpVelocity.scale(wm.getMyAgent().getSpeed());
         
         if (calculateTTA(this.wm.getMyAgent(), agt) + frameFromLastDecision < T) {
-            //if we're ahead of schedule then ok
+            //if we're ahead of schedule then ok, or slightly increase the catching up speed
+            catchUpVelocity.normalize();
+            catchUpVelocity.scale(wm.getMyAgent().getSpeed() 
+            + 0.5 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
            
         } else {
             // speed up
             catchUpVelocity.normalize();
             catchUpVelocity.scale(wm.getMyAgent().getSpeed() 
-            + 0.5 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
+            + 1 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
         }
         selectedVelocity = new Vector2d(catchUpVelocity);
     }
@@ -405,6 +411,8 @@ public class Action {
                 return;
             }      
             Vector2d deviatedVel = approachSide(agt, left);
+            deviatedVel.sub(wm.getMyAgent().getCurrentPosition());
+            deviatedVel.normalize();
             deviatedVel.scale(wm.getMyAgent().getPreferredSpeed()* 0.95);
             selectedVelocity = new Vector2d(deviatedVel);
         } else {
@@ -430,38 +438,43 @@ public class Action {
 
     public void execute(STRATEGY selectedStrategy, RVOAgent target, boolean left, int T, Vector2d startVel, Point2d startPos) {
         this.target = target;
-        switch (selectedStrategy) {
-            case MOVE:
-                //follow the rough preferredVel towatds its goal
-                if(frameFromLastDecision>=T){
-                    finishCurrentStrategy=true;
-                }else{
-                    selectedVelocity = wm.getMyAgent().getPrefVelocity();
+        if(selectedStrategy == null){
+            System.out.println("No steering strategy is selected, move as usual at its perferred velocity towards its goal");
+            selectedVelocity = wm.getMyAgent().getPrefVelocity();
+        }else{
+            switch (selectedStrategy) {
+                case MOVE:
+                    //follow the rough preferredVel towatds its goal
+                    if(frameFromLastDecision>=T){
+                        finishCurrentStrategy=true;
+                    }else{
+                        selectedVelocity = wm.getMyAgent().getPrefVelocity();
+                        frameFromLastDecision++;
+                        System.out.println("moving");
+                    }
+                    break;
+                case FOLLOW:
+                    System.out.println("executing follow steering strategy now");
+                    follow(this.target, left);
                     frameFromLastDecision++;
-                    System.out.println("moving");
-                }
-                break;
-            case FOLLOW:
-                System.out.println("executing follow steering strategy now");
-                follow(this.target, left);
-                frameFromLastDecision++;
-                break;
-            case OVERTAKE:
-                System.out.println("executing overtake steering strategy now");
-                overtake(this.target, left, T, startVel, startPos);
-                frameFromLastDecision++;
-                break;
-            case AVOID:
-                System.out.println("executing avoiding steering strategy now");
-                avoid(this.target, left, T, startVel, startPos);
-                frameFromLastDecision++;
-                break;
-            //SUDDENSLOW is one example of instinctive reaction, where is full of obstacles in front and no other strategy can be executed
-            case INSTINCTIVERACTION:
-                System.out.println("executing instinctive reaction - stop the Agent emergently");
-                wm.getMyAgent().getVelocity().scale(0); //scale the velocity to 0
-                finishCurrentStrategy = true;
-                break;
+                    break;
+                case OVERTAKE:
+                    System.out.println("executing overtake steering strategy now");
+                    overtake(this.target, left, T, startVel, startPos);
+                    frameFromLastDecision++;
+                    break;
+                case AVOID:
+                    System.out.println("executing avoiding steering strategy now");
+                    avoid(this.target, left, T, startVel, startPos);
+                    frameFromLastDecision++;
+                    break;
+                //SUDDENSLOW is one example of instinctive reaction, where is full of obstacles in front and no other strategy can be executed
+                case INSTINCTIVERACTION:
+                    System.out.println("executing instinctive reaction - stop the Agent emergently");
+                    wm.getMyAgent().getVelocity().scale(0.1); //scale the velocity to 0.1
+                    finishCurrentStrategy = true;
+                    break;
+            }
         }
     }
 

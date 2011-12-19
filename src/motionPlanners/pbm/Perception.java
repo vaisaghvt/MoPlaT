@@ -303,15 +303,17 @@ public class Perception {
       
         for (Object tempObject : sensedAgents) {
             RVOAgent tempAgent = (RVOAgent) tempObject;
-            double distanceToMe;
-            if (!obsesAgents.containsValue(tempAgent)) {
-                Vector2d meToAgent = new Vector2d(tempAgent.getCurrentPosition());
-                meToAgent.sub(this.wm.getMyAgent().getCurrentPosition());
-                distanceToMe = meToAgent.length();
-                obsesAgents.put((Double) distanceToMe, tempAgent);
+            if(tempAgent.getId()!= wm.getMyAgent().getId()){
+                double distanceToMe;
+                if (!obsesAgents.containsValue(tempAgent)) {
+                    Vector2d meToAgent = new Vector2d(tempAgent.getCurrentPosition());
+                    meToAgent.sub(this.wm.getMyAgent().getCurrentPosition());
+                    distanceToMe = meToAgent.length();
+                    obsesAgents.put((Double) distanceToMe, tempAgent);
+                }
             }
         }
-        if (!strategySelected) { //if no strategy (e.g., violation)
+        if (!isStrategySelected()) { //if no strategy (e.g., violation)
             this.setSpacePattern(); //execute pattern recognition system
         }
     }

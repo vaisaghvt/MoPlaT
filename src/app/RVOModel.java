@@ -72,22 +72,17 @@ public class RVOModel extends SimState {
 
     public RVOModel(long seed) {
         super(seed);
-
         if (PropertySet.INITIALISEFROMXML) {
-
             try {
                 XMLScenarioManager settings = XMLScenarioManager.instance("environment.geography");
                 SimulationScenario scenario = (SimulationScenario) settings.unmarshal(PropertySet.FILEPATH);
                 RVOGui.scale = scenario.getScale();
                 worldXSize = RVOGui.checkSizeX = scenario.getXsize();
                 worldYSize = RVOGui.checkSizeY = scenario.getYsize();
-
-
             } catch (JAXBException ex) {
                 Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
         agentList = new ArrayList<RVOAgent>();
         //obstacleList = new ArrayList<RVOObstacle>();
         agentLineList = new ArrayList<AgentGenerator>();
@@ -257,8 +252,6 @@ public class RVOModel extends SimState {
                 latticeSpace = new LatticeSpace(worldXSize, worldYSize, this);
                 latticeSpace.scheduleLattice();
                 latticeSpace.setDirection(scenario.getDirection());
-
-
             }
 
             List<Agent> xmlAgentList = scenario.getCrowd();
@@ -273,7 +266,6 @@ public class RVOModel extends SimState {
                 tempRVOAgent.setPreferredSpeed(tempAgent.getPreferedSpeed());
                 tempRVOAgent.setMaximumSpeed(tempAgent.getPreferedSpeed() * 2.0);
                 tempRVOAgent.setCommitmentLevel(tempAgent.getCommitmentLevel());
-
 
                 addNewAgent(tempRVOAgent);
             }

@@ -217,8 +217,8 @@ public class WorkingMemory implements VelocityCalculator {
 //        System.out.println("This is the backup record for the agent before its velocity and position is updated: " + lastFrameBuffer.toString());
                 
         //execute vision system and update pattern if necessary.
-        vision.execute(neighbors);
-        decision.execute();
+//        vision.execute(neighbors);
+        decision.execute(neighbors);
         
         RVOAgent targetAgent = getAgent(neighbors, decision.getTargetAgentID());
         Vector2d startVelocity = decision.getStartVelocity();

@@ -8,6 +8,7 @@ import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MoveAction;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 import motionPlanners.pbm.WorkingMemory.STRATEGY;
+import sim.util.Bag;
 
 public class Decision {
     RVOAgent me;
@@ -19,9 +20,9 @@ public class Decision {
     
     int midIndex;
     int targetIndex; //column index of the target in the stp
-    
-    //for the desired spatial pattern to occur in the current STP instance p1
-    int t1;
+//    
+//   
+//    int instructedTime;
 
     //for recording of whether the matching fail is because of failed for overtaking or both overtaking and following
     boolean overtakeFlag;
@@ -39,7 +40,7 @@ public class Decision {
     }
     
     public int getT1(){
-        return t1;
+        return instructedTime;
     }
     
     public Decision(WorkingMemory wm) {
@@ -50,7 +51,7 @@ public class Decision {
         left = true; //default left
         instructedTime = -1;
         midIndex = 5;
-        this.currentStrategy = STRATEGY.MOVE;
+        this.currentStrategy = null;
         overtakeFlag=false;
     }
 
@@ -75,20 +76,25 @@ public class Decision {
         return targetID;
     }
 
-    void execute() {
-        if (needNewDicison()) {
+    void execute(Bag sensedneighbor) {
+        if (needNewDicison(sensedneighbor)) {
             selectNewStrategy();
         }
     }
 
     //each time when updating all agents' states, this function is called before execute specific action in Action class
-    public boolean needNewDicison() {
-        if (wm.getAction().frameFromLastDecision >= wm.getDecision().getT1() || wm.getMyAgent().violateExpectancy || wm.getAction().finishCurrentStrategy 
-                || this.currentStrategy == STRATEGY.FOLLOW) {
-            wm.getAction().frameFromLastDecision = 0; //reset frame counter for new strategy execution
-            wm.getVision().setStrategySelected(false);          
+    public boolean needNewDicison(Bag sensedneighbor) {
+        if (wm.getAction().frameFromLastDecision >= wm.getDecision().getInstructedTime() || wm.getMyAgent().violateExpectancy || wm.getAction().finishCurrentStrategy 
+                || this.currentStrategy == STRATEGY.FOLLOW
+                || this.currentStrategy == null) {
+            wm.getAction().frameFromLastDecision = 0; //reset frame counter for new strategy execution        
             startPosition = new Point2d(me.getCurrentPosition());
             startVelocity = new Vector2d(me.getVelocity());
+            
+            //once the current strategy is finished, set the current velocity back towards goal
+            wm.getMyAgent().setVelocity(wm.getMyAgent().getPrefVelocity());
+            wm.getVision().setStrategySelected(false);
+            wm.getVision().execute(sensedneighbor);
             return true;
         } else {
             wm.getVision().setStrategySelected(true);
@@ -214,7 +220,8 @@ public class Decision {
                     break;              
             }
             for(int i=0; i<wm.getVision().getPf()+1; i++){  //for side-avoid, two parties walking towards each other
-                if(p1.getValue(0, 0, 5)== -1){
+                if(p1.getValue(0, 0, 5)== -1 || 
+                   (p1.getValue(0, 0, 5)==0 && p1.getValue(0, 0, 5)==-1)){
                     count[0]++;
                 }else{
                     break;
@@ -232,10 +239,10 @@ public class Decision {
             int maxMatch = (int) (wm.getVision().getPf());
             switch(commit){
                 case HIGHCOMMITMENT:
-                    requiredMatch= (int) Math.round(0.6 * maxMatch); 
+                    requiredMatch= (int) Math.round(0.3 * maxMatch); 
                     break;
                 case MIDCOMMITMENT:
-                    requiredMatch= (int) Math.round(0.3 * maxMatch); 
+                    requiredMatch= (int) Math.round(0.15 * maxMatch); 
                     break;
                 case LOWCOMMITMENT:
                     requiredMatch= 1;  // once see the chance now, just start
@@ -273,14 +280,14 @@ public class Decision {
      //index ==1: for overtake
 
      //search for the left half
-     for(int i = 5; i> 2; i--){
+     for(int i = 5; i>= 2; i--){
         if(p1.getValue(frame, 0, i)==1 && p1.getValue(frame, 0, i-1)==0 
         && p1.getValue(frame, 1, i)!=-1 && p1.getValue(frame, 1, i-1)==0 ){
             leftTIndex=i;
         }
      }
      //search for the right half
-     for(int j = 5; j<8; j++){
+     for(int j = 5; j<=8; j++){
         if(p1.getValue(frame, 0, j)==1 && p1.getValue(frame, 0, j+1)==0
         && p1.getValue(frame,1,j)!= -1 && p1.getValue(frame, 1, j+1)==0 ){
             rightTIndex=j;
@@ -307,14 +314,20 @@ public class Decision {
             
            //find left edge index of the potential avoiding group
            for(int i=4; i>2; i--){
-                if(wm.getVision().getSpacepattern().getValue(0, 0, i)==-1){
+               if(wm.getVision().getSpacepattern().getValue(0, 0, i)==-1){
                     leftEdgeIndex = i;
+               }
+               else if(wm.getVision().getSpacepattern().getValue(0, 0, i)==0 && wm.getVision().getSpacepattern().getValue(0, 1, i)== -1){
+                   leftEdgeIndex = i;
                }
            }
             //find the right potential edge of the avoiding group
            for(int j=6;j<8;j++){
                if(wm.getVision().getSpacepattern().getValue(0, 0, j)==-1){
                   rightEdgeIndex = j;
+               }
+               else if(wm.getVision().getSpacepattern().getValue(0, 0, j)==0 && wm.getVision().getSpacepattern().getValue(0, 1, j)== -1){
+                   rightEdgeIndex = j;
                }
            }
            //prefer left
@@ -326,8 +339,12 @@ public class Decision {
                left = false;
            }
            else if(rightEdgeIndex-5==5-leftEdgeIndex){
-               if(wm.getVision().getSpacepattern().getValue(0, 0, leftEdgeIndex-1)==0) edgeIndex=leftEdgeIndex;
-               else if(wm.getVision().getSpacepattern().getValue(0, 0, rightEdgeIndex+1)==0) {
+               if((wm.getVision().getSpacepattern().getValue(0, 0, leftEdgeIndex)== -1 && wm.getVision().getSpacepattern().getValue(0, 0, leftEdgeIndex-1)== 0) ||
+                  (wm.getVision().getSpacepattern().getValue(0, 0, leftEdgeIndex)== 0 && wm.getVision().getSpacepattern().getValue(0, 1, leftEdgeIndex)== -1 && wm.getVision().getSpacepattern().getValue(0, 1, leftEdgeIndex-1)== 0) ){
+                   edgeIndex=leftEdgeIndex;
+               }
+               else if((wm.getVision().getSpacepattern().getValue(0, 0, rightEdgeIndex)== -1 &&wm.getVision().getSpacepattern().getValue(0, 0, rightEdgeIndex+1)==0) ||
+                       (wm.getVision().getSpacepattern().getValue(0, 0, rightEdgeIndex)== 0 && wm.getVision().getSpacepattern().getValue(0, 1, rightEdgeIndex)== -1) &&(wm.getVision().getSpacepattern().getValue(0, 1, rightEdgeIndex+1)== 0) ){
                    edgeIndex=rightEdgeIndex;
                    left = false;
                }else{
@@ -367,8 +384,8 @@ public class Decision {
 //                    default: 
 //                        break;              
 //               }
-//               t1= (int) (match * requiredMatch);
-               t1= matchedFrames[0];
+//               instructedTime= (int) (match * requiredMatch);
+               instructedTime= matchedFrames[0];
            }
            else System.out.println("Error: steering strategy AVOID was selected but without valid target to avoid");
            return;
@@ -376,7 +393,7 @@ public class Decision {
         else if(currentStrategy==STRATEGY.MOVE){        
             targetID=-1;
             targetIndex=-1;
-            t1=matchedFrames[2];
+            instructedTime=matchedFrames[2];
             return;
         }
         else if(currentStrategy==STRATEGY.OVERTAKE){
@@ -397,7 +414,7 @@ public class Decision {
 //                    break;           
 //            }
             //when the match of "OVERTAKE" does not meet the number of frames as required by commitment
-            t1 = matchedFrames[1];
+            instructedTime = matchedFrames[1];
             
             Point2d myPos = wm.getMyAgent().getCurrentPosition();
             RVOAgent targetAgent = wm.getAgent(wm.getVision().getSensedAgents(), targetID);
@@ -405,7 +422,7 @@ public class Decision {
             double distanceToTarget = myPos.distance(targetPos);
             
             //if using the max speed of the agent still cannot reach where the target is (estimate the distance for cathing up)
-            if((wm.getMyAgent().getMaxSpeed()- targetAgent.getVelocity().length()) * t1 * PropertySet.TIMESTEP < distanceToTarget){
+            if((wm.getMyAgent().getMaxSpeed()- targetAgent.getVelocity().length()) * instructedTime * PropertySet.TIMESTEP < distanceToTarget){
                 currentStrategy= STRATEGY.FOLLOW;
                 System.out.println("The perceived spatial pattern for OVERTAKE does not exist long enough for me to overtake, FOLLOW instead");
             }else{
