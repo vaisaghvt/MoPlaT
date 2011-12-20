@@ -257,14 +257,15 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     }
 
     /**
-     * Returns the predicted position i time steps in the future based on linear dead reckoning.
+     * Returns the predicted position i simulation steps in the future based on linear dead reckoning.
      *
-     * @last modified by: hunan
+     * @last modified by: hunan　at Dec 20th, 2011
      */
     public Point2d getNextPosition(int i) {
         PrecisePoint predictPos = new PrecisePoint(this.getVelocity().getX(),this.getVelocity().getY());
+//        Vector2d predictPos =new Vector2d(this.getVelocity().getX(),this.getVelocity().getY());
         predictPos.scale(i * PropertySet.TIMESTEP);
-        predictPos.add(this.currentPosition.toPoint());
+        predictPos.add(this.getCurrentPosition());
         return predictPos.toPoint();
     }
 
@@ -373,30 +374,30 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                    prefVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
                             prefVelocity, PropertySet.TIMESTEP);
 
-                    //use RVO2 as the motion adjustment mechanism to ensure collision free.
-//                   VelocityCalculator velocityCalc2 = new RVO_2_1();
-//
-//                   Vector2d tempVelocity = velocityCalc2.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
-//                            prefVelocity, PropertySet.TIMESTEP);
-//
-//                    //Check expectancies according to the difference b/t prefVel and the actualVel (chosenVel)
-//                   //the comparison of two vectors (velocities) depends both on direction and speed as follows
-//                   Vector2d diff_V = new Vector2d(tempVelocity);
-//                   diff_V.sub(prefVelocity);
-//                   double diff_Speed = diff_V.length();
-//                   double diff_Direction_cosine = Math.cos(tempVelocity.angle(prefVelocity));
-//
-//                   // To check whether the speed within variance of 0.2 and direction within angle of 10 degree
-//                   if (diff_Speed <= 0.2 && diff_Direction_cosine >= Math.cos(10*Math.PI/180)) {
-//                        //TODO: add in count to record the number of steps PBM gets good results for evaluation purpose later
-//                       violateExpectancy = false;
-//                    }
-//                   else{
-//                       //the actual vel violate the prefVel given by the Steering strategy
-//                       violateExpectancy = true;
-//                   }                
-//                   chosenVelocity = new PrecisePoint(tempVelocity.getX(), tempVelocity.getY());
-                   chosenVelocity = new PrecisePoint(prefVelocity.getX(), prefVelocity.getY());
+//                    use RVO2 as the motion adjustment mechanism to ensure collision free.
+                   VelocityCalculator velocityCalc2 = new RVO_2_1();
+
+                   Vector2d tempVelocity = velocityCalc2.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
+                            prefVelocity, PropertySet.TIMESTEP);
+
+                    //Check expectancies according to the difference b/t prefVel and the actualVel (chosenVel)
+                   //the comparison of two vectors (velocities) depends both on direction and speed as follows
+                   Vector2d diff_V = new Vector2d(tempVelocity);
+                   diff_V.sub(prefVelocity);
+                   double diff_Speed = diff_V.length();
+                   double diff_Direction_cosine = Math.cos(tempVelocity.angle(prefVelocity));
+
+                   // To check whether the speed within variance of 0.2 and direction within angle of 10 degree
+                   if (diff_Speed <= 0.2 && diff_Direction_cosine >= Math.cos(10*Math.PI/180)) {
+                        //TODO: add in count to record the number of steps PBM gets good results for evaluation purpose later
+                       violateExpectancy = false;
+                    }
+                   else{
+                       //the actual vel violate the prefVel given by the Steering strategy
+                       violateExpectancy = true;
+                   }                
+                   chosenVelocity = new PrecisePoint(tempVelocity.getX(), tempVelocity.getY());
+//                   chosenVelocity = new PrecisePoint(prefVelocity.getX(), prefVelocity.getY());
                 }
                 else{
                     //default as towards the goal

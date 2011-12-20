@@ -282,18 +282,19 @@ public class Decision {
      //search for the left half
      for(int i = 5; i>= 2; i--){
         if(p1.getValue(frame, 0, i)==1 && p1.getValue(frame, 0, i-1)==0 
-        && p1.getValue(frame, 1, i)!=-1 && p1.getValue(frame, 1, i-1)==0 ){
+//        && p1.getValue(frame, 1, i)!=-1
+                && p1.getValue(frame, 1, i-1)==0 ){
             leftTIndex=i;
         }
      }
      //search for the right half
      for(int j = 5; j<=8; j++){
         if(p1.getValue(frame, 0, j)==1 && p1.getValue(frame, 0, j+1)==0
-        && p1.getValue(frame,1,j)!= -1 && p1.getValue(frame, 1, j+1)==0 ){
+//        && p1.getValue(frame,1,j)!= -1
+                && p1.getValue(frame, 1, j+1)==0 ){
             rightTIndex=j;
         }
-     }
-     
+     }     
      if((5-leftTIndex) <= (rightTIndex-5)){
          currentTargetIndex = leftTIndex;
      }else{

@@ -241,12 +241,14 @@ public class Action {
         
         if (wm.getDecision().getCurrentStrategy() == STRATEGY.OVERTAKE) {
             locationToMove.scale(this.wm.getMyAgent().getRadius() * (1+this.wm.getMyAgent().getPersonalSpaceFactor())+ agt.getRadius() * (1+agt.getPersonalSpaceFactor())
-                    + 1 * (this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() + 1) * this.wm.getMyAgent().getRadius()
+                    + 1  * this.wm.getMyAgent().getRadius()
+//                    (this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() + 1)
                     );
         } else if (wm.getDecision().getCurrentStrategy() == STRATEGY.AVOID) {
             locationToMove.scale(0.5*this.wm.getMyAgent().getRadius() * (1+this.wm.getMyAgent().getPersonalSpaceFactor())
                     + 0.5 * agt.getRadius() * (1+agt.getPersonalSpaceFactor()) 
-                    + 1 * (this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() + 1) * this.wm.getMyAgent().getRadius()
+                    + 1 * this.wm.getMyAgent().getRadius()
+//                    (this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() + 1) * 
                     );
         }
         locationToMove.add(agt.getCurrentPosition());
@@ -271,7 +273,7 @@ public class Action {
             //if we're ahead of schedule then ok, or slightly increase the catching up speed
             catchUpVelocity.normalize();
             catchUpVelocity.scale(wm.getMyAgent().getSpeed() 
-            + 0.5 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
+            + 0.2 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
            
         } else {
             // speed up
