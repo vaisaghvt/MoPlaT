@@ -180,6 +180,8 @@ public class AgentGroupCreatorLevel extends CreatorLevel implements MouseListene
             AgentGroup tempAgentGroup = new AgentGroup();
             
             int size=0;
+            double minSpeed= 0.0, maxSpeed = 2.6;
+            double meanSpeed =1.3, sDev =0.0;
             
             
             Position tempStorage = new Position();
@@ -197,9 +199,9 @@ public class AgentGroupCreatorLevel extends CreatorLevel implements MouseListene
             
                        
             
-            String number;
+            String tempString;
             do {
-                number = (String) JOptionPane.showInputDialog(
+                tempString = (String) JOptionPane.showInputDialog(
                         null,
                         "How many agents should be put in this area?",
                         "Input",
@@ -208,13 +210,83 @@ public class AgentGroupCreatorLevel extends CreatorLevel implements MouseListene
                         null,
                         "1");
                try {
-                    size = Integer.parseInt(number);
+                    size = Integer.parseInt(tempString);
                 } catch (NumberFormatException numException) {
                     continue;
                 }
             } while (!isValidSize(size, tempAgentGroup));
             
+
+            do {
+                tempString = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Minimum Speed",
+                        "Input",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        "0");
+               try {
+                    minSpeed = Double.parseDouble(tempString);
+                } catch (NumberFormatException numException) {
+                    continue;
+                }
+            } while (minSpeed<0||minSpeed>2.6);
+            
+        
+            do {
+                tempString = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Maximum Speed?",
+                        "Input",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        "2.6");
+               try {
+                    maxSpeed = Double.parseDouble(tempString);
+                } catch (NumberFormatException numException) {
+                    continue;
+                }
+            } while (maxSpeed<minSpeed||maxSpeed>2.6);
+            meanSpeed = (minSpeed + maxSpeed) /2.0;
+            do {
+                tempString = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Average Speed?",
+                        "Input",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        Double.toString(meanSpeed));
+               try {
+                    meanSpeed = Double.parseDouble(tempString);
+                } catch (NumberFormatException numException) {
+                    continue;
+                }
+            } while (meanSpeed<minSpeed||meanSpeed>maxSpeed);
+            
+            do {
+                tempString = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Standard Deviation:",
+                        "Input",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        "0.0");
+               try {
+                    sDev = Double.parseDouble(tempString);
+                } catch (NumberFormatException numException) {
+                    continue;
+                }
+            } while (false);
+            
             tempAgentGroup.setSize(size);
+            tempAgentGroup.setMinSpeed(minSpeed);
+            tempAgentGroup.setMaxSpeed(maxSpeed);
+            tempAgentGroup.setMeanSpeed(meanSpeed);
+            tempAgentGroup.setSDevSpeed(sDev);
             agentGroups.add(tempAgentGroup);
 
             prevPoint.setX(-1.0);

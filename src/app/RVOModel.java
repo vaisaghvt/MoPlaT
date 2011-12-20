@@ -310,12 +310,12 @@ public class RVOModel extends SimState {
 
             List<AgentGroup> xmlAgentGroupList = scenario.getAgentGroups();
             for (AgentGroup tempAgentGroup : xmlAgentGroupList) {
-                
+
                 Point2d start = new Point2d(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY());
                 Point2d end = new Point2d(tempAgentGroup.getEndPoint().getX(), tempAgentGroup.getEndPoint().getY());
-                if(tempAgentGroup.getSize()==1){
-                    double x = (start.getX()+end.getX()) /2;
-                    double y = (start.getY()+end.getY()) /2;
+                if (tempAgentGroup.getSize() == 1) {
+                    double x = (start.getX() + end.getX()) / 2;
+                    double y = (start.getY() + end.getY()) / 2;
                     RVOAgent agent = new RVOAgent(this.getRvoSpace());
                     agent.setCurrentPosition(x, y);
 
@@ -330,6 +330,12 @@ public class RVOModel extends SimState {
                 int maxPossible = numberPossibleOnWidth * numberPossibleOnHeight;
                 int spacesBetween = (int) Math.floor((maxPossible - tempAgentGroup.getSize()) / (tempAgentGroup.getSize() - 1));
                 spacesBetween++;
+                
+                final double maxSpeed = tempAgentGroup.getMaxSpeed();
+                final double minSpeed = tempAgentGroup.getMinSpeed();
+                final double meanSpeed = tempAgentGroup.getMeanSpeed();
+                final double sdevSpeed = tempAgentGroup.getSDevSpeed();
+
                 for (double position = 1;
                         position <= maxPossible; position += spacesBetween) {
 
@@ -341,6 +347,18 @@ public class RVOModel extends SimState {
 
                     RVOAgent agent = new RVOAgent(this.getRvoSpace());
                     agent.setCurrentPosition(x, y);
+
+                    
+                    double initialSpeed = random.nextGaussian() * sdevSpeed + meanSpeed;
+                    if (initialSpeed < minSpeed) {
+                        initialSpeed = minSpeed;
+                    } else if (initialSpeed > maxSpeed) {
+                        initialSpeed = maxSpeed;
+                    }
+
+
+                    agent.setPreferredSpeed(initialSpeed);
+
 
                     this.addNewAgent(agent);
                     if (rvoSpace.hasRoadMap()) {

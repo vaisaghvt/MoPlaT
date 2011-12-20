@@ -71,7 +71,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      * Current velocity of the agent
      */
     protected PrecisePoint velocity;
-    protected PrecisePoint chosenVelocity;
+    private PrecisePoint chosenVelocity;
     /**
      * Agents preferred velocity, calculated each timestep according to goal
      * and current location
@@ -279,6 +279,11 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     @Override
     public String getName(LocationWrapper wrapper) {
         return "Agent " + id;
+    }
+    
+    @Override
+    public String toString(){
+        return "Agent" +id;
     }
 
     public VelocityCalculator getRvoCalc() {
@@ -587,6 +592,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 
         public Point2d getCurrentGoal() {
             return currentGoalPoint;
+        }
+        
+        public double getPreferredSpeed() {
+            return RVOAgent.this.preferredSpeed;
         }
     }
 }

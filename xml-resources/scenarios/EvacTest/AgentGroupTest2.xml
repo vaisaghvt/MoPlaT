@@ -3,8 +3,8 @@
     <obstacles>
 
         <vertices x="11.4" y="7.2"/>
-                <vertices x="11.4" y="10.8"/>
-                <vertices x="10.8" y="10.8"/>
+        <vertices x="11.4" y="10.8"/>
+        <vertices x="10.8" y="10.8"/>
         <vertices x="10.8" y="7.2"/>
         
     </obstacles>

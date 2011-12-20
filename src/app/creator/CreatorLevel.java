@@ -4,7 +4,6 @@
  */
 package app.creator;
 
-import agent.latticegas.LatticeSpace;
 import environment.geography.Agent;
 import environment.geography.AgentGroup;
 import environment.geography.AgentLine;
@@ -53,34 +52,9 @@ public abstract class CreatorLevel {
 
     public abstract void draw(Graphics g);
 
-    public void drawGridLines(Graphics g) {
-        int xSize = model.getxSize();
-        int ySize = model.getySize();
-        int scale = model.getScale();
-        if (!model.getLatticeSpaceFlag()) {
-            for (int i = 0; i <= xSize; i++) {
-                g.setColor(Color.black);
-                g.drawLine((int) (i * scale), 0, (int) (i * scale), (int) (ySize * scale));
-            }
+    public abstract void clearAllPoints();
 
-            for (int i = 0; i <= ySize; i++) {
-                g.setColor(Color.black);
-                g.drawLine(0, (int) (i * scale), (int) (xSize * scale), (int) (i * scale));
-            }
-        } else {
-
-
-            for (double i = 0.0; i <= xSize; i += 2.0 * CreatorMain.AGENT_RADIUS) {
-                g.setColor(Color.black);
-                g.drawLine((int) (i * scale), 0, (int) (i * scale), (int) (ySize * scale));
-            }
-
-            for (double i = 0.0; i <= ySize; i += 2.0 * CreatorMain.AGENT_RADIUS) {
-                g.setColor(Color.black);
-                g.drawLine(0, (int) (i * scale), (int) (xSize * scale), (int) (i * scale));
-            }
-        }
-    }
+    public abstract String getName();
 
     void drawCurrentPoint(Graphics g, Point currentPoint) {
         int xSize = model.getxSize();
@@ -103,27 +77,8 @@ public abstract class CreatorLevel {
         }
     }
 
-    void drawObstacles(Graphics g, List<Obstacle> obstacles) {
-        int scale = model.getScale();
-        for (int i = 0; i < obstacles.size(); i++) {
-
-            List<Position> vertices = obstacles.get(i).getVertices();
-            int xPoints[] = new int[vertices.size()];
-            int yPoints[] = new int[vertices.size()];
-            for (int j = 0; j < vertices.size(); j++) {
-                double x = vertices.get(j).getX() * scale;
-                double y = vertices.get(j).getY() * scale;
-                xPoints[j] = (int) x;
-                yPoints[j] = (int) y;
-            }
-            g.setColor(Color.red);
-            g.fillPolygon(xPoints, yPoints, vertices.size());
-
-        }
-    }
-
     void calculateCurrentPoint(MouseEvent e, Point currentPoint, boolean halfway) {
-      
+
         double LATTICEGRIDSIZE = CreatorMain.AGENT_RADIUS * 2.0;
         int xSize = model.getxSize();
         int ySize = model.getySize();
@@ -143,12 +98,12 @@ public abstract class CreatorLevel {
                     Math.round(e.getPoint().getY() / (LATTICEGRIDSIZE * scale)));
 
             currentPoint.setLocation(
-                        currentPoint.getX() * LATTICEGRIDSIZE * scale,
-                        currentPoint.getY() * LATTICEGRIDSIZE * scale);
+                    currentPoint.getX() * LATTICEGRIDSIZE * scale,
+                    currentPoint.getY() * LATTICEGRIDSIZE * scale);
 
-            
+
             if (halfway) {
-                
+
 
                 int directionx = +1;
                 int directiony = +1;
@@ -174,23 +129,6 @@ public abstract class CreatorLevel {
 //                + decimalFormat.format(currentPoint.getY() / (LatticeSpace.LATTICEGRIDSIZE * scale))
 //                );
 
-    }
-
-    public void drawAgentLines(Graphics g, List<AgentLine> agentLines) {
-        int scale = model.getScale();
-        for (int i = 0; i < agentLines.size(); i++) {
-
-            double startX = agentLines.get(i).getStartPoint().getX() * scale;
-            double startY = agentLines.get(i).getStartPoint().getY() * scale;
-            double goalX = agentLines.get(i).getEndPoint().getX() * scale;
-            double goalY = agentLines.get(i).getEndPoint().getY() * scale;
-
-
-            g.setColor(Color.blue);
-
-            g.drawLine((int) startX, (int) startY, (int) goalX, (int) goalY);
-
-        }
     }
 
     public boolean mouseReleaseDefaultActions(MouseEvent e, Point currentPoint, Position point, Position prevPoint) {
@@ -252,6 +190,71 @@ public abstract class CreatorLevel {
         return true;
     }
 
+    public void drawGridLines(Graphics g) {
+        int xSize = model.getxSize();
+        int ySize = model.getySize();
+        int scale = model.getScale();
+        if (!model.getLatticeSpaceFlag()) {
+            for (int i = 0; i <= xSize; i++) {
+                g.setColor(Color.black);
+                g.drawLine((int) (i * scale), 0, (int) (i * scale), (int) (ySize * scale));
+            }
+
+            for (int i = 0; i <= ySize; i++) {
+                g.setColor(Color.black);
+                g.drawLine(0, (int) (i * scale), (int) (xSize * scale), (int) (i * scale));
+            }
+        } else {
+
+
+            for (double i = 0.0; i <= xSize; i += 2.0 * CreatorMain.AGENT_RADIUS) {
+                g.setColor(Color.black);
+                g.drawLine((int) (i * scale), 0, (int) (i * scale), (int) (ySize * scale));
+            }
+
+            for (double i = 0.0; i <= ySize; i += 2.0 * CreatorMain.AGENT_RADIUS) {
+                g.setColor(Color.black);
+                g.drawLine(0, (int) (i * scale), (int) (xSize * scale), (int) (i * scale));
+            }
+        }
+    }
+
+    void drawObstacles(Graphics g, List<Obstacle> obstacles) {
+        int scale = model.getScale();
+        for (int i = 0; i < obstacles.size(); i++) {
+
+            List<Position> vertices = obstacles.get(i).getVertices();
+            int xPoints[] = new int[vertices.size()];
+            int yPoints[] = new int[vertices.size()];
+            for (int j = 0; j < vertices.size(); j++) {
+                double x = vertices.get(j).getX() * scale;
+                double y = vertices.get(j).getY() * scale;
+                xPoints[j] = (int) x;
+                yPoints[j] = (int) y;
+            }
+            g.setColor(Color.red);
+            g.fillPolygon(xPoints, yPoints, vertices.size());
+
+        }
+    }
+
+    public void drawAgentLines(Graphics g, List<AgentLine> agentLines) {
+        int scale = model.getScale();
+        for (int i = 0; i < agentLines.size(); i++) {
+
+            double startX = agentLines.get(i).getStartPoint().getX() * scale;
+            double startY = agentLines.get(i).getStartPoint().getY() * scale;
+            double goalX = agentLines.get(i).getEndPoint().getX() * scale;
+            double goalY = agentLines.get(i).getEndPoint().getY() * scale;
+
+
+            g.setColor(Color.blue);
+
+            g.drawLine((int) startX, (int) startY, (int) goalX, (int) goalY);
+
+        }
+    }
+
     void drawAgents(Graphics g, List<Agent> agents, List<Boolean> highlightedAgents) {
         assert highlightedAgents.size() == agents.size();
         int scale = model.getScale();
@@ -279,8 +282,6 @@ public abstract class CreatorLevel {
 
         }
     }
-
-    public abstract void clearAllPoints();
 
     void drawAgentGroups(Graphics g, ArrayList<AgentGroup> agentGroups) {
         int scale = model.getScale();
@@ -317,16 +318,14 @@ public abstract class CreatorLevel {
         }
     }
 
-    public abstract String getName();
-
     void drawRoadMap(Graphics g, ArrayList<Position> roadMapPoints) {
-         int scale = model.getScale();
-        for (int i = 0; i < roadMapPoints.size()-1; i++) {
-             double startX = roadMapPoints.get(i).getX() * scale;
+        int scale = model.getScale();
+        for (int i = 0; i < roadMapPoints.size() - 1; i++) {
+            double startX = roadMapPoints.get(i).getX() * scale;
             double startY = roadMapPoints.get(i).getY() * scale;
-            double goalX = roadMapPoints.get(i+1).getX() * scale;
-            double goalY = roadMapPoints.get(i+1).getY() * scale;
-            
+            double goalX = roadMapPoints.get(i + 1).getX() * scale;
+            double goalY = roadMapPoints.get(i + 1).getY() * scale;
+
             g.setColor(Color.YELLOW);
             g.drawLine((int) startX, (int) startY, (int) goalX, (int) goalY);
         }

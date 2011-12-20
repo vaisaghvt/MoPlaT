@@ -154,24 +154,26 @@ class ModelDetails {
         
         environment.getAgentGroups().clear();
         if (!agentGroups.isEmpty()) {
-            for (int i = 0; i
-                    < agentGroups.size(); i++) {
+            for (AgentGroup group: agentGroups) {
                 AgentGroup tempGroup = new AgentGroup();
 
                 Position start = new Position();
-                start.setX((double) agentGroups.get(i).getStartPoint().getX());
-                start.setY((double) agentGroups.get(i).getStartPoint().getY());
+                start.setX((double) group.getStartPoint().getX());
+                start.setY((double) group.getStartPoint().getY());
 
                 Position end = new Position();
-                end.setX((double) agentGroups.get(i).getEndPoint().getX());
-                end.setY((double) agentGroups.get(i).getEndPoint().getY());
+                end.setX((double) group.getEndPoint().getX());
+                end.setY((double) group.getEndPoint().getY());
 
                 tempGroup.setStartPoint(start);
                 tempGroup.setEndPoint(end);
 
                 
-                tempGroup.setSize(agentGroups.get(i).getSize());
-                
+                tempGroup.setSize(group.getSize());
+                tempGroup.setMinSpeed(group.getMinSpeed());
+                tempGroup.setMaxSpeed(group.getMaxSpeed());
+                tempGroup.setMeanSpeed(group.getMeanSpeed());
+                tempGroup.setSDevSpeed(group.getSDevSpeed());
 
                 environment.getAgentGroups().add(tempGroup);
             }
@@ -328,4 +330,6 @@ class ModelDetails {
     public void setRoadMap(List<Position> roadMap) {
         this.roadMap = roadMap;
     }
+    
+    
 }

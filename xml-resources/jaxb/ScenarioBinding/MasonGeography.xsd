@@ -46,9 +46,12 @@
         <xs:sequence>
             <xs:element name="endPoint" type="Position" minOccurs="1" maxOccurs="1"/>
             <xs:element name="startPoint" type="Position" minOccurs="1" maxOccurs="1"/>
-      
             <xs:element name="size" type="xs:int"/>
-            
+            <xs:element name="minSpeed" type="xs:double"/>
+            <xs:element name="maxSpeed" type="xs:double"/>
+            <xs:element name="meanSpeed" type="xs:double"/>
+            <xs:element name="sDevSpeed" type="xs:double"/>
+                        
         </xs:sequence>
     </xs:complexType>
 
