@@ -60,7 +60,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      *
      * If this is zero then the standard RVO calculation for time to collision is performed
      */
-    private double personalSpaceFactor = 1;
+    private double personalSpaceFactor = 0.5;
     /**
      * Current position of the agent from javax.vecmath
      */

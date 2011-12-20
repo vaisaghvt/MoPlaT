@@ -220,8 +220,8 @@ public class Decision {
                     break;              
             }
             for(int i=0; i<wm.getVision().getPf()+1; i++){  //for side-avoid, two parties walking towards each other
-                if(p1.getValue(0, 0, 5)== -1 || 
-                   (p1.getValue(0, 0, 5)==0 && p1.getValue(0, 0, 5)==-1)){
+                if(p1.getValue(i, 0, 5)== -1 || 
+                   (p1.getValue(i, 0, 5)==0 && p1.getValue(i, 1, 5)==-1)){
                     count[0]++;
                 }else{
                     break;
@@ -313,7 +313,7 @@ public class Decision {
            int rightEdgeIndex = 11;
             
            //find left edge index of the potential avoiding group
-           for(int i=4; i>2; i--){
+           for(int i=5; i>=2; i--){
                if(wm.getVision().getSpacepattern().getValue(0, 0, i)==-1){
                     leftEdgeIndex = i;
                }
@@ -322,7 +322,7 @@ public class Decision {
                }
            }
             //find the right potential edge of the avoiding group
-           for(int j=6;j<8;j++){
+           for(int j=5;j<=8;j++){
                if(wm.getVision().getSpacepattern().getValue(0, 0, j)==-1){
                   rightEdgeIndex = j;
                }

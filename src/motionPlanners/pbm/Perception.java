@@ -217,6 +217,7 @@ public class Perception {
         for (int i = 0; i < pf + 1; i++) {
             for (int j = 0; j < spacepattern.getPattern()[0].length; j++) {
                 Arrays.fill(spacepattern.getPattern()[i][j], 0);//current frame, all attention levels, all space available
+                Arrays.fill(spacepattern_agtID.getPattern()[i][j],-1);
             }
 
             Set set = obsesAgents.entrySet();
@@ -279,12 +280,16 @@ public class Perception {
                                 int column=columnIndex.get(k);
                                 if (samedirection && spacepattern.getValue(i, rowIndex, column)==0) {
                                     spacepattern.setValue(i, rowIndex, column, 1);
-                                    spacepattern_agtID.setValue(i, rowIndex, column, agent.getId());
+//                                    spacepattern_agtID.setValue(i, rowIndex, column, agent.getId());
                                 } else if(!samedirection && spacepattern.getValue(i, rowIndex, column)==0){
                                     spacepattern.setValue(i, rowIndex, column, -1);
-                                    spacepattern_agtID.setValue(i, rowIndex, column, agent.getId()); 
+//                                    spacepattern_agtID.setValue(i, rowIndex, column, agent.getId()); 
                                     //currently, the agtID is not correct as always the last agent ID to be checked is filled in the array*************todo**************
                                 }//end of else if
+                                if (spacepattern_agtID.getValue(i, rowIndex, column)==-1) {
+                                    spacepattern_agtID.setValue(i, rowIndex, column, agent.getId());
+//                                    spacepattern_agtID.setValue(i, rowIndex, column, agent.getId());
+                                }
                             }//end of for
                         }//end of if(rowIndex>=0)
                     }//end of  if(!columnIndex.isEmpty())

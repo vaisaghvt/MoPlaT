@@ -91,7 +91,7 @@ public class Action {
         if (left) {
             fromLeft = "left";
         }
-        System.out.println("agent" + this.wm.getMyAgent() + " is following " + "agent " + target.getId() + " from its " + fromLeft);
+        System.out.println("agent" + this.wm.getMyAgent().getId() + " is following " + "agent " + target.getId() + " from its " + fromLeft);
 
         //position and velocity determines whether successfully followed
         if (target.getCurrentPosition().distance(this.wm.myAgent.getCurrentPosition()) <= preferGap
@@ -187,9 +187,9 @@ public class Action {
         String leftSide = "left side";
         String rightSide = "right side";
         if (left) {
-            System.out.println("Agent" + wm.getMyAgent() + " is overtaking " + "Agent" + agt + " from the " + leftSide);
+            System.out.println("Agent" + wm.getMyAgent().getId() + " is overtaking " + "Agent" + agt.getId() + " from the " + leftSide);
         } else {
-            System.out.println("Agent" + wm.getMyAgent() + " is overtaking " + "Agent" + agt + " from the " + rightSide);
+            System.out.println("Agent" + wm.getMyAgent().getId() + " is overtaking " + "Agent" + agt.getId() + " from the " + rightSide);
         }
 
         Vector2d directionToTarget = new Vector2d(agt.getCurrentPosition());
@@ -241,12 +241,13 @@ public class Action {
         
         if (wm.getDecision().getCurrentStrategy() == STRATEGY.OVERTAKE) {
             locationToMove.scale(this.wm.getMyAgent().getRadius() * (1+this.wm.getMyAgent().getPersonalSpaceFactor())+ agt.getRadius() * (1+agt.getPersonalSpaceFactor())
-//                    + 2 * (this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() + 0) * this.wm.getMyAgent().getRadius()
+                    + 1 * (this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() + 1) * this.wm.getMyAgent().getRadius()
                     );
         } else if (wm.getDecision().getCurrentStrategy() == STRATEGY.AVOID) {
             locationToMove.scale(0.5*this.wm.getMyAgent().getRadius() * (1+this.wm.getMyAgent().getPersonalSpaceFactor())
                     + 0.5 * agt.getRadius() * (1+agt.getPersonalSpaceFactor()) 
-                    + 1 * (this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() + 1) * this.wm.getMyAgent().getRadius());
+                    + 1 * (this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() + 1) * this.wm.getMyAgent().getRadius()
+                    );
         }
         locationToMove.add(agt.getCurrentPosition());
         return locationToMove;
@@ -352,9 +353,9 @@ public class Action {
         String leftSide = "left side";
         String rightSide = "right side";
         if (left) {
-            System.out.println("Agent" + wm.getMyAgent() + " is avoiding " + "Agent" + agt + " from the " + leftSide);
+            System.out.println("Agent" + wm.getMyAgent().getId() + " is avoiding " + "Agent" + agt.getId() + " from the " + leftSide);
         } else {
-            System.out.println("Agent" + wm.getMyAgent() + " is avoiding " + "Agent" + agt + " from the " + rightSide);
+            System.out.println("Agent" + wm.getMyAgent().getId() + " is avoiding " + "Agent" + agt.getId() + " from the " + rightSide);
         }
 
         Vector2d directionToTarget = new Vector2d(agt.getCurrentPosition());
