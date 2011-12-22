@@ -16,9 +16,18 @@ import java.util.List;
  */
 public class SocialForce implements VelocityCalculator {
 
+    public static int worldXSize;
+    public static int worldYSize;
+    
     static double[][] Fw;
     static double[][] Fwx;
     static double[][] Fwy;
+    static int N0x; //PropertySet.WORLDXSIZE;        // Total number of cell in X direction
+    static int N0y; //PropertySet.WORLDYSIZE;        // Total number of cell in Y direction
+    static double Xmin = 0;                              // Minimum x point of terrain
+    static double Xmax = 30;         // Maximum x point of terrain (+5 is for buffer zone)
+    static double Ymin = 0;                              // Minimum y point of terrain
+    static double Ymax = 30;         // Maximum y point of terrain
 
     // /////////////////////////////////////////////////////////////////////////
     // Psudeo function
@@ -37,12 +46,14 @@ public class SocialForce implements VelocityCalculator {
     // Bound the force so that agent don't "explode" (unit = Newton)
     // /////////////////////////////////////////////////////////////////////////
     private double forceBound(double x) {
-        int var = 2;
+        double var = 1.5;
 
         if (x > var) {
             x = Math.random();
+            //x = var;
         } else if (x < -var) {
             x = -(Math.random());
+            //x = -var;
         }
 
         return x;
@@ -103,47 +114,47 @@ public class SocialForce implements VelocityCalculator {
         
         // Check cell boundary condition
         if (cellix==0 && celliy==0){   // Left Top corner
-            System.out.println("Case 1");
-            neighbouricelly = new int[] {1,0,1};    //{2,1,2};
+//            System.out.println("Case Top Left Corner; ");
             neighbouricellx = new int[] {0,1,1};    //{1,2,2};
+            neighbouricelly = new int[] {1,0,1};    //{2,1,2};
         }
         else if (cellix==0 && celliy== N0y-1){     // Right top corner
-            System.out.println("Case 2");
-            neighbouricelly = new int[] {N0y-2,N0y-2,N0y-1};    //{N0y-1,N0y-1,N0y};
+//            System.out.println("Case Top Right Corner; ");
             neighbouricellx = new int[] {0,1,1};                //{1,2,2};
+            neighbouricelly = new int[] {N0y-2,N0y-2,N0y-1};    //{N0y-1,N0y-1,N0y};
         }
         else if (cellix==N0x-1 && celliy== 0){     // Left bottom corner
-            System.out.println("Case 3");
-            neighbouricelly = new int[] {0,1,1};    //{1,2,2};
+//            System.out.println("Case Bottom Left Corner; ");
             neighbouricellx = new int[] {N0x-2,N0x-1,N0x-2};  //{N0x-1,N0x,N0x-1};
+            neighbouricelly = new int[] {0,1,1};    //{1,2,2};
         }
         else if (cellix==N0x-1 && celliy== N0y-1){    // Right bottom corner
-            System.out.println("Case 4");
-            neighbouricelly = new int[] {N0y-2,N0y-2,N0y-2};    //{N0y-1,N0y-1,N0y-1};
+//            System.out.println("Case Bottom Right Corner; ");
             neighbouricellx = new int[] {N0x-1,N0x-2,N0x-1};        //{N0x,N0x-1,N0x};
+            neighbouricelly = new int[] {N0y-2,N0y-2,N0y-2};    //{N0y-1,N0y-1,N0y-1};
         }
         else if (cellix==0){    // Top row all column
-            System.out.println("Case 5");
+//            System.out.println("Case Top Row; ");
             neighbouricellx = new int[] {0,0,1,1,1};    //{1,1,2,2,2};
             neighbouricelly = new int[] {celliy-2,celliy,celliy-2,celliy-1,celliy};   //{celliy-1,celliy+1,celliy-1,celliy,celliy+1}
         }
+        else if (celliy==0){    // Left column all row
+//            System.out.println("Case Left Column; ");
+            neighbouricellx = new int[] {cellix-2,cellix,cellix-2,cellix-1,cellix};   //{cellix-1,cellix+1,cellix-1,cellix,cellix+1};
+            neighbouricelly = new int[] {0,0,1,1,1};    //{1,1,2,2,2};
+        }
         else if (celliy==N0y-1){   // Right column all row
-            System.out.println("Case 6");
+//            System.out.println("Case Right Column; ");
             neighbouricellx = new int[] {cellix-2,cellix,cellix-2,cellix-1,cellix};   //{cellix-1,cellix+1,cellix-1,cellix,cellix+1};
             neighbouricelly = new int[] {N0y-1,N0y-1,N0y-2,N0y-2,N0y-2};        //{N0y,N0y,N0y-1,N0y-1,N0y-1};
         }
         else if (cellix==N0x-1){   // Bottom row all column
-            System.out.println("Case 7");
+//            System.out.println("Case Bottom Row; ");
             neighbouricellx = new int[] {N0x-1,N0x-1,N0x-2,N0x-2,N0x-2};    //{N0x,N0x,N0x-1,N0x-1,N0x-1};
             neighbouricelly = new int[] {celliy-2,celliy,celliy-2,celliy-1,celliy};   //{celliy-1,celliy+1,celliy-1,celliy,celliy+1};
         }
-        else if (celliy==0){    // Left column all row
-            System.out.println("Case 8");
-            neighbouricellx = new int[] {cellix-2,cellix,cellix-2,cellix-1,cellix};   //{cellix-1,cellix+1,cellix-1,cellix,cellix+1};
-            neighbouricelly = new int[] {0,0,1,1,1};    //{1,1,2,2,2};
-        }
         else{   // Otherwise
-            //System.out.println("Case otherwise");
+//            System.out.println("Case Normal; ");
             neighbouricellx = new int[] {cellix-1,cellix-1,cellix,cellix,cellix,cellix-2,cellix-2,cellix-2};  //{cellix,cellix,cellix+1,cellix+1,cellix+1,cellix-1,cellix-1,cellix-1};
             neighbouricelly = new int[] {celliy-2,celliy,celliy-2,celliy-1,celliy,celliy-2,celliy-1,celliy};  //{celliy-1,celliy+1,celliy-1,celliy,celliy+1,celliy-1,celliy,celliy+1};
         }
@@ -158,7 +169,7 @@ public class SocialForce implements VelocityCalculator {
         double[] FxAvg = new double[Nneighbour];  // Force direction
         double[] FyAvg = new double[Nneighbour];
         for (int i = 0; i<Nneighbour; i++){
-            System.out.println("(" + neighbouricellx[i] + ", " + neighbouricelly[i] + ")");
+            //System.out.print("(" + neighbouricellx[i] + ", " + neighbouricelly[i] + ") ");
             // Assigning value into buffer
             FAvg[i] = F[neighbouricelly[i]][neighbouricellx[i]];
             FxAvg[i] = Fx[neighbouricelly[i]][neighbouricellx[i]];
@@ -169,10 +180,16 @@ public class SocialForce implements VelocityCalculator {
         FxAvg[Nneighbour-1] = Fx[celliy][cellix];
         FyAvg[Nneighbour-1] = Fy[celliy][cellix];
         
+//        for (int i=0; i<Nneighbour; i++)
+//            System.out.print(FAvg[i] + " ");
+//        System.out.println();
+        
         // Average over force
         double meanFAvg = average(FAvg);
+        //System.out.println(meanFAvg);
         double meanFxAvg = average(FxAvg);
         double meanFyAvg = average(FyAvg);
+//        System.out.println(meanFxAvg + " " + meanFyAvg);
         
         double Fxi = -meanFxAvg*meanFAvg;
         double Fyi = -meanFyAvg*meanFAvg;
@@ -190,8 +207,8 @@ public class SocialForce implements VelocityCalculator {
             double[] y = linearSpaceVector(Ymin,Ymax,N0y);
 
             // Exponential force constant
-            double A_wall = 10000;             //10  Diameter of the wall
-            double B_wall = 20;             //10  Steepness of the wall
+            double A_wall = 100000;             //10  Diameter of the wall
+            double B_wall = 50;             //10  Steepness of the wall
             double A_corner = A_wall;      //5 Diameter of the pole
             double B_corner = B_wall;	//5 Steepness of the pole
 
@@ -209,10 +226,10 @@ public class SocialForce implements VelocityCalculator {
 
             int Nvertex = vertexx.length;  // total number of vertex 
 
-            for (int p=0; p<Nvertex; p++){
+            for (int p=0; p<Nvertex-1; p++){
                 // Vector point from vertex p+1 to p
-                double bx = vertexx[(p+1)%Nvertex]-vertexx[p];
-                double by = vertexy[(p+1)%Nvertex]-vertexy[p];
+                double bx = vertexx[p+1]-vertexx[p];
+                double by = vertexy[p+1]-vertexy[p];
                 double normb = Math.sqrt(bx*bx+by*by);
                 double bxhat = bx/normb;
                 double byhat = by/normb;
@@ -260,8 +277,8 @@ public class SocialForce implements VelocityCalculator {
                         ////////////////////////////////////////////////////////////
                         // Half pole at 2nd (p+1) end of wall //////////////////////
                         ////////////////////////////////////////////////////////////
-                        rx = x[i]-vertexx[(p+1)%Nvertex];
-                        ry = y[j]-vertexy[(p+1)%Nvertex];
+                        rx = x[i]-vertexx[p+1];
+                        ry = y[j]-vertexy[p+1];
                         normr = Math.sqrt(rx*rx+ry*ry);
 
                         ax = bx;
@@ -310,11 +327,11 @@ public class SocialForce implements VelocityCalculator {
                 // First column
                 Fx[j][0]=(F[j][1]-F[j][0])/deltax;
                 // Last column
-                Fy[j][N0x-1]=(F[j][N0x-1]-F[j][N0x-2])/deltax;
+                Fx[j][N0x-1]=(F[j][N0x-1]-F[j][N0x-2])/deltax;
                 // Middle row
                 for (int i=1; i<=N0x-2; i++){
                     // CHCECK WHETHER IS 2 deltax or deltax!!!!!!!
-                    Fy[j][i]=(F[j][i+1]-F[j][i-1])/deltax;
+                    Fx[j][i]=(F[j][i+1]-F[j][i-1])/deltax;
                 }
             }
 
@@ -332,6 +349,13 @@ public class SocialForce implements VelocityCalculator {
             result[1] = Fx;
             result[2] = Fy;
             
+//            for (int j=0; j<N0y; j++){
+//                for (int i=0; i<N0x; i++){
+//                    System.out.print(Fx[i][j] + " ");
+//                }
+//                System.out.println();
+//            } 
+            
             return result;
     }
     
@@ -344,6 +368,11 @@ public class SocialForce implements VelocityCalculator {
          * By the end of this function set of vertices and static forces will be created.
          */
         // For every building
+        
+        N0x = 20*worldXSize; //PropertySet.WORLDXSIZE;        // Total number of cell in X direction
+        N0y = 20*worldYSize; //PropertySet.WORLDYSIZE;        // Total number of cell in Y direction
+    
+        
         for (Obstacle building : xmlObstacleList) {
             ArrayList<Position> vertices = (ArrayList<Position>) building.getVertices();
             double vertexX[] = new double[vertices.size()];
@@ -357,13 +386,14 @@ public class SocialForce implements VelocityCalculator {
             
             // #####################################################################
             // PRECALCULATE WALL FORCE GRID
-            // #####################################################################
-            int N0x = 150 * PropertySet.WORLDXSIZE;        // Total number of cell in X direction
-            int N0y = 150 * PropertySet.WORLDYSIZE;        // Total number of cell in Y direction
-            double Xmin = 0;                              // Minimum x point of terrain
-            double Xmax = PropertySet.WORLDXSIZE+5;         // Maximum x point of terrain
-            double Ymin = 0;                              // Minimum y point of terrain
-            double Ymax = PropertySet.WORLDYSIZE+5;         // Maximum y point of terrain
+//            // #####################################################################
+//            int N0x = 10 * PropertySet.WORLDXSIZE;        // Total number of cell in X direction
+////        System.out.println(PropertySet.WORLDXSIZE);
+//        int N0y = 10 * PropertySet.WORLDYSIZE;        // Total number of cell in Y direction
+//        double Xmin = -10;                              // Minimum x point of terrain
+//        double Xmax = PropertySet.WORLDXSIZE+5;         // Maximum x point of terrain (+5 is for buffer zone)
+//        double Ymin = -10;                              // Minimum y point of terrain
+//        double Ymax = PropertySet.WORLDYSIZE+5;         // Maximum y point of terrain
 
             double[][][] preFw = PreCalcForce(N0x, N0y, vertexX, vertexY, Xmin, Xmax, Ymin, Ymax);
             Fw = preFw[0];
@@ -511,12 +541,13 @@ public class SocialForce implements VelocityCalculator {
         // #################################################################
         // BOUNDARY FORCE FIELD
         // #################################################################
-        int N0x = 100 * PropertySet.WORLDXSIZE;        // Total number of cell in X direction
-        int N0y = 100 * PropertySet.WORLDYSIZE;        // Total number of cell in Y direction
-        double Xmin = 0;                              // Minimum x point of terrain
-        double Xmax = PropertySet.WORLDXSIZE+5;         // Maximum x point of terrain (+5 is for buffer zone)
-        double Ymin = 0;                              // Minimum y point of terrain
-        double Ymax = PropertySet.WORLDYSIZE+5;         // Maximum y point of terrain
+//        int N0x = 10 * PropertySet.WORLDXSIZE;        // Total number of cell in X direction
+////        System.out.println(PropertySet.WORLDXSIZE);
+//        int N0y = 10 * PropertySet.WORLDYSIZE;        // Total number of cell in Y direction
+//        double Xmin = -10;                              // Minimum x point of terrain
+//        double Xmax = PropertySet.WORLDXSIZE+5;         // Maximum x point of terrain (+5 is for buffer zone)
+//        double Ymin = -10;                              // Minimum y point of terrain
+//        double Ymax = PropertySet.WORLDYSIZE+5;         // Maximum y point of terrain
 
         double[] Fwi = averageSurroundForce(Pxi, Pyi, Xmax, Ymax, N0x, N0y, Fw, Fwx, Fwy);
         double fiwx = Fwi[0];
@@ -534,6 +565,14 @@ public class SocialForce implements VelocityCalculator {
         // #################################################################
         // SUM AND BOUND TOTAL FORCE
         // #################################################################
+//        System.out.println("(" + preferredVelocity.x + ", " + preferredVelocity.y+") ");
+//        System.out.println("(" + Vxint + ", " + Vyint+") ");
+        //if (Vxwall>5 || Vywall>5){
+//            System.out.println("(" + fiwx + ", " + fiwy + ") ");
+//            System.out.println("(" + Vxint + ", " + Vyint+") ");
+//        }
+//        System.out.println();
+        
         double Vx = forceBound(preferredVelocity.x + Vxint + Vxwall);
         double Vy = forceBound(preferredVelocity.y + Vyint + Vywall);
 

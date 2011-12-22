@@ -14,6 +14,7 @@ import environment.geography.Goals;
 import environment.geography.Obstacle;
 import environment.geography.SimulationScenario;
 import agent.latticegas.LatticeSpace;
+import app.PropertySet.Model;
 import environment.geography.AgentGroup;
 import environment.geography.Position;
 import java.awt.Color;
@@ -23,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.vecmath.Point2d;
 import javax.xml.bind.JAXBException;
+import motionPlanners.socialforce.SocialForce;
 import sim.engine.RandomSequence;
 import sim.engine.Schedule;
 import sim.engine.Sequence;
@@ -77,8 +79,8 @@ public class RVOModel extends SimState {
                 XMLScenarioManager settings = XMLScenarioManager.instance("environment.geography");
                 SimulationScenario scenario = (SimulationScenario) settings.unmarshal(PropertySet.FILEPATH);
                 RVOGui.scale = scenario.getScale();
-                worldXSize = RVOGui.checkSizeX = scenario.getXsize();
-                worldYSize = RVOGui.checkSizeY = scenario.getYsize();
+                worldXSize = SocialForce.worldXSize = RVOGui.checkSizeX = scenario.getXsize();
+                worldYSize = SocialForce.worldYSize = RVOGui.checkSizeY = scenario.getYsize();
             } catch (JAXBException ex) {
                 Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -287,6 +289,9 @@ public class RVOModel extends SimState {
                 if (PropertySet.LATTICEMODEL) {
                     latticeSpace.addObstacle(tempObst);
                 }
+            }
+            if(PropertySet.MODEL == Model.SocialForce){
+                SocialForce.initializeObstacleSet(xmlObstacleList);
             }
 
 

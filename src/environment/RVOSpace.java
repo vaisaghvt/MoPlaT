@@ -80,7 +80,7 @@ public class RVOSpace {
 
     public void addNewObstacle(RVOObstacle obstacle) {
 
-        if (PropertySet.MODEL == Model.RVO2) {
+        if (PropertySet.MODEL == Model.RVO2 || PropertySet.MODEL == Model.SocialForce) {
             //If RVO2 is the model then the RVO2 obstacle requires obstacles to
             //broken down
             ArrayList<RVO2Obstacle> obstacles = new ArrayList<RVO2Obstacle>();
@@ -117,7 +117,9 @@ public class RVOSpace {
                         obstacles.get(i).getPoint().getY()));
             }
 
-        } else {
+        } 
+            
+    else {
             for(Point2d vertex: obstacle.getVertices())
             obstacleSpace.setObjectLocation(
                     obstacle,

@@ -46,6 +46,17 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public static double PREFERRED_SPEED;
     public static int SENSOR_RANGE; //sensor range in proportion to agent radius
     public static int agentCount = 0; // number of agents
+    
+    protected boolean socialForceObstacle = false;
+
+    public boolean isSocialForceObstacle() {
+        return socialForceObstacle;
+    }
+
+    public void setSocialForceObstacle(boolean socialForceObstacle) {
+        this.socialForceObstacle = socialForceObstacle;
+    }
+    
     protected int id;
     int currentGoal = 0;
     /**

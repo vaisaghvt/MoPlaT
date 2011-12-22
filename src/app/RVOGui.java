@@ -5,8 +5,10 @@
 package app;
 
 import agent.clustering.ClusteredSpace;
+import app.PropertySet.Model;
 import java.awt.Color;
 import javax.swing.JFrame;
+import motionPlanners.socialforce.SocialForce;
 import sim.display.Controller;
 import sim.display.Display2D;
 import sim.display.GUIState;
@@ -49,6 +51,7 @@ public class RVOGui extends GUIState {
     ContinuousPortrayal2D[] clusteredPortrayal;
     ObjectGridPortrayal2D checkBoardPortrayal;
     FastValueGridPortrayal2D latticeGasPortrayal;
+    FastValueGridPortrayal2D socialForcePortrayal;
 
     public RVOGui() {
         this(new RVOModel(PropertySet.SEED));
@@ -65,9 +68,14 @@ public class RVOGui extends GUIState {
         geographyPortrayal = new ContinuousPortrayal2D();
         checkBoardPortrayal = new ObjectGridPortrayal2D();
         agentPortrayal = new ContinuousPortrayal2D();
+       
 
         if (PropertySet.LATTICEMODEL) {
             latticeGasPortrayal = new FastValueGridPortrayal2D();
+        }
+        
+        if(PropertySet.MODEL == Model.SocialForce) {
+            socialForcePortrayal = new FastValueGridPortrayal2D();
         }
 
 
@@ -108,7 +116,12 @@ public class RVOGui extends GUIState {
                 clusteredPortrayal[j].setField(((ClusteredSpace) model.getRvoSpace()).getClusteredSpace(j));
             }
         }
-
+        
+//        if(PropertySet.MODEL == Model.SocialForce) {
+//            socialForcePortrayal.setField(SocialForce.forceGrid);
+//            socialForcePortrayal.setMap(new sim.util.gui.SimpleColorMap(
+//                    new Color[]{new Color(0, 0, 0, 0), new Color(0, 0, 255, 150), Color.red}));
+//        }
     }
 
     @Override
@@ -163,6 +176,10 @@ public class RVOGui extends GUIState {
 
 
         }
+        
+//        if(PropertySet.MODEL == Model.SocialForce){
+//            display.attach(socialForcePortrayal, "social force portrayal");
+//        }
 
         // specify the backdrop color  -- what gets painted behind the displays
         display.setBackdrop(new Color(220, 220, 220));

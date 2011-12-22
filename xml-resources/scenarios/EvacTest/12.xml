@@ -1,26 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<SimulationScenario xmlns="http://geography.environment" name="12" Xsize="12" Ysize="12" scale="50" direction="5" displayUsed="true" latticeModel="true" logUsed="true">
-    <roadMap x="5.5" y="3.6"/>
-    <roadMap x="5.5" y="1.8"/>
-    <roadMap x="5.5" y="0.0"/>
-    <roadMap x="5.5" y="0.0"/>
+<SimulationScenario xmlns="http://geography.environment" name="12" Xsize="30" Ysize="30" scale="20" direction="5" displayUsed="true" latticeModel="true" logUsed="true">
+    <roadMap x="10" y="3"/>
+    <roadMap x="10" y="12"/>
+    <roadMap x="7" y="18"/>
     <obstacles>
-        <vertices x="4.5" y="2.4"/>   <!--Left upper of the door-->
-        <vertices x="4.5" y="3.0"/>   <!--Left lower of the door-->
-        <vertices x="1.5" y="3.0"/>
-        <vertices x="1.5" y="11.1"/>
-        <vertices x="9.9" y="11.1"/>
-        <vertices x="9.9" y="3.0"/>
-        <vertices x="6.5" y="3.0"/> <!--Right upper of the door-->
-        <vertices x="6.5" y="2.4"/> <!--Right lower of the door-->
-        <vertices x="10.5" y="2.4"/>
-        <vertices x="10.5" y="11.7"/>
-        <vertices x="0.9" y="11.7"/>
-        <vertices x="0.9" y="2.4"/>
+        <vertices x="14" y="11"/>
+        <vertices x="14" y="19"/>
+        <vertices x="6" y="19"/>
+        <vertices x="6" y="11"/>
+        <vertices x="8.5" y="11"/>   <!--Left upper of the door-->
+        <vertices x="8.5" y="10"/>   <!--Left lower of the door-->
+        <vertices x="5" y="10"/>
+        <vertices x="5" y="20"/>
+        <vertices x="15" y="20"/>
+        <vertices x="15" y="10"/>
+        <vertices x="11.5" y="10"/> <!--Right upper of the door-->
+        <vertices x="11.5" y="11"/> <!--Right lower of the door-->        
     </obstacles> 
     <agentGroups>
-        <endPoint x="9.3" y="10.9"/>
-        <startPoint x="1.8" y="3.6"/>
-        <size>100</size>
+        <endPoint x="12" y="7"/>
+        <startPoint x="6" y="1"/>
+        <size>500</size>
     </agentGroups>
 </SimulationScenario>
