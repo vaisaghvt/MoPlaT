@@ -25,7 +25,7 @@ public class SocialForce implements VelocityCalculator {
     static int N0x; //PropertySet.WORLDXSIZE;        // Total number of cell in X direction
     static int N0y; //PropertySet.WORLDYSIZE;        // Total number of cell in Y direction
     static double Xmin = 0;                              // Minimum x point of terrain
-    static double Xmax = 30;         // Maximum x point of terrain (+5 is for buffer zone)
+    static double Xmax = 40;         // Maximum x point of terrain (+5 is for buffer zone)
     static double Ymin = 0;                              // Minimum y point of terrain
     static double Ymax = 30;         // Maximum y point of terrain
 
@@ -370,8 +370,17 @@ public class SocialForce implements VelocityCalculator {
         // For every building
         
         N0x = 20*worldXSize; //PropertySet.WORLDXSIZE;        // Total number of cell in X direction
+        //System.out.println("N0x: "+ N0x);
         N0y = 20*worldYSize; //PropertySet.WORLDYSIZE;        // Total number of cell in Y direction
-    
+        //System.out.println("N0y: "+ N0y);
+        
+//        for (int i=0; i<N0x; i++){
+//            for (int j=0; j<N0y; j++){
+                Fw = new double[N0y][N0x];
+                Fwx = new double[N0y][N0x];
+                Fwy = new double[N0y][N0x];
+//            }
+//        }
         
         for (Obstacle building : xmlObstacleList) {
             ArrayList<Position> vertices = (ArrayList<Position>) building.getVertices();
@@ -384,21 +393,20 @@ public class SocialForce implements VelocityCalculator {
                 vertexY[i] = vertices.get(i).getY();    // Vertex coordinate y
             }
             
-            // #####################################################################
-            // PRECALCULATE WALL FORCE GRID
-//            // #####################################################################
-//            int N0x = 10 * PropertySet.WORLDXSIZE;        // Total number of cell in X direction
-////        System.out.println(PropertySet.WORLDXSIZE);
-//        int N0y = 10 * PropertySet.WORLDYSIZE;        // Total number of cell in Y direction
-//        double Xmin = -10;                              // Minimum x point of terrain
-//        double Xmax = PropertySet.WORLDXSIZE+5;         // Maximum x point of terrain (+5 is for buffer zone)
-//        double Ymin = -10;                              // Minimum y point of terrain
-//        double Ymax = PropertySet.WORLDYSIZE+5;         // Maximum y point of terrain
 
             double[][][] preFw = PreCalcForce(N0x, N0y, vertexX, vertexY, Xmin, Xmax, Ymin, Ymax);
-            Fw = preFw[0];
-            Fwx = preFw[1];
-            Fwy = preFw[2];
+            
+            double[][] bufFw = preFw[0];
+            double[][] bufFwx = preFw[1];
+            double[][] bufFwy = preFw[2];
+            // For multiple building we accumulate the potential
+            for (int i=0; i<N0x; i++){
+                for (int j=0; j<N0y; j++){
+                    Fw[j][i] += bufFw[j][i];
+                    Fwx[j][i] += bufFwx[j][i];
+                    Fwy[j][i] += bufFwy[j][i];
+                }
+            }
             
         }
         

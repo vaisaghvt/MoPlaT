@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="true" displayUsed="true" direction="5" scale="20" Ysize="30" Xsize="40" name="Default">
+    <roadMap y="13.4" x="27.5"/>
+    <roadMap y="9.5" x="23.1"/>
+ <!--<roadMap y="14.5" x="23.1"/>-->
+    <roadMap y="11.2" x="21.35"/>
+    <roadMap y="13.0" x="21.35"/>
+ <!--<roadMap y="18.0" x="21.35"/>-->
+    <roadMap y="13.0" x="17.8"/>
+ <!--<roadMap y="18.0" x="17.8"/>-->
+    <roadMap y="9.5" x="17.8"/>
+    <roadMap y="10.8" x="14.75"/>
+ <!--<roadMap y="15.8" x="14.75"/>-->
+    <roadMap y="13.0" x="13.0"/>
+    <roadMap y="13.0" x="10.3"/>
+    <roadMap y="18.7" x="6.85"/>
+    <roadMap y="8.1" x="7.25"/>
+    <obstacles>
+        <vertices y="7.05" x="18.5"/>
+        <vertices y="7.05" x="12.75"/>
+        <vertices y="12.3" x="12.75"/>
+        <vertices y="12.3" x="11.9"/>
+        <vertices y="7.05" x="11.9"/>
+        <vertices y="7.05" x="6.15"/>
+        <vertices y="19.35" x="6.15"/>
+        <vertices y="19.35" x="11.9"/>
+        <vertices y="14.1" x="11.9"/>
+        <vertices y="14.1" x="13.2"/>
+        <vertices y="19.35" x="13.2"/>
+        <vertices y="19.35" x="18.9"/>
+        <vertices y="14.1" x="18.9"/>
+        <vertices y="14.1" x="20.7"/>
+        <vertices y="20.7" x="20.7"/>
+        <vertices y="20.7" x="4.85"/>
+        <vertices y="6.15" x="4.85"/>
+        <vertices y="6.15" x="20.7"/>
+        <vertices y="12.3" x="20.7"/>
+        <vertices y="12.3" x="18.5"/>
+        <vertices y="7.05" x="18.5"/>
+    </obstacles>
+    <obstacles>
+        <vertices y="11.0" x="17.15"/>
+        <vertices y="15.4" x="17.15"/>
+        <vertices y="15.4" x="15.85"/>
+        <vertices y="11.0" x="15.85"/>
+        <vertices y="11.0" x="17.15"/>
+    </obstacles>
+    <obstacles>
+        <vertices y="11.0" x="22.45"/>
+        <vertices y="15.4" x="22.45"/>
+        <vertices y="15.4" x="24.2"/>
+        <vertices y="11.0" x="24.2"/>
+        <vertices y="11.0" x="22.45"/>
+    </obstacles>
+    <agentGroups>
+        <endPoint y="25.82" x="33.92"/>
+        <startPoint y="5.9" x="26.4"/>
+        <size>800</size>
+        <minSpeed>1.0</minSpeed>
+        <maxSpeed>2.0</maxSpeed>
+        <meanSpeed>1.5</meanSpeed>
+        <sDevSpeed>1.0</sDevSpeed>
+    </agentGroups>
+</SimulationScenario>

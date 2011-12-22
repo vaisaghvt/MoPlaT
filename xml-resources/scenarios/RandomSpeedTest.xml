@@ -2,8 +2,8 @@
 <SimulationScenario xmlns="http://geography.environment" name="RandomSpeedTest" Xsize="12" Ysize="12" scale="50" direction="5" displayUsed="true" latticeModel="true" logUsed="true">
     <roadMap x="5.94" y="4.18"/>
     <roadMap x="5.94" y="2.42"/>
-    <roadMap x="5.94" y="0.22"/>
-     <roadMap x="5.94" y="-200.22"/>
+    <roadMap x="5.94" y="2"/>
+     
     <obstacles>
         <vertices x="5.28" y="2.64"/>
         <vertices x="5.28" y="3.52"/>

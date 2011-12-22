@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" name="StevenMaze1" Xsize="40" Ysize="30" scale="20" direction="5" displayUsed="true" latticeModel="true" logUsed="true">
+    <roadMap x="28" y="3"/>
+    <roadMap x="28" y="21"/>
+    <roadMap x="21" y="21"/>
+    <roadMap x="20" y="17"/>
+    <roadMap x="20" y="12"/>
+    <roadMap x="18" y="9"/>
+    <roadMap x="13" y="9"/>
+    <roadMap x="11" y="12"/>
+    <roadMap x="11" y="17"/>
+    <roadMap x="8" y="21"/>
+    <obstacles>
+        <vertices x="25" y="19"/> <!--1st Door Outer Right-->
+        <vertices x="25" y="5"/> 
+        <vertices x="5" y="5"/>
+        <vertices x="5" y="25"/>
+        <vertices x="25" y="25"/>
+        <vertices x="25" y="22"/>
+        <vertices x="24" y="22"/>
+        <vertices x="24" y="24"/>
+        <vertices x="16" y="24"/>
+        <vertices x="16" y="15"/>
+        <vertices x="20" y="15"/>
+        <vertices x="20" y="14"/> 
+        <vertices x="16" y="14"/> 
+        <vertices x="16" y="10"/>
+        <vertices x="15" y="10"/> 
+        <vertices x="15" y="14"/> 
+        <vertices x="12" y="14"/> 
+        <vertices x="12" y="15"/>
+        <vertices x="15" y="15"/> 
+        <vertices x="15" y="24"/>
+        <vertices x="6" y="24"/>
+        <vertices x="6" y="15"/>
+        <vertices x="10" y="15"/>
+        <vertices x="10" y="14"/>
+        <vertices x="6" y="14"/>
+        <vertices x="6" y="6"/>
+        <vertices x="15" y="6"/>
+        <vertices x="15" y="8"/>
+        <vertices x="16" y="8"/>
+        <vertices x="16" y="6"/>
+        <vertices x="24" y="6"/>
+        <vertices x="24" y="14"/>
+        <vertices x="21" y="14"/>
+        <vertices x="21" y="15"/>
+        <vertices x="24" y="15"/>
+        <vertices x="24" y="19"/>
+        <vertices x="25" y="19"/>
+    </obstacles> 
+    <agentGroups>
+        <startPoint x="26" y="1"/>
+        <endPoint x="29" y="18"/>        
+        <size>1000</size>
+        <minSpeed>0.5</minSpeed>
+        <maxSpeed>1.5</maxSpeed>
+        <meanSpeed>1.3</meanSpeed>
+        <sDevSpeed>1.0</sDevSpeed>
+    </agentGroups>
+</SimulationScenario>
