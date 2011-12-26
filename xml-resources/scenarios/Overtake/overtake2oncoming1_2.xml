@@ -28,17 +28,4 @@
         <preferedSpeed>1.5</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
-    <obstacles>
-        <vertices y="0.79" x="0.08"/>
-        <vertices y="0.76" x="14.82"/>
-        <vertices y="0.18" x="14.84"/>
-        <vertices y="0.25" x="0.1"/>
-        <vertices y="0.25" x="0.1"/>
-    </obstacles>
-    <obstacles>
-        <vertices y="4.5" x="0.1"/>
-        <vertices y="4.5" x="14.74"/>
-        <vertices y="4.86" x="14.8"/>
-        <vertices y="4.86" x="0.06"/>
-    </obstacles>
 </SimulationScenario>

@@ -56,7 +56,7 @@ public class PropertySet {
             //AGENT PARAMETERS
             RVOAgent.RADIUS = params.getAgentRadius();
             RVOAgent.INFO_LIMIT = params.getInfoLimit();
-            RVOAgent.PREFERRED_SPEED = params.getPreferredSpeed();
+            RVOAgent.DEFAULT_PREFERRED_SPEED = params.getPreferredSpeed();
             RVOAgent.SENSOR_RANGE = params.getSensorRange();
             
             Geometry.RVO_EPSILON = params.getRVOEpsilon();
@@ -83,10 +83,6 @@ public class PropertySet {
                 ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES = params.getNumberOfClusteringSpaces();
                 
             }
-            
-            
-            
-            
 
         } catch (JAXBException ex) {
             Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);

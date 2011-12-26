@@ -50,6 +50,28 @@ class STPattern {
             }
         }
     }
-
-
+    
+    /*
+     * given the id of an agent, return its column index at the FIRST ROW of stp_id, if not exist in the row, return -1
+     */
+    public int returnColumnIndex(int ptId, boolean fromLeft, int frame) {
+        int cIndex=-1;
+        ArrayList<Integer> cIndeces = new ArrayList<Integer>();
+        for(int i=1;i< this.getPattern()[0][0].length-1;i++){
+            if(this.getValue(frame, 0, i)== ptId){
+                cIndeces.add(0,i);
+            }
+        }
+        if(!cIndeces.isEmpty()){
+            if(fromLeft){
+                //return the minimal column index in the list
+                cIndex = cIndeces.get(cIndeces.size()-1);
+            }else{
+                //return the maximum column index in the list
+                cIndex = cIndeces.get(0);
+            }
+        }
+        return cIndex;
+    }
+    
 }

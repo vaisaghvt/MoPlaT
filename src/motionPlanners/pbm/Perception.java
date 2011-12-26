@@ -33,8 +33,15 @@ public class Perception {
     private boolean strategySelected;
 
     //Added for sort the sensedAgent in the order of their distances to myAgent
-    TreeMap<Double, RVOAgent> obsesAgents;
-
+    TreeMap<Double, RVOAgent> obsesAgents_ForSteering;
+    
+    //Added for record of those sensedAgents in the very near range of me, which cannot be handled through steering, but instinctive reactions
+    TreeMap<Double, RVOAgent> obsesAgents_ForReaction;
+    
+    public TreeMap<Double,RVOAgent> getObsesAgents_ForReaction(){
+        return obsesAgents_ForReaction;
+    }
+    
     //new added to extend attention with different attenuation levels
     //e.g., {1,2,4...}
     //number of attenuation levels can be specified by different agents
@@ -93,7 +100,8 @@ public class Perception {
 
         strategySelected =  false;
 
-        obsesAgents = new TreeMap<Double, RVOAgent>();
+        obsesAgents_ForSteering = new TreeMap<Double, RVOAgent>();
+        obsesAgents_ForReaction = new TreeMap<Double, RVOAgent>();
     }
     
     //The new constructor for the new unevenly distributed columns, but hardcoded many parameters
@@ -113,7 +121,8 @@ public class Perception {
         spacepattern = new STPattern(pf,3,11);
         spacepattern_agtID = new STPattern(pf,3,11);
         strategySelected =  false;
-        obsesAgents = new TreeMap<Double, RVOAgent>();
+        obsesAgents_ForSteering = new TreeMap<Double, RVOAgent>();
+        obsesAgents_ForReaction = new TreeMap<Double, RVOAgent>();
     }
     /**
      * Local helper function to determine angle between this and target agent
@@ -165,6 +174,10 @@ public class Perception {
         
         //The circle is considered as myAgent's radius (1+* myPersonalSpace)
         //this represent the visual impact of the size of the agent to me, the closer, the larger
+        
+        //Here, detected a problem on Dec 23, 2011.
+        //when the distance p1top2-radius is very small (almost the same as radius * (1+personalSpaceFactor)), the perceived angle is as large as to cover all attention columns
+        
         double halfAngle = Math.asin(wm.getMyAgent().getRadius() * (wm.getMyAgent().getPersonalSpaceFactor()+1) /(p1top2.length()-wm.getMyAgent().getRadius())) * 180 / Math.PI;
         
         double angleToLeftBoundary = p1top2.angle(vleftBoundary) * 180 / Math.PI;
@@ -214,13 +227,15 @@ public class Perception {
     private void setSpacePattern() {//pass in a group of agents within the total vision range and visual distance at the current frame
         //initialize the spatial pattern to be plain with all available space
         setVisualZone(wm.getMyAgent().getVelocity());
-        for (int i = 0; i < pf + 1; i++) {
-            for (int j = 0; j < spacepattern.getPattern()[0].length; j++) {
-                Arrays.fill(spacepattern.getPattern()[i][j], 0);//current frame, all attention levels, all space available
-                Arrays.fill(spacepattern_agtID.getPattern()[i][j],-1);
-            }
+        for (int i = 0; i < pf + 1; i++)
+            for (int j = 0; j < spacepattern.getPattern()[0].length; j++) 
+                for(int k =0; k< spacepattern.getPattern()[0][0].length;k++){
+                    spacepattern.setValue(i, j, k, 0);//current frame, all attention levels, all space available
+                    spacepattern_agtID.setValue(i, j, k, -1);
+        }
+        for (int i = 0; i < pf + 1; i++){
 
-            Set set = obsesAgents.entrySet();
+            Set set = obsesAgents_ForSteering.entrySet();
             Iterator itr = set.iterator();
             while(itr.hasNext()){
                 Map.Entry myEntry = (Map.Entry)itr.next();
@@ -305,16 +320,23 @@ public class Perception {
      */
     public void execute(Bag sensedAgents) {
         this.sensedAgents = sensedAgents;
-      
+        //reset TreeMap
+        obsesAgents_ForSteering.clear();
+        obsesAgents_ForReaction.clear();
+        
         for (Object tempObject : sensedAgents) {
             RVOAgent tempAgent = (RVOAgent) tempObject;
             if(tempAgent.getId()!= wm.getMyAgent().getId()){
                 double distanceToMe;
-                if (!obsesAgents.containsValue(tempAgent)) {
+                if (!obsesAgents_ForSteering.containsValue(tempAgent)) {
                     Vector2d meToAgent = new Vector2d(tempAgent.getCurrentPosition());
                     meToAgent.sub(this.wm.getMyAgent().getCurrentPosition());
-                    distanceToMe = meToAgent.length();
-                    obsesAgents.put((Double) distanceToMe, tempAgent);
+                    distanceToMe = meToAgent.length() - 2 * (1+wm.getMyAgent().getPersonalSpaceFactor()*wm.getMyAgent().getRadius());
+                    if(distanceToMe > 0){
+                        obsesAgents_ForSteering.put((Double) distanceToMe, tempAgent);
+                    }else{
+                        obsesAgents_ForReaction.put((Double) distanceToMe, tempAgent);
+                    }
                 }
             }
         }

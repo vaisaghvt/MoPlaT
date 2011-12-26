@@ -409,6 +409,13 @@ public class Action {
            
            distanceToLine =  Math.min(targetDistToMyLine, myDistToTargetLine);
            double personalSpaceRadius = Math.max(wm.getMyAgent().getRadius() * (1+wm.getMyAgent().getPersonalSpaceFactor()), agt.getRadius()*(1+agt.getPersonalSpaceFactor()));
+  
+           //TODO: still got some minor problems, need to designt the test scenarios well to perform as expected.
+           //This is due to some reasons:
+           //1. in the current design, spatial-temporal patterns doesn't take in to account of those already very near to me (those in obsesAgents_ForReaction in perception)
+           // this is due to the calculation of the perceived angle of another agent is based on its distance to me, so if it is too near, it will occupy almost all my 11 vision columns
+           //and now, those in the very near distance are handled as instinctive reactions by lower level motion mechanisms such as RVO, and not in steering strategy execution
+           //thus, when design the code for each steering strategy execution in Action class, it only deals with one specific target rather than the whole pattern(, which was used in decision-making process to select steering strategy and target, t, etc.)
            if(distanceToLine>= personalSpaceRadius){
                 finishCurrentStrategy = true;
                 return;
@@ -473,9 +480,11 @@ public class Action {
                     break;
                 //SUDDENSLOW is one example of instinctive reaction, where is full of obstacles in front and no other strategy can be executed
                 case INSTINCTIVERACTION:
-                    System.out.println("executing instinctive reaction - stop the Agent emergently");
-                    wm.getMyAgent().getVelocity().scale(0.1); //scale the velocity to 0.1
-                    finishCurrentStrategy = true;
+                    System.out.println("Some people is near me already! motion planned through lower level mechanisms e.g., RVO");
+                    selectedVelocity = new Vector2d(wm.getMyAgent().getVelocity());
+//                    selectedVelocity.scale(0.2); //scale the velocity to 0.2
+                    finishCurrentStrategy = true;              
+                    // or could pass in the obsesAgents_ForReaction and call RVO with this set of near neighbors to calculate the actual velocity that avoid collisions
                     break;
             }
         }

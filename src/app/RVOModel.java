@@ -259,17 +259,29 @@ public class RVOModel extends SimState {
             List<Agent> xmlAgentList = scenario.getCrowd();
             for (int i = 0; i < xmlAgentList.size(); i++) {
                 Agent tempAgent = xmlAgentList.get(i);
-                RVOAgent tempRVOAgent = new RVOAgent(
+                
+                //@hunan: added in a new RVOAgent constructor to set the necessary parameters for PBM use only
+                if(PropertySet.MODEL == Model.PatternBasedMotion){
+                        RVOAgent tempRVOAgent = new RVOAgent(
+                        new Point2d(tempAgent.getPosition().getX(), tempAgent.getPosition().getY()),
+                        new Point2d(tempAgent.getGoal().getX(), tempAgent.getGoal().getY()),
+                        rvoSpace, new Color(0.0f, 0.0f, 1.0f), 
+                        tempAgent.getPreferedSpeed(), tempAgent.getCommitmentLevel());
+                       
+                        addNewAgent(tempRVOAgent);
+                }else{
+                        RVOAgent tempRVOAgent = new RVOAgent(
                         new Point2d(tempAgent.getPosition().getX(), tempAgent.getPosition().getY()),
                         new Point2d(tempAgent.getGoal().getX(), tempAgent.getGoal().getY()),
                         rvoSpace,
                         new Color(Color.HSBtoRGB((float) i / (float) xmlAgentList.size(),
                         1.0f, 0.68f)));
-                tempRVOAgent.setPreferredSpeed(tempAgent.getPreferedSpeed());
-                tempRVOAgent.setMaximumSpeed(tempAgent.getPreferedSpeed() * 2.0);
-                tempRVOAgent.setCommitmentLevel(tempAgent.getCommitmentLevel());
-
-                addNewAgent(tempRVOAgent);
+                        
+                        tempRVOAgent.setPreferredSpeed(tempAgent.getPreferedSpeed());
+                        tempRVOAgent.setMaximumSpeed(tempAgent.getPreferedSpeed() * 2.0);
+                        
+                        addNewAgent(tempRVOAgent);
+                }
             }
 
             List<Goals> xmlGoalList = scenario.getEnvironmentGoals();

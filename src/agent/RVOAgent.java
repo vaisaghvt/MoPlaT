@@ -43,7 +43,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public static double INFO_LIMIT; // Chunks!
 //    public static final double INFO_LIMIT = Double.MAX_VALUE; // Chunks!
     public static double RADIUS;
-    public static double PREFERRED_SPEED;
+    public static double DEFAULT_PREFERRED_SPEED;
     public static int SENSOR_RANGE; //sensor range in proportion to agent radius
     public static int agentCount = 0; // number of agents
     
@@ -126,10 +126,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
  
         //@hunan: added for PBM only
         violateExpectancy = false;
-
-        preferredSpeed = RVOAgent.PREFERRED_SPEED;
-        maxSpeed = preferredSpeed * 2.0;
-        findPrefVelocity();
+        
+        //DEFAULT_PREFERRED_SPEED is the default value specified in 1.xml
+        //the parameter value of preferredSpeed should be only set to this default value when it is not set with the value from the xml initialization file
+        if(preferredSpeed==0) preferredSpeed = RVOAgent.DEFAULT_PREFERRED_SPEED;
 
         if (PropertySet.MODEL == PropertySet.Model.RVO2) {
             velocityCalc = new RVO_2_1();
@@ -146,24 +146,9 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         }
         id = agentCount++;
     }
-
-       
-    //@Should indicate, only called in VT's clusteredAgent
-    public RVOAgent(RVOAgent otherAgent) {
-        this(otherAgent.getMySpace());
-        preferredSpeed = otherAgent.getPreferredSpeed();
-        maxSpeed = preferredSpeed * 2.0;
-        currentPosition = new PrecisePoint();
-        this.setCurrentPosition(otherAgent.getCurrentPosition().getX(), otherAgent.getCurrentPosition().getY());
-        goal = new Point2d(otherAgent.getGoal().getX(), otherAgent.getGoal().getY());
-
-        mySpace = otherAgent.mySpace;
-        id = otherAgent.getId();
-        agentCount--;
-    }
     
     /*
-     * Currently, used by HUNAN to create agents from XML with goal set and initial speed set to the preferredVelocity rather than (0,0)
+     * Default constructor to create agents from XML file
      */
     public RVOAgent(Point2d startPosition, Point2d goal, RVOSpace mySpace, Color col) {
         this(mySpace);
@@ -171,10 +156,39 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         currentPosition = new PrecisePoint(startPosition.getX(), startPosition.getY());
         this.goal = goal;
         findPrefVelocity();
+    }
+    
+     /*
+     * The constructor to create agents from XML file for PBM Only!
+     */
+    public RVOAgent(Point2d startPosition, Point2d goal, RVOSpace mySpace, Color col, double prefSpd, int commitLevel) {
+        this(mySpace);
+        setColor(col);
+        setCommitmentLevel(commitLevel);
+        currentPosition = new PrecisePoint(startPosition.getX(), startPosition.getY());
+        preferredSpeed = prefSpd;
+        maxSpeed = preferredSpeed * 1.5;
+        this.goal = goal;
+        findPrefVelocity();
         //set the initial velocity of each agent to its initial preferred velocity towards its goal
         velocity = new PrecisePoint(prefVelocity.getX(),prefVelocity.getY());
     }
-
+    
+    
+    
+        //@Should indicate, only called in VT's clusteredAgent
+    public RVOAgent(RVOAgent otherAgent) {
+        this(otherAgent.getMySpace());
+        preferredSpeed = otherAgent.getPreferredSpeed();
+        maxSpeed = preferredSpeed * 2.0;
+        currentPosition = new PrecisePoint();
+        this.setCurrentPosition(otherAgent.getCurrentPosition().getX(), otherAgent.getCurrentPosition().getY());
+        goal = new Point2d(otherAgent.getGoal().getX(), otherAgent.getGoal().getY());
+        mySpace = otherAgent.mySpace;
+        id = otherAgent.getId();
+        agentCount--;
+    }
+    
     public Point2d getGoal() {
         return goal;
     }
@@ -310,7 +324,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         return commitmentLevel;
     }
 
-    public void setCommitmentLevel(final int number) {
+    public final void setCommitmentLevel(final int number) {
         switch (number) {
             case 1:
                 commitmentLevel = strategymatchingCommitment.LOWCOMMITMENT;
@@ -366,7 +380,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                 }
                 findPrefVelocity(); //update the preferredVelocity according to the current position and the goal
 
-                chosenVelocity = new PrecisePoint(prefVelocity.getX(), prefVelocity.getY());
+//                chosenVelocity = new PrecisePoint(prefVelocity.getX(), prefVelocity.getY());
 
                 Bag sensedNeighbours = mySpace.senseNeighbours(RVOAgent.this);
 

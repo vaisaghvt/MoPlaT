@@ -19,7 +19,7 @@ import sim.engine.Steppable;
  * requested positions with a given frequency
  * 
  * 
- * @author vaisaghvt
+ * @author micheal lees
  */
 public class AgentGenerator implements Steppable {
 

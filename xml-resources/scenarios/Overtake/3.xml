@@ -9,21 +9,21 @@
     </crowd>
     <crowd>
         <goal y="1.975" x="13.0125"/>
-        <position y="1.9625" x="2.9875"/>
+        <position y="1.9625" x="3.9875"/>
         <id>2</id>
         <preferedSpeed>0.8</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="1.7" x="13.0"/>
-        <position y="1.625" x="2.9875"/>
+        <goal y="1.6" x="13.0"/>
+        <position y="1.625" x="3.9875"/>
         <id>3</id>
         <preferedSpeed>0.8</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="2.2375" x="13.0125"/>
-        <position y="2.275" x="2.975"/>
+        <goal y="2.3375" x="13.0125"/>
+        <position y="2.375" x="3.975"/>
         <id>4</id>
         <preferedSpeed>0.8</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
