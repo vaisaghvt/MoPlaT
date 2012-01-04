@@ -81,8 +81,8 @@ public class AgentPortrayal extends SimplePortrayal2D {
     public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
 
         RVOAgent me = ((RVOAgent) this);
-        addPoint(new Double2D(  me.getCurrentPosition().getX() * scale, 
-                                me.getCurrentPosition().getY() * scale));
+        addPoint(new Double2D(me.getCurrentPosition().getX() * scale,
+                me.getCurrentPosition().getY() * scale));
 
 
         //draw orcaLines for RVO2
@@ -98,7 +98,7 @@ public class AgentPortrayal extends SimplePortrayal2D {
                     start.add(me.getCurrentPosition());
                     start.scale(scale);
                     graphics.setColor(Color.CYAN);
-                    
+
                     graphics.setStroke(new BasicStroke(2.5f));
                     graphics.drawLine((int) start.x, (int) start.y, (int) end.x, (int) end.y);
 
@@ -106,31 +106,6 @@ public class AgentPortrayal extends SimplePortrayal2D {
             }
         }
         graphics.setPaint(trailColor);
-        
-
-        final double width = 2 * radius * scale + offset;
-        final double height = 2 * radius * scale + offset;
-
-
-
-
-        if (this instanceof ClusteredAgent) {
-            graphics.setColor(Color.BLACK);
-            ClusteredAgent tempAgent = (ClusteredAgent) this;
-            final double clusteredWidth = 2 * tempAgent.getRadius() * scale + offset;
-            final double clusteredHeight = 2 * tempAgent.getRadius() * scale + offset;
-            graphics.drawOval(
-                    (int) Math.round(tempAgent.getCentre().x * scale + offset - clusteredWidth / 2.0),
-                    (int) Math.round(tempAgent.getCentre().y * scale + offset - clusteredHeight / 2.0),
-                    (int) clusteredWidth, (int) clusteredHeight);
-            graphics.drawLine(
-                    (int) Math.round(tempAgent.getCentre().x * scale + offset),
-                    (int) Math.round(tempAgent.getCentre().y * scale + offset),
-                    (int) Math.round((tempAgent.getCentre().x + tempAgent.getRadius()) * scale + offset),
-                    (int) Math.round((tempAgent.getCentre().y) * scale + offset));
-
-            return;
-        }
 
         double startx = -1;
         double starty = -1;
@@ -157,7 +132,34 @@ public class AgentPortrayal extends SimplePortrayal2D {
             }
             final BasicStroke stroke2 = new BasicStroke(agentLineWidth);
             graphics.setStroke(stroke2);
-        } 
+        }
+
+
+        final double width = 2 * radius * scale + offset;
+        final double height = 2 * radius * scale + offset;
+
+        if (this instanceof ClusteredAgent) {
+            graphics.setColor(Color.BLACK);
+            ClusteredAgent tempAgent = (ClusteredAgent) this;
+            final double clusteredWidth = 2 * tempAgent.getRadius() * scale + offset;
+            final double clusteredHeight = 2 * tempAgent.getRadius() * scale + offset;
+
+
+
+            graphics.drawOval(
+                    (int) Math.round(tempAgent.getCentre().x * scale - clusteredWidth / 2.0),
+                    (int) Math.round(tempAgent.getCentre().y * scale - clusteredHeight / 2.0),
+                    (int) clusteredWidth, (int) clusteredHeight);
+//            graphics.drawLine(
+//                    (int) Math.round(tempAgent.getCentre().x * scale + offset),
+//                    (int) Math.round(tempAgent.getCentre().y * scale + offset),
+//                    (int) Math.round((tempAgent.getCentre().x + tempAgent.getRadius()) * scale + offset),
+//                    (int) Math.round((tempAgent.getCentre().y) * scale + offset));
+
+            return;
+        }
+
+
 
 
         graphics.setPaint(agentColor);

@@ -17,6 +17,8 @@ import agent.RVOAgent;
 import app.RVOModel;
 import environment.RVOSpace;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import javax.vecmath.Vector2d;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -31,8 +33,8 @@ import sim.util.Double2D;
 public final class ClusteredSpace extends RVOSpace {
 
     public static double ALPHA;
-    public static int CLUSTER_DIAMETER;
     public static int NUMBER_OF_CLUSTERING_SPACES;
+    final double AGENT_DIAMETER = RVOAgent.RADIUS*2.0;
     protected static int numberOfClusteringSpaces;
     protected ArrayList<ClusteredAgent>[] clusteredAgents;
     protected Continuous2D[] clusteringLayers;
@@ -78,17 +80,21 @@ public final class ClusteredSpace extends RVOSpace {
     
     @Override
     public Bag senseNeighbours(RVOAgent me) {
-
+        
 
         Bag neighbourAgents = agentSpace.getObjectsExactlyWithinDistance(
-                new Double2D(me.getCurrentPosition().x, me.getCurrentPosition().y), RVOAgent.SENSOR_RANGE * me.getRadius());
+                new Double2D(me.getCurrentPosition().x, me.getCurrentPosition().y),
+                this.regionBoundaryForLayer(0) );
         Bag[] neighbourClusters = new Bag[numberOfClusteringSpaces];
-        Bag finalNeighbourSet = new Bag();
+        Set<RVOAgent> finalNeighbourSet = new HashSet<RVOAgent>();
+        finalNeighbourSet.addAll(neighbourAgents);
 
         //Detect all neighbours. This detects all neighbours in all ranges for
         //now. Can't remember exactly why I have used such a big sensor range
         for (int layer = 0; layer < numberOfClusteringSpaces; layer++) {
-            neighbourClusters[layer] = clusteringLayers[layer].getObjectsExactlyWithinDistance(new Double2D(me.getCurrentPosition().x, me.getCurrentPosition().y),
+            neighbourClusters[layer] = clusteringLayers[layer].
+                    getObjectsExactlyWithinDistance(
+                    new Double2D(me.getCurrentPosition().x, me.getCurrentPosition().y),
                     RVOAgent.SENSOR_RANGE * me.getRadius());
 
         }
@@ -96,32 +102,36 @@ public final class ClusteredSpace extends RVOSpace {
 //        System.out.println("Starting filtering Process after detecting"
 //                + neighbourClusters.numObjs + " clusters:");
 
-        /**
-         * Loop to remove all the clusters that are close to the agent.
+        /*
+          Loop to remove all the clusters that are close to the agent.
          */
         for (int layer = 0; layer < numberOfClusteringSpaces; layer++) {
             for (int i = 0; i < neighbourClusters[layer].size(); i++) {
 
-                ClusteredAgent tempAgent = (ClusteredAgent) neighbourClusters[layer].get(i);
+                ClusteredAgent clusteredNeighbour = (ClusteredAgent) neighbourClusters[layer].get(i);
                 Vector2d fromClusterCenterToAgent = new Vector2d(me.getCurrentPosition());
-                fromClusterCenterToAgent.sub(tempAgent.getCentre());
-                // distance from cluster center to agent center
+                
+                // vector from cluster center to agent center
+                fromClusterCenterToAgent.sub(clusteredNeighbour.getCurrentPosition());
+                
+                
 
-
-                //remove if cluster center is too close to the agent and add 
-                //only individual agents ( this takes care of agents which are
-                //in clusters taht are within this region but the agents are actually outside
-
-                if ((int) Math.round((fromClusterCenterToAgent.length() - tempAgent.getRadius()) * 100) <= RVOAgent.RADIUS + CLUSTER_DIAMETER) {
-//                  System.out.println("For agent at"+me.getCurrentPosition()+" deleted a cluster at"+ tempAgent.getCentre());
-                    //Again lots of repitition across layers, can be avoided
-                    for (int k = 0; k < tempAgent.getAgents().size(); k++) {
-                        Vector2d distance = new Vector2d(me.getCurrentPosition());
-                        distance.sub(((RVOAgent) tempAgent.getAgents().get(k)).getCurrentPosition());
-                        if (distance.length() * 100 > RVOAgent.RADIUS + CLUSTER_DIAMETER) {
-                            finalNeighbourSet.add(tempAgent.getAgents().get(k));
-
-                        }
+                /*
+                break up clusters that are too close to the agent and thus will 
+                 * not be detected as clusters. They need to be broken up so that 
+                 * they will at least be perceived as individuals.
+                */
+                if ((int) Math.round((fromClusterCenterToAgent.length() - clusteredNeighbour.getRadius())
+                        * 100) <= this.regionBoundaryForLayer(0)) {
+//                  System.out.println("For agent at"+me.getCurrentPosition()+
+//                    " deleted a cluster at"+ tempAgent.getCentre());
+                    
+                    /*Adds all the individual agents not within the first region 
+                     * as individuals into respective layer  so that they can be 
+                     * added in later
+                       */
+                     for (RVOAgent individualAgent : clusteredNeighbour.getAgents()){
+                         neighbourClusters[layer].add(individualAgent);
                     }
 
                     neighbourClusters[layer].remove(i);
@@ -132,57 +142,84 @@ public final class ClusteredSpace extends RVOSpace {
         }
 
 
-        //Add neighbour agents within my first inner circle
-        for (int i = 0; i < neighbourAgents.size(); i++) {
-            Vector2d distance = new Vector2d(me.getCurrentPosition());
-            distance.sub(((RVOAgent) neighbourAgents.get(i)).getCurrentPosition());
-//                System.out.println("Non Clustered agent at distance "+distance.length());
-            //Lots of redundancy
-            if (me.getCurrentPosition() != ((RVOAgent) neighbourAgents.get(i)).getCurrentPosition() && distance.length() * 100 <= RVOAgent.RADIUS + CLUSTER_DIAMETER) {
+//        //Add neighbour agents within my first inner circle
+//        for(Object neighbourAgent : neighbourAgents) {
+//        
+//            Vector2d distance = new Vector2d(me.getCurrentPosition());
+//            distance.sub(((RVOAgent) neighbourAgent).getCurrentPosition());
+////                System.out.println("Non Clustered agent at distance "+distance.length());
+//            //Lots of redundancy
+//            if (distance.length() * 100 <= RVOAgent.RADIUS + CLUSTER_DIAMETER) {
+//
+//                finalNeighbourSet.add((RVOAgent) neighbourAgent);
+////                System.out.println("For agent at" + me.getCurrentPosition() + " added a neighbour at" + ((RVOAgent) neighbourAgents.get(i)).getCurrentPosition());
+//
+//            }
+//        }
 
-                finalNeighbourSet.add(neighbourAgents.get(i));
-//                System.out.println("For agent at" + me.getCurrentPosition() + " added a neighbour at" + ((RVOAgent) neighbourAgents.get(i)).getCurrentPosition());
+        /*
+         * Add from first clustering layer if the cluster lies beyond the first 
+         * circle of individual agents (radius = RVOAgent.RADIUS + CLUSTER_DIAMETER)
+         * but within the second region where first clusters are to be perceived
+         * (radius = RVOAgent.RADIUS + CLUSTER_DIAMETER + ALPHA * CLUSTER_DIAMETER)
+         */
+        for (Object agent:  neighbourClusters[0]) {
 
+            RVOAgent clusteredAgent = (RVOAgent) agent;
+            Vector2d fromClusterCenterToAgentCenter = new Vector2d(me.getCurrentPosition());
+            fromClusterCenterToAgentCenter.sub(clusteredAgent.getCurrentPosition());
+            
+            double ScaledDistanceFromClusterBorderToAgentCenter = 
+                    (fromClusterCenterToAgentCenter.length() - clusteredAgent.getRadius()) * 100;
+            if ((ScaledDistanceFromClusterBorderToAgentCenter
+                    >= this.regionBoundaryForLayer(0))
+                    && (ScaledDistanceFromClusterBorderToAgentCenter 
+                    <= this.regionBoundaryForLayer(1))) {
+                finalNeighbourSet.add(clusteredAgent);
             }
+
         }
 
-        for (int i = 0; i < neighbourClusters[0].size(); i++) {
-
-            ClusteredAgent tempAgent = (ClusteredAgent) neighbourClusters[0].get(i);
-            Vector2d fromClusterCenterToAgent = new Vector2d(me.getCurrentPosition());
-            fromClusterCenterToAgent.sub(tempAgent.getCentre());
-
-            if (((fromClusterCenterToAgent.length() - tempAgent.getRadius()) * 100 >= RVOAgent.RADIUS + CLUSTER_DIAMETER)
-                    && ((fromClusterCenterToAgent.length() - tempAgent.getRadius()) * 100 <= RVOAgent.RADIUS + CLUSTER_DIAMETER + ALPHA * CLUSTER_DIAMETER)) {
-                finalNeighbourSet.add(tempAgent);
-            }
-
-        }
-
-
+        /*
+         * For each region beyond the first two
+         */
         for (int layer = 1; layer < numberOfClusteringSpaces; layer++) {
-            for (int i = 0; i < neighbourClusters[layer].size(); i++) {
-                Vector2d distance = new Vector2d(me.getCurrentPosition());
-                distance.sub(((ClusteredAgent) neighbourClusters[layer].get(i)).getCurrentPosition());
-                double totalMinDistance = distance.length() - ((ClusteredAgent) neighbourClusters[layer].get(i)).getRadius();
+            for (Object agent: neighbourClusters[layer]) {
+                 RVOAgent clusteredAgent = (RVOAgent) agent;
+                Vector2d fromClusterCenterToAgentCenter = new Vector2d(me.getCurrentPosition());
+                fromClusterCenterToAgentCenter.sub(clusteredAgent.getCurrentPosition());
+                double scaledTotalMinDistance = 
+                        (fromClusterCenterToAgentCenter.length() - clusteredAgent.getRadius()) * 100;
+                
+              
                 //   double totalMaxDistance = distance.length() + ((ClusteredAgent) neighbourClusters[layer].get(i)).getRadius();
                 if (layer < numberOfClusteringSpaces - 1
-                        && totalMinDistance * 100 <= (RVOAgent.RADIUS + (ClusteredSpace.CLUSTER_DIAMETER * (1 - Math.pow(ALPHA, (layer + 1))) / (1 - ALPHA)))
-                        && totalMinDistance * 100 >= (RVOAgent.RADIUS + (ClusteredSpace.CLUSTER_DIAMETER * (1 - Math.pow(ALPHA, (layer))) / (1 - ALPHA)))) {
-                    finalNeighbourSet.add(neighbourClusters[layer].get(i));
+                        && scaledTotalMinDistance <= regionBoundaryForLayer(layer+1)
+                        && scaledTotalMinDistance>= regionBoundaryForLayer(layer)) {
+                    
+                    finalNeighbourSet.add(clusteredAgent);
 //                  System.out.println("For agent at"+me.getCurrentPosition()+" added a neighbour at"+ ((RVOAgent)neighbourClusters[layer].get(i)).getCurrentPosition());
-                } else if (totalMinDistance * 100 >= (RVOAgent.RADIUS + (ClusteredSpace.CLUSTER_DIAMETER * (1 - Math.pow(ALPHA, (layer))) / (1 - ALPHA)))) {
-                    finalNeighbourSet.add(neighbourClusters[layer].get(i));
+                } else if (scaledTotalMinDistance>= regionBoundaryForLayer(layer)) {
+                    finalNeighbourSet.add(clusteredAgent);
 //                
                 }
             }
         }
-        return finalNeighbourSet;
+        
+        finalNeighbourSet.remove(me);
+        
+        return ;
 
     }
 
     public void scheduleClustering() {
         rvoModel.schedule.scheduleRepeating(new Clustered(), 1, 1.0);
+    }
+
+    private double regionBoundaryForLayer(int layer) {
+      return  (RVOAgent.RADIUS +  
+              (RVOAgent.RADIUS*2 * (Math.pow(ALPHA, (layer + 1))-1) / (ALPHA - 1))
+              );
     }
 
     class Clustered implements Steppable {

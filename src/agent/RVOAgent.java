@@ -429,6 +429,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                     Vector2d tempVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
                             prefVelocity, PropertySet.TIMESTEP);
                     chosenVelocity = new PrecisePoint(tempVelocity.getX(), tempVelocity.getY());
+
                }
             }//end of if(!dead)
         }//end of step(ss)
@@ -587,6 +588,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 //                return;
 //            }
                 velocity = chosenVelocity;
+                
                 double currentPosition_x = (currentPosition.getX()
                         + velocity.getX() * PropertySet.TIMESTEP);
                 double currentPosition_y = (currentPosition.getY()
@@ -624,4 +626,28 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             return RVOAgent.this.preferredSpeed;
         }
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final RVOAgent other = (RVOAgent) obj;
+        if (this.id != other.id) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 67 * hash + this.id;
+        return hash;
+    }
+    
+    
 }

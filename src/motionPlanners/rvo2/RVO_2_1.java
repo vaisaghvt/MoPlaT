@@ -64,7 +64,7 @@ public class RVO_2_1 implements VelocityCalculator {
 //        preferredVelocity.normalize();
         orcaLines.clear();
 
-
+        
 
         TreeMap<Double, RVO2Obstacle> obses = new TreeMap<Double, RVO2Obstacle>();
         for (Object tempObject : obstacleBag) {
@@ -592,7 +592,6 @@ public class RVO_2_1 implements VelocityCalculator {
         if (lineFail < orcaLines.size()) {
             linearProgram3(orcaLines, numObstLines, lineFail, me.getMaxSpeed(), newVelocity);
         }
-        //   System.out.println("new velocity for"+me.getId()+"= "+newVelocity.x+","+newVelocity.y);
         return newVelocity;
 
     }

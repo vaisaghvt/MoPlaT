@@ -63,19 +63,8 @@ public class ClusteredAgent extends RVOAgent {
         this.radius = radius;
     }
 
-    /**
-     * These two methods are the same value as currentPosition, it is just that 
-     * Centre is more intuitive.. hence using a seperate getter and setter that 
-     * does the same thing.
-     * @return location of center of the cluster.
-     */
-    public Point2d getCentre() {
-        return this.getCurrentPosition();
-    }
 
-    public final void setCentre(Point2d centre) {
-        this.setCurrentPosition(centre.getX(),centre.getY());
-    }
+
     
     public double getMaxRadius() {
         return maxRadius;
@@ -109,8 +98,6 @@ public class ClusteredAgent extends RVOAgent {
 
             return false;
         }
-
-
 
 
 //        System.out.println("****************\nAdding agent "+agent.getId() +" to cluster");
