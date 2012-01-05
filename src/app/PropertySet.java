@@ -22,6 +22,30 @@ import utility.Geometry;
  */
 public class PropertySet {
 
+    public static enum Model {
+
+        RVO2, PatternBasedMotion, RVO1Standard, RVO1Acceleration, RuleBasedNew, SocialForce
+    }
+    //TODO : Be careful  about this seed... need to change for random simulation
+    public static final String XML_SOURCE_FOLDER = "xml-resources//scenarios";
+    public static String PROPERTIES_FILEPATH = XML_SOURCE_FOLDER + "//CrowdProperties//CW2011PaperSettings.xml";
+    public static long SEED;
+    public static int WORLDXSIZE;
+    public static int WORLDYSIZE;
+    public static double GRIDSIZE;
+    public static double TIMESTEP;
+    public static Model MODEL;
+    public static boolean LATTICEMODEL;
+    public static boolean INFOPROCESSING;
+    public static boolean USECLUSTERING;
+    public static boolean INITIALISEFROMXML;
+    public static String FILEPATH;
+    public static int SCALE;
+    public static int CHECK_SIZE_X;
+    public static int CHECK_SIZE_Y;
+    public static boolean CHECKBOARD;
+    public static boolean TRACK_DATA;
+
     static void initializeProperties() {
         try {
             XMLScenarioManager settings = XMLScenarioManager.instance("app.params");
@@ -37,8 +61,9 @@ public class PropertySet {
             LATTICEMODEL = params.isLatticeModel();
             INFOPROCESSING = params.isInfoProcessing();
             USECLUSTERING = params.isUseClustering();
+            TRACK_DATA = params.isTrackData();
             FILEPATH = XML_SOURCE_FOLDER + params.getFilePath();
-  //          FILEPATH= XML_SOURCE_FOLDER+"//EvacTest//5.xml";
+            //          FILEPATH= XML_SOURCE_FOLDER+"//EvacTest//5.xml";
             //FOR GUI
             CHECKBOARD = params.isCheckBoard();
             CHECK_SIZE_X = params.getDefaultCheckSizeX();
@@ -58,12 +83,10 @@ public class PropertySet {
             RVOAgent.INFO_LIMIT = params.getInfoLimit();
             RVOAgent.DEFAULT_PREFERRED_SPEED = params.getPreferredSpeed();
             RVOAgent.SENSOR_RANGE = params.getSensorRange();
-            
+
             Geometry.RVO_EPSILON = params.getRVOEpsilon();
             if (USECLUSTERING) {
                 ClusteredSpace.ALPHA = params.getAlpha();
-                ClusteredSpace.CLUSTER_DIAMETER = (int) Math.round(
-                        ClusteredSpace.ALPHA * 2 * RVOAgent.RADIUS * 100.0);
                 ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES = params.getNumberOfClusteringSpaces();
             }
 
@@ -73,42 +96,18 @@ public class PropertySet {
                 LatticeSpace.DRIFT = params.getDrift();
             }
 
-            if (MODEL == PropertySet.Model.RVO2) {
-                
-                RVO_2_1.TIME_HORIZON = params.getTimeHorizon();
-                RVO_2_1.TIME_HORIZON_OBSTACLE = params.getTimeHorizonObst();
-            }
-            
-            if(params.isUseClustering()){
+
+            RVO_2_1.TIME_HORIZON = params.getTimeHorizon();
+            RVO_2_1.TIME_HORIZON_OBSTACLE = params.getTimeHorizonObst();
+
+
+            if (params.isUseClustering()) {
                 ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES = params.getNumberOfClusteringSpaces();
-                
+
             }
 
         } catch (JAXBException ex) {
             Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-    public static enum Model {
-
-        RVO2, PatternBasedMotion, RVO1Standard, RVO1Acceleration, RuleBasedNew, SocialForce
-    }
-    //TODO : Be careful  about this seed... need to change for random simulation
-    public static final String XML_SOURCE_FOLDER = "xml-resources//scenarios";
-    public static String PROPERTIES_FILEPATH = XML_SOURCE_FOLDER + "//CrowdProperties//1.xml";
-    public static long SEED;
-    public static int WORLDXSIZE;
-    public static int WORLDYSIZE;
-    public static double GRIDSIZE;
-    public static double TIMESTEP;
-    public static Model MODEL;
-    public static boolean LATTICEMODEL;
-    public static boolean INFOPROCESSING;
-    public static boolean USECLUSTERING;
-    public static boolean INITIALISEFROMXML;
-    public static String FILEPATH;
-    public static int SCALE;
-    public static int CHECK_SIZE_X;
-    public static int CHECK_SIZE_Y;
-    public static boolean CHECKBOARD;
 }

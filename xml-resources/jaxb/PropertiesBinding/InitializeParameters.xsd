@@ -37,6 +37,7 @@
             <xs:attribute name="InfoProcessing" type="xs:boolean"/>
             <xs:attribute name="UseClustering" type="xs:boolean"/>
             <xs:attribute name="InitialiseFromXML" type="xs:boolean"/>
+            <xs:attribute name="TrackData" type="xs:boolean"/>
             <xs:attribute name="FilePath" type="xs:string"/>
 
            

@@ -1,5 +1,6 @@
 package app;
 
+import app.dataTracking.CWDataCollector;
 import agent.AgentGenerator;
 import agent.RVOAgent;
 import agent.RVOAgent.Act;
@@ -15,6 +16,7 @@ import environment.geography.Obstacle;
 import environment.geography.SimulationScenario;
 import agent.latticegas.LatticeSpace;
 import app.PropertySet.Model;
+import app.dataTracking.DataTracker;
 import environment.geography.AgentGroup;
 import environment.geography.Position;
 import java.awt.Color;
@@ -59,9 +61,10 @@ public class RVOModel extends SimState {
      * if needed
      */
     private List<RVOAgent> agentList;
-    private List<RVOObstacle> obstacleList;
+ 
     private List<AgentGenerator> agentLineList;
     private Stoppable generatorStopper;
+    private DataTracker dataTracker = null;
 
 //    //the list to keep record of every agent's status in each timestep
 //    //each record contains a list of status for each agent
@@ -106,6 +109,11 @@ public class RVOModel extends SimState {
             buildSpace();
             createAgents();
         }
+        if(PropertySet.TRACK_DATA) {
+            dataTracker = new CWDataCollector(this, agentList);
+            schedule.scheduleRepeating(dataTracker, 4, 1.0);
+        }
+       
     }
 
     /**
@@ -154,7 +162,10 @@ public class RVOModel extends SimState {
      * resets all the values to the initial values. this is just to be safe.
      */
     public void setup() {
-        
+        if(dataTracker!=null){
+            dataTracker.storeToFile();
+            dataTracker =null;
+        }
         rvoSpace = null;
         agentList = new ArrayList<RVOAgent>();
         //obstacleList = new ArrayList<RVOObstacle>();
@@ -175,8 +186,8 @@ public class RVOModel extends SimState {
 //        senseThinkStoppable = mySpace.getRvoModel().schedule.scheduleRepeating(senseThinkAgent, 2, 1.0);
 //        actStoppable = mySpace.getRvoModel().schedule.scheduleRepeating(actAgent, 3, 1.0);
 //        (new RVOAgent(this.rvoSpace)).scheduleAgent();
-        schedule.scheduleRepeating(Schedule.EPOCH, 2, new RandomSequence(senseThinkAgents.toArray(new SenseThink[]{})), 1.0);
-        schedule.scheduleRepeating(Schedule.EPOCH, 3, new Sequence(actAgents.toArray(new Act[]{})), 1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH, 1, new RandomSequence(senseThinkAgents.toArray(new SenseThink[]{})), 1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH, 2, new Sequence(actAgents.toArray(new Act[]{})), 1.0);
     }
     
     public List<RVOAgent> getAgentList() {
@@ -274,8 +285,7 @@ public class RVOModel extends SimState {
                             new Point2d(tempAgent.getPosition().getX(), tempAgent.getPosition().getY()),
                             new Point2d(tempAgent.getGoal().getX(), tempAgent.getGoal().getY()),
                             rvoSpace,
-                            new Color(Color.HSBtoRGB((float) i / (float) xmlAgentList.size(),
-                            1.0f, 0.68f)));
+                            Color.red);
                     
                     tempRVOAgent.setPreferredSpeed(tempAgent.getPreferedSpeed());
                     tempRVOAgent.setMaximumSpeed(tempAgent.getPreferedSpeed() * 2.0);

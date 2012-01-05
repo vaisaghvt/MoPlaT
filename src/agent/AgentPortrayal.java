@@ -147,20 +147,17 @@ public class AgentPortrayal extends SimplePortrayal2D {
 
 
             graphics.drawOval(
-                    (int) Math.round(tempAgent.getCentre().x * scale - clusteredWidth / 2.0),
-                    (int) Math.round(tempAgent.getCentre().y * scale - clusteredHeight / 2.0),
+                    (int) Math.round(tempAgent.getCurrentPosition().x * scale - clusteredWidth / 2.0),
+                    (int) Math.round(tempAgent.getCurrentPosition().y * scale - clusteredHeight / 2.0),
                     (int) clusteredWidth, (int) clusteredHeight);
-//            graphics.drawLine(
-//                    (int) Math.round(tempAgent.getCentre().x * scale + offset),
-//                    (int) Math.round(tempAgent.getCentre().y * scale + offset),
-//                    (int) Math.round((tempAgent.getCentre().x + tempAgent.getRadius()) * scale + offset),
-//                    (int) Math.round((tempAgent.getCentre().y) * scale + offset));
+            graphics.drawLine(
+                    (int) Math.round(tempAgent.getCurrentPosition().x * scale + offset),
+                    (int) Math.round(tempAgent.getCurrentPosition().y * scale + offset),
+                    (int) Math.round((tempAgent.getCurrentPosition().x + tempAgent.getRadius()) * scale + offset),
+                    (int) Math.round((tempAgent.getCurrentPosition().y) * scale + offset));
 
             return;
         }
-
-
-
 
         graphics.setPaint(agentColor);
         graphics.fillOval(
@@ -210,6 +207,8 @@ public class AgentPortrayal extends SimplePortrayal2D {
     public void toggleShowOrcaLines() {
         showOrcaLines = !showOrcaLines;
     }
+
+   
 
     public double getRadius() {
         return radius;

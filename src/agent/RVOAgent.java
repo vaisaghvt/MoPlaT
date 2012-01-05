@@ -47,16 +47,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public static int SENSOR_RANGE; //sensor range in proportion to agent radius
     public static int agentCount = 0; // number of agents
     
-    protected boolean socialForceObstacle = false;
+ 
 
-    public boolean isSocialForceObstacle() {
-        return socialForceObstacle;
-    }
-
-    public void setSocialForceObstacle(boolean socialForceObstacle) {
-        this.socialForceObstacle = socialForceObstacle;
-    }
-    
     protected int id;
     int currentGoal = 0;
     /**
@@ -76,7 +68,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      * Current position of the agent from javax.vecmath
      */
     protected PrecisePoint currentPosition;
-    protected double mass = 80; // in KG
+    protected double mass = 70; // in KG
     
     /**
      * Current velocity of the agent
@@ -368,6 +360,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public void setMaximumSpeed(double maxSpeed) {
         this.maxSpeed = maxSpeed;
     }
+    
+    
+ 
+    
 
     public class SenseThink implements Steppable {
 
@@ -568,6 +564,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         }
     }
 
+    
     /**
      * updates the actual position after calculation. The division of steps is to 
      * ensure that all agents update their positions and move simultaneously. 
@@ -625,6 +622,12 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         public double getPreferredSpeed() {
             return RVOAgent.this.preferredSpeed;
         }
+        
+        public String getName() {
+            return "Agent "+RVOAgent.this.getId();
+        }
+        
+      
     }
 
     @Override
