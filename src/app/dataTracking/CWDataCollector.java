@@ -15,8 +15,9 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import sim.engine.SimState;
-import sim.engine.Steppable;
 
 /**
  *
@@ -31,6 +32,7 @@ public class CWDataCollector implements DataTracker {
     private int stepNumber;
     public static final float E_S = 2.23f;
     public static final float E_W = 1.26f;
+    public static final String TRACKER_TYPE = "CW2011";
 
     public CWDataCollector(RVOModel model, Collection<? extends RVOAgent> agents) {
         stepNumber = 0;
@@ -43,13 +45,13 @@ public class CWDataCollector implements DataTracker {
             speedListForAgent.put(agent, new ArrayList<Double>());
             energySpentByAgent.put(agent, new ArrayList<Double>());
         }
+
     }
 
     @Override
     public void step(SimState ss) {
         for (RVOAgent agent : model.getAgentList()) {
             speedListForAgent.get(agent).add(agent.getVelocity().length());
-
 
             double distanceInCurrentTimeStep = agent.getVelocity().length()
                     * PropertySet.TIMESTEP;
@@ -71,16 +73,54 @@ public class CWDataCollector implements DataTracker {
 
     @Override
     public void storeToFile() {
-        String creationTime = "" + System.currentTimeMillis();
+        LocalDate date = new LocalDate();
+        LocalTime time = new LocalTime();
 
-        writeToFile(creationTime + "Speed", speedListForAgent);
-        writeToFile(creationTime + "Time", cumulativeDistanceForAgent);
-        writeToFile(creationTime + "Energy", energySpentByAgent);
+        String dateString = date.toString("dd-MMM-yyyy");
+        String timeString = time.toString("HH_mm_ss_sss");
+        String currentFolder = "data" + File.separatorChar;
 
-    }
+        File directory = new File(currentFolder + TRACKER_TYPE);
+        if (!directory.exists()) {
+            if (!directory.mkdir()) {
+                System.out.println("Type Directory could not be created for " + directory);
+            }
+        }
+        if (directory.exists()) {
+            currentFolder = currentFolder + TRACKER_TYPE + File.separatorChar;
+
+            directory = new File(currentFolder + dateString);
+            if (!directory.exists()) {
+                if (!directory.mkdir()) {
+                    System.out.println("Date Directory could not be created for " + directory);
+                }
+            }
+            if (directory.exists()) {
+                currentFolder = currentFolder + dateString + File.separatorChar;
+            }
+                directory = new File(currentFolder+ timeString);
+
+                if (!directory.mkdir()) {
+                    System.out.println("Time Directory could not be created for " + directory);
+                }
+                if (directory.exists()) {
+                    currentFolder = currentFolder + timeString + File.separatorChar;
+                    
+
+                    writeToFile(currentFolder + "Speed", speedListForAgent);
+                    writeToFile(currentFolder + "Time", cumulativeDistanceForAgent);
+                    writeToFile(currentFolder + "Energy", energySpentByAgent);
+                }
+            }
+
+
+        }
+
+    
 
     public static void writeToFile(String fileName, HashMap<RVOAgent, ArrayList<Double>> dataForAgent) {
         File file = new File(fileName);
+
         PrintWriter writer = null;
         try {
             writer = new PrintWriter(new BufferedWriter(new FileWriter(file)));
@@ -95,5 +135,10 @@ public class CWDataCollector implements DataTracker {
             writer.println();
         }
         writer.close();
+    }
+
+    @Override
+    public String trackerType() {
+        return TRACKER_TYPE;
     }
 }

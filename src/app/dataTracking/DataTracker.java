@@ -11,6 +11,8 @@ import sim.engine.Steppable;
  * @author vaisaghvt
  */
 public interface DataTracker extends Steppable{
-    
+       
     public void storeToFile(); 
+    
+    public String trackerType();
 }
