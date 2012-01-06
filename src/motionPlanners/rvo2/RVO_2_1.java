@@ -608,8 +608,8 @@ public class RVO_2_1 implements VelocityCalculator {
         b.sub(line.point);
 
 
-        return ((Double.compare((Geometry.det(a, line.direction) - invTimeHorizonObst * me.getRadius()), -Geometry.RVO_EPSILON) >= 0)
-                && (Double.compare((Geometry.det(b, line.direction) - invTimeHorizonObst * me.getRadius()), -Geometry.RVO_EPSILON) >= 0));
+        return ((Double.compare((Geometry.det(a, line.direction) - invTimeHorizonObst * me.getRadius()), -Geometry.EPSILON) >= 0)
+                && (Double.compare((Geometry.det(b, line.direction) - invTimeHorizonObst * me.getRadius()), -Geometry.EPSILON) >= 0));
 
     }
 
@@ -624,7 +624,7 @@ public class RVO_2_1 implements VelocityCalculator {
         //final double detProduct2 = lineNoPoint.dot(lineNoPoint);
         final double discriminant = Math.pow(dotProduct, 2.0) + Math.pow(radius, 2.0f) - lineNoPoint.dot(lineNoPoint);
 
-        if (Double.compare(discriminant, Geometry.RVO_EPSILON) < 0) {
+        if (Double.compare(discriminant, Geometry.EPSILON) < 0) {
             /* Max speed circle fully invalidates line lineNo. */
             return false;
         }
@@ -640,10 +640,10 @@ public class RVO_2_1 implements VelocityCalculator {
             final double numerator = Geometry.det(lines.get(i).direction, tempVector);
 
             if (Double.compare(
-                    Math.abs(denominator), Geometry.RVO_EPSILON) <= 0) {
+                    Math.abs(denominator), Geometry.EPSILON) <= 0) {
                 /* Lines lineNo and i are (almost) parallel. */
 
-                if (Double.compare(numerator, Geometry.RVO_EPSILON) < 0) {
+                if (Double.compare(numerator, Geometry.EPSILON) < 0) {
                     /* Line i fully invalidates line lineNo. */
                     return false;
                 } else {
@@ -654,7 +654,7 @@ public class RVO_2_1 implements VelocityCalculator {
 
             final double t = numerator / denominator;
             if (Double.compare(
-                    denominator, -Geometry.RVO_EPSILON) >= 0) {
+                    denominator, -Geometry.EPSILON) >= 0) {
                 /* Line i bounds line lineNo on the right. */
                 tRight = Math.min(tRight, t);
             } else {
@@ -670,7 +670,7 @@ public class RVO_2_1 implements VelocityCalculator {
         if (directionOpt) {
             /* Optimize direction. */
             Vector2d tempLineNoDirection = new Vector2d(lineNoDirection);
-            if (Double.compare(optVelocity.dot(tempLineNoDirection), -Geometry.RVO_EPSILON) > 0) {
+            if (Double.compare(optVelocity.dot(tempLineNoDirection), -Geometry.EPSILON) > 0) {
                 /* Take right extreme. */
                 tempLineNoDirection.scale(tRight);
             } else {
@@ -710,7 +710,7 @@ public class RVO_2_1 implements VelocityCalculator {
              * Optimize direction. Note that the optimization velocity is of unit
              * length in this case.
              */
-            if(Double.compare(Math.abs(optVelocity.length()-1),Geometry.RVO_EPSILON)>0){
+            if(Double.compare(Math.abs(optVelocity.length()-1),Geometry.EPSILON)>0){
                 System.out.println("what?? how??");
             }
             Vector2d tempOpt = new Vector2d(optVelocity);
@@ -739,7 +739,7 @@ public class RVO_2_1 implements VelocityCalculator {
 
 
             if (Double.compare(
-                    Geometry.det(lines.get(i).direction, tempPoint), -Geometry.RVO_EPSILON) > 0) {
+                    Geometry.det(lines.get(i).direction, tempPoint), -Geometry.EPSILON) > 0) {
                 /* Result does not satisfy constraint i. Compute new optimal result. */
                 Vector2d tempResult = new Vector2d(result);
                 if (!linearProgram1(lines, i, radius, optVelocity, directionOpt, result)) {
@@ -773,9 +773,9 @@ public class RVO_2_1 implements VelocityCalculator {
                     Line line = new Line();
 
                     double determinant = Geometry.det(lines.get(i).direction, lines.get(j).direction);
-                    if (Double.compare(Math.abs(determinant), Geometry.RVO_EPSILON) <= 0) {
+                    if (Double.compare(Math.abs(determinant), Geometry.EPSILON) <= 0) {
                         /* Line i and line j are (almost) parallel. */
-                        if (Double.compare(lines.get(i).direction.dot(lines.get(j).direction), -Geometry.RVO_EPSILON) > 0) {
+                        if (Double.compare(lines.get(i).direction.dot(lines.get(j).direction), -Geometry.EPSILON) > 0) {
                             /* Line i and line j point in the same direction. */
                             continue;
                         } else {

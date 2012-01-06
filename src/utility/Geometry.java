@@ -20,7 +20,7 @@ import javax.vecmath.Vector2d;
  */
 public class Geometry {
 
-    public static float RVO_EPSILON;
+    public static float EPSILON;
 
     //returns the cos(theta) of the two vectors
     public static double sameDirection(Vector2d v1, Vector2d v2) {
@@ -69,10 +69,10 @@ public class Geometry {
             double num2 = ((x2 - x1) * (y1 - y3)) - ((y2 - y1) * (x1 - x3));
             double ua = num1 / denom;
             double ub = num2 / denom;
-            if (Double.compare(ua, -RVO_EPSILON) > 0
-                    && Double.compare(ua - 1, RVO_EPSILON) < 0
-                    && Double.compare(ub, -RVO_EPSILON) > 0
-                    && Double.compare(ub - 1, RVO_EPSILON) < 0) {
+            if (Double.compare(ua, -EPSILON) > 0
+                    && Double.compare(ua - 1, EPSILON) < 0
+                    && Double.compare(ub, -EPSILON) > 0
+                    && Double.compare(ub - 1, EPSILON) < 0) {
                 return true;
             } else {
                 return false;

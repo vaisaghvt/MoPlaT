@@ -186,8 +186,8 @@ public final class ClusteredSpace extends RVOSpace {
         if (region == -2) {
             return RVOAgent.RADIUS;
         }
-        return calculateRadiusForRegion(region - 1) + ALPHA * 2.0 * calculateRadiusForRegion(region - 1);
-//        return ALPHA * 2.0 * calculateRadiusForRegion(region - 1);
+//        return calculateRadiusForRegion(region - 1) + ALPHA * 2.0 * calculateRadiusForRegion(region - 1);
+        return ALPHA * 2.0 * calculateRadiusForRegion(region - 1);
     }
 
     private static double calculateMaxClusterRadiusForRegion(int layer) {
@@ -267,9 +267,6 @@ public final class ClusteredSpace extends RVOSpace {
                     }
 
                     if (simpleAddPossible) {
-
-
-
                         bestCluster.simplyAddAgent(agent);
                         bestCluster.updateVelocity();
                         added = true;
@@ -367,31 +364,6 @@ public final class ClusteredSpace extends RVOSpace {
                 for (ClusteredAgent currentCluster : tempClusterList) {
                     boolean toBeDeleted = false;
 
-                    // If any other cluster is too close then delete that cluster too
-//                    if (!toBeDeleted) {
-//                        for (ClusteredAgent otherCluster : tempClusterList) {
-//                            if (!currentCluster.equals(otherCluster)) {
-////                                if (currentCluster.getVelocity().angle(otherCluster.getVelocity()) > Math.PI / 2) {
-////
-////                                    continue;
-////                                }
-////                                if (currentCluster.getVelocity().length() - otherCluster.getVelocity().length() > 0.5) {
-////                                    continue;
-////                                }
-//
-//                                double distance = otherCluster.getCurrentPosition().distance(currentCluster.getCurrentPosition());
-//
-//                                if ((distance <= otherCluster.getRadius()
-//                                        + currentCluster.getRadius())) {
-//                                    toBeDeleted = true;
-//                                    break;
-//                                }
-//
-//
-//
-//                            }
-//                        }
-//                    }
 
                     // add all clusters to the list that haven't been deleted
                     if (!toBeDeleted) {

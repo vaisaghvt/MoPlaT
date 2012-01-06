@@ -9,11 +9,16 @@ import agent.RVOAgent;
 import agent.clustering.ClusteredSpace;
 import agent.latticegas.LatticeSpace;
 import environment.XMLScenarioManager;
+import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBException;
 import motionPlanners.rvo2.RVO_2_1;
 import app.params.SimulationParameters;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import utility.Geometry;
 
 /**
@@ -22,13 +27,16 @@ import utility.Geometry;
  */
 public class PropertySet {
 
+  
+
     public static enum Model {
 
         RVO2, PatternBasedMotion, RVO1Standard, RVO1Acceleration, RuleBasedNew, SocialForce
     }
     //TODO : Be careful  about this seed... need to change for random simulation
-    public static final String XML_SOURCE_FOLDER = "xml-resources//scenarios";
-    public static String PROPERTIES_FILEPATH = XML_SOURCE_FOLDER + "//CrowdProperties//CW2011PaperSettings.xml";
+    public static final String XML_SOURCE_FOLDER = "xml-resources"+File.separatorChar+"scenarios"+File.separatorChar;
+    public static String PROPERTIES_FILEPATH = XML_SOURCE_FOLDER + "CrowdProperties"+File.separatorChar+
+            "CW2011PaperSettings.xml";
     public static long SEED;
     public static int WORLDXSIZE;
     public static int WORLDYSIZE;
@@ -46,6 +54,52 @@ public class PropertySet {
     public static boolean CHECKBOARD;
     public static boolean TRACK_DATA;
 
+    public static void writePropertiesToFile(String fileName) {
+         File file = new File(fileName);
+
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(new BufferedWriter(new FileWriter(file)));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        
+        System.out.println("writing properties");
+        writer.println("Properties File ="+PROPERTIES_FILEPATH);
+        
+        writer.println("Scenario File ="+FILEPATH);
+        
+        writer.println("Model used = " + MODEL);
+        
+        writer.println("******Summary of main points*******");
+        writer.println("Seed ="+SEED);
+        writer.println("TimeStep ="+TIMESTEP);
+              
+        
+        writer.println("Radius= "+ RVOAgent.RADIUS);
+        writer.println("Sensor= "+ RVOAgent.SENSOR_RANGE);
+        
+        
+        writer.println("Clustering ="+USECLUSTERING);
+        if(USECLUSTERING){
+            writer.println("\t Alpha ="+ClusteredSpace.ALPHA);
+            writer.println("\t Number Of Clustering Spaces ="+ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES);
+        }
+        writer.println("Info Processing ="+INFOPROCESSING);
+        if(INFOPROCESSING){
+            writer.println("\t InfoLimit ="+RVOAgent.INFO_LIMIT);
+        }
+        
+        writer.println("RVO parameters");
+        writer.println("\t Time Horizon ="+ RVO_2_1.TIME_HORIZON);
+        writer.println("\t Time Horizon obst ="+ RVO_2_1.TIME_HORIZON_OBSTACLE);
+        
+           if (LATTICEMODEL) {
+                writer.println("Drift ="+LatticeSpace.DRIFT) ;
+            }
+        writer.close();
+    }
+    
     static void initializeProperties() {
         try {
             XMLScenarioManager settings = XMLScenarioManager.instance("app.params");
@@ -84,7 +138,7 @@ public class PropertySet {
             RVOAgent.DEFAULT_PREFERRED_SPEED = params.getPreferredSpeed();
             RVOAgent.SENSOR_RANGE = params.getSensorRange();
 
-            Geometry.RVO_EPSILON = params.getRVOEpsilon();
+            Geometry.EPSILON = params.getRVOEpsilon();
             if (USECLUSTERING) {
                 ClusteredSpace.ALPHA = params.getAlpha();
                 ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES = params.getNumberOfClusteringSpaces();
@@ -99,12 +153,7 @@ public class PropertySet {
 
             RVO_2_1.TIME_HORIZON = params.getTimeHorizon();
             RVO_2_1.TIME_HORIZON_OBSTACLE = params.getTimeHorizonObst();
-
-
-            if (params.isUseClustering()) {
-                ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES = params.getNumberOfClusteringSpaces();
-
-            }
+          
 
         } catch (JAXBException ex) {
             Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);

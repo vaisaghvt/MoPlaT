@@ -101,8 +101,7 @@ public class RVOModel extends SimState {
 
         // This function is equivalent to a reset. 
         //Need to readup a bit more to see if it is even necessary...
-        setup();
-        
+        setup();        
         if (PropertySet.INITIALISEFROMXML) {
             initialiseFromXML();
         } else {
@@ -121,16 +120,11 @@ public class RVOModel extends SimState {
      * Creates an appropriate space for Clustering
      */
     private void buildSpace() {
-        
         if (!PropertySet.USECLUSTERING) {
             rvoSpace = new RVOSpace(worldXSize, worldYSize, gridSize, this);
         } else {
             rvoSpace = new ClusteredSpace(worldXSize, worldYSize, gridSize, this);
-            
         }
-
-        // rvoSpace.initialiseGeography();
-
     }
 
     /**

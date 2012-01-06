@@ -1,0 +1,13 @@
+Properties File =xml-resources\scenarios\CrowdProperties\CW2011PaperSettings.xml
+Scenario File =xml-resources\scenarios\ClusteringTest/2.xml
+Model used = RVO2
+******Summary of main points*******
+Seed =10
+TimeStep =0.05
+Radius= 0.15
+Sensor= 80
+Clustering =false
+Info Processing =false
+RVO parameters
+	 Time Horizon =2.0
+	 Time Horizon obst =2.0
