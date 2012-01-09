@@ -98,7 +98,6 @@ public class RVOModel extends SimState {
     public void start() {
         
         super.start();
-
         // This function is equivalent to a reset. 
         //Need to readup a bit more to see if it is even necessary...
         setup();        
@@ -156,10 +155,7 @@ public class RVOModel extends SimState {
      * resets all the values to the initial values. this is just to be safe.
      */
     public void setup() {
-        if(dataTracker!=null){
-            dataTracker.storeToFile();
-            dataTracker =null;
-        }
+       
         rvoSpace = null;
         agentList = new ArrayList<RVOAgent>();
         //obstacleList = new ArrayList<RVOObstacle>();
@@ -231,14 +227,7 @@ public class RVOModel extends SimState {
         generatorStopper = schedule.scheduleRepeating(tempAgentLine, 1, (double) frequency);
     }
     
-    public static void main(String[] args) {
-        // Read tutorial 2 of mason to see what this does.. or refer to documentation of this function
 
-        PropertySet.initializeProperties();
-        
-        doLoop(RVOModel.class, args);
-        System.exit(0);
-    }
 
     /**
      * Initialize data from the XML file specified
@@ -392,5 +381,29 @@ public class RVOModel extends SimState {
             Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);
         }
         this.scheduleAgents();
+    }
+
+    DataTracker getDataTracker() {
+        return this.dataTracker;
+    }
+    
+    @Override
+    public void finish(){
+        System.out.println("Finishing");
+         if(dataTracker!=null){
+            dataTracker.storeToFile();
+            dataTracker =null;
+        }
+    }
+    
+        public static void main(String[] args) {
+        // Read tutorial 2 of mason to see what this does.. or refer to documentation of this function
+        
+            System.out.println("Vaisagh");
+        PropertySet.initializeProperties();
+        
+        doLoop(RVOModel.class, args);
+        
+        System.exit(0);
     }
 }

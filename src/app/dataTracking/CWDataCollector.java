@@ -16,10 +16,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.vecmath.Vector2d;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
@@ -51,7 +49,6 @@ public class CWDataCollector implements DataTracker {
     private final XYSeries energySeries;
     private final XYSeries distanceSeries;
     private final JFreeChart chart;
-    private final JFrame frame;
     private final XYSeries inconvenienceSeries;
 
     public CWDataCollector(RVOModel model, Collection<? extends RVOAgent> agents) {
@@ -90,16 +87,6 @@ public class CWDataCollector implements DataTracker {
                 true, // Use tooltips
                 false // Configure chart to generate URLs?
                 );
-
-
-        JPanel chartPanel = new ChartPanel(chart);
-        frame = new JFrame("CW2011 chart");
-        frame.add(chartPanel);
-
-        frame.setVisible(true);
-        frame.setLocation(50, 50);
-        frame.setSize(500, 500);
-        frame.validate();
 
     }
 
@@ -165,9 +152,7 @@ public class CWDataCollector implements DataTracker {
 
     @Override
     public void storeToFile() {
-        if (frame != null) {
-            frame.dispose();
-        }
+ 
         LocalDate date = new LocalDate();
         LocalTime time = new LocalTime();
 
@@ -238,5 +223,18 @@ public class CWDataCollector implements DataTracker {
             writer.println();
         }
         writer.close();
+    }
+
+    @Override
+    public boolean hasChart() {
+        if(this.chart!=null){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public JFreeChart getChart() {
+        return this.chart;
     }
 }

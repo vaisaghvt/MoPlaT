@@ -1,0 +1,2 @@
+FilePath ClusteringTest/3.xml ClusteringTest/2.xml ClusteringTest/4.xml ClusteringTest/5.xml ClusteringTest/6.xml ClusteringTest/7.xml
+UseClustering false true

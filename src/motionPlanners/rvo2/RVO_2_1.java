@@ -46,7 +46,7 @@ public class RVO_2_1 implements VelocityCalculator {
      * its velocities. Must be positive.
      */
     public static double TIME_HORIZON_OBSTACLE;
-   
+
     /* Search for the best new velocity. */
     public RVO_2_1() {
         super();
@@ -64,7 +64,7 @@ public class RVO_2_1 implements VelocityCalculator {
 //        preferredVelocity.normalize();
         orcaLines.clear();
 
-        
+
 
         TreeMap<Double, RVO2Obstacle> obses = new TreeMap<Double, RVO2Obstacle>();
         for (Object tempObject : obstacleBag) {
@@ -245,9 +245,9 @@ public class RVO_2_1 implements VelocityCalculator {
                 }
 
                 obstacle1 = obstacle2;
-         
+
 //                final double LEG2 = ((distSq2 - radiusSq) < 0) ? 0 : Math.sqrt(distSq2 - radiusSq);
-                 final double LEG2 = Math.sqrt(Math.abs(distSq2 - radiusSq));
+                final double LEG2 = Math.sqrt(Math.abs(distSq2 - radiusSq));
                 leftLegDirection = new Vector2d(relativePosition2.getX() * LEG2 - relativePosition2.getY() * me.getRadius(), relativePosition2.getX() * me.getRadius() + relativePosition2.getY() * LEG2);
                 rightLegDirection = new Vector2d(relativePosition2.getX() * LEG2 + relativePosition2.getY() * me.getRadius(), negRelativePosition2.getX() * me.getRadius() + relativePosition2.getY() * LEG2);
                 leftLegDirection.scale(1.0f / distSq2);
@@ -613,7 +613,7 @@ public class RVO_2_1 implements VelocityCalculator {
 
     }
 
-      boolean linearProgram1(List<Line> lines, int lineNo, double radius, Vector2d optVelocity, boolean directionOpt, Vector2d result) {
+    boolean linearProgram1(List<Line> lines, int lineNo, double radius, Vector2d optVelocity, boolean directionOpt, Vector2d result) {
 
 
         Vector2d lineNoPoint = new Vector2d(lines.get(lineNo).point);
@@ -653,8 +653,7 @@ public class RVO_2_1 implements VelocityCalculator {
             }
 
             final double t = numerator / denominator;
-            if (Double.compare(
-                    denominator, -Geometry.EPSILON) >= 0) {
+            if (denominator >= 0) {
                 /* Line i bounds line lineNo on the right. */
                 tRight = Math.min(tRight, t);
             } else {
@@ -686,7 +685,7 @@ public class RVO_2_1 implements VelocityCalculator {
             tempOptVector.sub(lineNoPoint);
             final double t = lineNoDirection.dot(tempOptVector);
             Vector2d tempLineNoDirection = new Vector2d(lineNoDirection);
-            if (Double.compare(t,tLeft) < 0) {
+            if (Double.compare(t, tLeft) < 0) {
                 tempLineNoDirection.scale(tLeft);
             } else if (Double.compare(t, tRight) > 0) {
                 tempLineNoDirection.scale(tRight);
@@ -710,7 +709,7 @@ public class RVO_2_1 implements VelocityCalculator {
              * Optimize direction. Note that the optimization velocity is of unit
              * length in this case.
              */
-            if(Double.compare(Math.abs(optVelocity.length()-1),Geometry.EPSILON)>0){
+            if (Double.compare(Math.abs(optVelocity.length() - 1), Geometry.EPSILON) > 0) {
                 System.out.println("what?? how??");
             }
             Vector2d tempOpt = new Vector2d(optVelocity);
@@ -739,7 +738,7 @@ public class RVO_2_1 implements VelocityCalculator {
 
 
             if (Double.compare(
-                    Geometry.det(lines.get(i).direction, tempPoint), -Geometry.EPSILON) > 0) {
+                    Geometry.det(lines.get(i).direction, tempPoint), 0) > 0) {
                 /* Result does not satisfy constraint i. Compute new optimal result. */
                 Vector2d tempResult = new Vector2d(result);
                 if (!linearProgram1(lines, i, radius, optVelocity, directionOpt, result)) {

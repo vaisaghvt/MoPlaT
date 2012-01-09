@@ -4,6 +4,7 @@
  */
 package app.dataTracking;
 
+import org.jfree.chart.JFreeChart;
 import sim.engine.Steppable;
 
 /**
@@ -15,4 +16,8 @@ public interface DataTracker extends Steppable{
     public void storeToFile(); 
     
     public String trackerType();
+
+    public boolean hasChart();
+    
+    public JFreeChart getChart();
 }

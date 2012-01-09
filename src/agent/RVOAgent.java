@@ -422,6 +422,14 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                 }
                 else{
                     //default as towards the goal
+                   
+                   /**
+                    * Very slight perturbation of velocity to remove deadlock problems of perfect symmetry
+                    */
+                    prefVelocity.x+= Math.random()*0.000000001;
+                    prefVelocity.y+= Math.random()*0.000000001;
+                
+ 
                     Vector2d tempVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
                             prefVelocity, PropertySet.TIMESTEP);
                     chosenVelocity = new PrecisePoint(tempVelocity.getX(), tempVelocity.getY());

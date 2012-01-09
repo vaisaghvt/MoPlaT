@@ -8,7 +8,8 @@ import agent.clustering.ClusteredSpace;
 import app.PropertySet.Model;
 import java.awt.Color;
 import javax.swing.JFrame;
-import motionPlanners.socialforce.SocialForce;
+import javax.swing.JPanel;
+import org.jfree.chart.ChartPanel;
 import sim.display.Controller;
 import sim.display.Display2D;
 import sim.display.GUIState;
@@ -68,13 +69,13 @@ public class RVOGui extends GUIState {
         geographyPortrayal = new ContinuousPortrayal2D();
         checkBoardPortrayal = new ObjectGridPortrayal2D();
         agentPortrayal = new ContinuousPortrayal2D();
-       
+
 
         if (PropertySet.LATTICEMODEL) {
             latticeGasPortrayal = new FastValueGridPortrayal2D();
         }
-        
-        if(PropertySet.MODEL == Model.SocialForce) {
+
+        if (PropertySet.MODEL == Model.SocialForce) {
             socialForcePortrayal = new FastValueGridPortrayal2D();
         }
 
@@ -116,7 +117,7 @@ public class RVOGui extends GUIState {
                 clusteredPortrayal[j].setField(((ClusteredSpace) model.getRvoSpace()).getClusteredSpace(j));
             }
         }
-        
+
 //        if(PropertySet.MODEL == Model.SocialForce) {
 //            socialForcePortrayal.setField(SocialForce.forceGrid);
 //            socialForcePortrayal.setMap(new sim.util.gui.SimpleColorMap(
@@ -128,6 +129,23 @@ public class RVOGui extends GUIState {
     public void start() {
         super.start();
         setupPortrayals();
+        
+        if (PropertySet.TRACK_DATA) {
+            if (model.getDataTracker().hasChart()) {
+
+                JPanel chartPanel = new ChartPanel(model.getDataTracker().getChart());
+                JFrame frame = new JFrame("CW2011 chart");
+                frame.add(chartPanel);
+                // perhaps you might move the chart to where you like.
+                frame.setTitle(model.getDataTracker().trackerType());
+
+                frame.setVisible(true);
+                frame.setLocation(50, 50);
+                frame.setSize(500, 500);
+                this.controller.registerFrame(frame);
+            }
+        }
+        
         display.reset();
         display.repaint();
     }
@@ -176,10 +194,8 @@ public class RVOGui extends GUIState {
 
 
         }
+
         
-//        if(PropertySet.MODEL == Model.SocialForce){
-//            display.attach(socialForcePortrayal, "social force portrayal");
-//        }
 
         // specify the backdrop color  -- what gets painted behind the displays
         display.setBackdrop(new Color(220, 220, 220));
