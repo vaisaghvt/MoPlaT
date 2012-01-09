@@ -71,8 +71,8 @@
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="4.48" x="-500"/>
-        <position y="4.48" x="18.22"/>
+        <goal y="4.88" x="-500"/>
+        <position y="4.88" x="18.22"/>
         <id>11</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
