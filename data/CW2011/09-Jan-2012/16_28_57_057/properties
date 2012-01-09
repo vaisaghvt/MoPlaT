@@ -1,5 +1,5 @@
-Properties File =xml-resources/CrowdProperties/CW2011PaperSettings.xml
-Scenario File =xml-resources/scenarios/ClusteringTest/3.xml
+Properties File =xml-resources\CrowdProperties\CW2011PaperSettings.xml
+Scenario File =xml-resources\scenarios\ClusteringTest/3.xml
 Model used = RVO2
 ******Summary of main points*******
 Seed =10
