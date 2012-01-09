@@ -33,6 +33,7 @@ END {
 		for(j=1;j<=NR;j++){
 			value[j] = completeValuesList[startingPoint[j]+indices[j]]
 		 	command = "overwrite " xmlFile " xmlParser " model[j] " " value[j] " " xmlFile
+		 	# print command
 		 	system(command)		
 		}
 		testCommand = "grep FilePath " xmlFile;
@@ -43,7 +44,7 @@ END {
         c |getline runTime;
         close(c)
 
-		javaCommand = "java -cp dist/CrowdSimulation.jar app.RVOModel -for " runTime
+		javaCommand = "java -cp dist/CrowdSimulation.jar app.RVOModel -time 50 -for " runTime
 		print javaCommand
 		system(javaCommand)
 		for(j=NR;j>=1;j--){

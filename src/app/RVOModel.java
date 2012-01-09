@@ -389,7 +389,6 @@ public class RVOModel extends SimState {
     
     @Override
     public void finish(){
-        System.out.println("Finishing");
          if(dataTracker!=null){
             dataTracker.storeToFile();
             dataTracker =null;
@@ -399,7 +398,6 @@ public class RVOModel extends SimState {
         public static void main(String[] args) {
         // Read tutorial 2 of mason to see what this does.. or refer to documentation of this function
         
-            System.out.println("Vaisagh");
         PropertySet.initializeProperties();
         
         doLoop(RVOModel.class, args);
