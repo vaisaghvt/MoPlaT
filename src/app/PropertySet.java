@@ -34,9 +34,9 @@ public class PropertySet {
         RVO2, PatternBasedMotion, RVO1Standard, RVO1Acceleration, RuleBasedNew, SocialForce
     }
     //TODO : Be careful  about this seed... need to change for random simulation
-    public static final String XML_SOURCE_FOLDER = "xml-resources"+File.separatorChar+"scenarios"+File.separatorChar;
-    public static String PROPERTIES_FILEPATH = XML_SOURCE_FOLDER + "CrowdProperties"+File.separatorChar+
-            "CW2011PaperSettings.xml";
+    public static String XML_SOURCE_FOLDER = "xml-resources"+File.separatorChar;
+    public static String PROPERTIES_FILEPATH;
+   
     public static long SEED;
     public static int WORLDXSIZE;
     public static int WORLDYSIZE;
@@ -101,6 +101,9 @@ public class PropertySet {
     }
     
     static void initializeProperties() {
+        PROPERTIES_FILEPATH = XML_SOURCE_FOLDER + "CrowdProperties"+File.separatorChar+
+            "CW2011PaperSettings.xml";
+        XML_SOURCE_FOLDER  = XML_SOURCE_FOLDER +"scenarios"+File.separatorChar;
         try {
             XMLScenarioManager settings = XMLScenarioManager.instance("app.params");
             SimulationParameters params = (SimulationParameters) settings.unmarshal(PropertySet.PROPERTIES_FILEPATH);

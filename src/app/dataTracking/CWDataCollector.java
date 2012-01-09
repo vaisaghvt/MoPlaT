@@ -188,7 +188,7 @@ public class CWDataCollector implements DataTracker {
 
 
                 writeToFileAgentNumberList(currentFolder + "Speed", speedListForAgent);
-                writeToFileAgentNumberList(currentFolder + "Time", cumulativeDistanceForAgent);
+                writeToFileAgentNumberList(currentFolder + "Distance", cumulativeDistanceForAgent);
                 writeToFileAgentNumberList(currentFolder + "Energy", energySpentByAgent);
                 writeToFileAgentNumberList(currentFolder + "Inconveniences", this.inconveniencesForAgent);
 
