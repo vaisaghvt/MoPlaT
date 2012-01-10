@@ -50,6 +50,7 @@ public class CWDataCollector implements DataTracker {
     private final XYSeries distanceSeries;
     private final JFreeChart chart;
     private final XYSeries inconvenienceSeries;
+    private final static int NUMBER_OF_DATA_TO_COLLECT=5;
 
     public CWDataCollector(RVOModel model, Collection<? extends RVOAgent> agents) {
         stepNumber = 0;
@@ -215,10 +216,17 @@ public class CWDataCollector implements DataTracker {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        
         for (RVOAgent agent : dataForAgent.keySet()) {
+            int writeTime = dataForAgent.get(agent).size()/NUMBER_OF_DATA_TO_COLLECT;
             writer.print("Agent " + agent.getId());
+            int i=1;
             for (E element : dataForAgent.get(agent)) {
-                writer.print("\t" + element);
+                if(i%(writeTime)==0){
+       
+                    writer.print("\t" + element);
+                }
+                i++;
             }
             writer.println();
         }

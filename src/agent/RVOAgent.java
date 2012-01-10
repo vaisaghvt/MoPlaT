@@ -388,6 +388,9 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                     determineInitialLists(sortedList, sensedNeighbours);
                     sensedNeighbours.clear();
                     sensedNeighbours.addAll(sortedList);
+                    if(RVOAgent.this.id ==0)
+
+                        System.out.println();
                 }
             
                if(PropertySet.MODEL == PropertySet.Model.PatternBasedMotion){
@@ -429,7 +432,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                     prefVelocity.x+= Math.random()*0.000000001;
                     prefVelocity.y+= Math.random()*0.000000001;
                 
- 
+ if(id==0){
+     System.out.println();
+ }
+                    
                     Vector2d tempVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
                             prefVelocity, PropertySet.TIMESTEP);
                     chosenVelocity = new PrecisePoint(tempVelocity.getX(), tempVelocity.getY());
@@ -440,8 +446,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 
         private void determineInitialLists(List<RVOAgent> sortedList, Bag sensedNeighbours) {
             List<Double> distanceScoreList = new ArrayList<Double>();
-            for (int i = 0; i < sensedNeighbours.size(); i++) {
-                RVOAgent tempAgent = (RVOAgent) sensedNeighbours.get(i);
+            for (Object temp: sensedNeighbours) {
+               RVOAgent tempAgent = (RVOAgent) temp;
                 Vector2d distanceVector = new Vector2d(tempAgent.getCurrentPosition());
                 distanceVector.sub(RVOAgent.this.getCurrentPosition());
 
@@ -454,8 +460,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 //                        }
                 for (; j < distanceScoreList.size(); j++) {
 
-                    if (tempAgent.getCurrentPosition().equals( // don't sense the same element
-                            RVOAgent.this.getCurrentPosition())
+                    if (tempAgent.equals( // don't sense the same element
+                            RVOAgent.this)
                             || (tempAgent.getCurrentPosition().equals(
                             sortedList.get(j).getCurrentPosition())
                             && tempAgent.getRadius() == sortedList.get(j).getRadius())) {
