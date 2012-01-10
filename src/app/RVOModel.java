@@ -269,6 +269,9 @@ public class RVOModel extends SimState {
                             new Point2d(tempAgent.getGoal().getX(), tempAgent.getGoal().getY()),
                             rvoSpace,
                             Color.red);
+                    if(tempRVOAgent.getId()==0){
+                        tempRVOAgent.setColor(Color.BLACK);
+                    }
                     
                     tempRVOAgent.setPreferredSpeed(tempAgent.getPreferedSpeed());
                     tempRVOAgent.setMaximumSpeed(tempAgent.getPreferedSpeed() * 2.0);

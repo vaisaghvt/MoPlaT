@@ -268,7 +268,7 @@ public final class ClusteredSpace extends RVOSpace {
 
                     if (simpleAddPossible) {
                         bestCluster.simplyAddAgent(agent);
-                        bestCluster.updateVelocity();
+                        bestCluster.updateVelocityAndMass();
                         added = true;
                         simpleAddPossible = false;
 
@@ -337,7 +337,7 @@ public final class ClusteredSpace extends RVOSpace {
                             bestCluster.simplyAddAgent(agent);
                             bestCluster.setRadius(newRadius);
                             bestCluster.setCurrentPosition(newX, newY);
-                            bestCluster.updateVelocity();
+                            bestCluster.updateVelocityAndMass();
                             added = true;
                         }
                     }

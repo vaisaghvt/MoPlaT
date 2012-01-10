@@ -98,13 +98,15 @@ public class ClusteredAgent extends RVOAgent {
         agents.add(agent);
     }
 
-    void updateVelocity() {
+    void updateVelocityAndMass() {
         Vector2d tempVelocity = new Vector2d(0, 0);
+        mass=0.0;
         for (RVOAgent tempAgent : agents) {
-
+            mass+=tempAgent.getMass();
             tempVelocity.add(tempAgent.getVelocity());
         }
-
+        mass/=agents.size();
         tempVelocity.scale(1.0 / (double) agents.size());
+        this.velocity= new PrecisePoint(tempVelocity.x, tempVelocity.y);
     }
 }
