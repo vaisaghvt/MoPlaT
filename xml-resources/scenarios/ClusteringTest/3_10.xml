@@ -1,169 +1,169 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<SimulationScenario xmlns="http://geography.environment" logUsed="true" displayUsed="true" scale="50" Ysize="10" Xsize="30" name="ClusteringTest3" timeneeded="250">
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" displayUsed="true" scale="50" Ysize="8" Xsize="20" name="ClusteringTest3" timeneeded="250">
     <crowd>
-        <goal y="5.02" x="29.02"/>
-        <position y="5.0" x="10.98"/>
+        <goal y="4.02" x="29.02"/>
+        <position y="4.0" x="10.98"/>
         <id>1</id>
         <preferedSpeed>1.3</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="2.98" x="-500"/>
-        <position y="3.02" x="18.98"/>
+        <goal y="1.98" x="-500"/>
+        <position y="2.02" x="18.98"/>
         <id>2</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="3.5" x="-500"/>
-        <position y="3.5" x="18.98"/>
+        <goal y="2.5" x="-500"/>
+        <position y="2.5" x="18.98"/>
         <id>3</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="3.22" x="-500"/>
-        <position y="3.26" x="18.56"/>
+        <goal y="2.22" x="-500"/>
+        <position y="2.26" x="18.56"/>
         <id>4</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="3.66" x="-500"/>
-        <position y="3.7" x="18.64"/>
+        <goal y="2.66" x="-500"/>
+        <position y="2.7" x="18.64"/>
         <id>5</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="4.0" x="-500"/>
-        <position y="4.0" x="18.96"/>
+        <goal y="3.0" x="-500"/>
+        <position y="3.0" x="18.96"/>
         <id>6</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="4.4" x="-500"/>
-        <position y="4.44" x="18.66"/>
+        <goal y="3.4" x="-500"/>
+        <position y="3.4" x="18.66"/>
         <id>7</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="4.66" x="-500"/>
-        <position y="4.68" x="19.4"/>
+        <goal y="3.66" x="-500"/>
+        <position y="3.68" x="19.4"/>
         <id>8</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="4.08" x="-500"/>
-        <position y="4.08" x="18.1"/>
+        <goal y="3.08" x="-500"/>
+        <position y="3.08" x="18.1"/>
         <id>9</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="4.88" x="-500"/>
-        <position y="4.88" x="18.9"/>
+        <goal y="3.88" x="-500"/>
+        <position y="3.88" x="18.9"/>
         <id>10</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="4.88" x="-500"/>
-        <position y="4.88" x="18.22"/>
+        <goal y="3.88" x="-500"/>
+        <position y="3.88" x="18.22"/>
         <id>11</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="4.82" x="-500"/>
-        <position y="4.82" x="17.84"/>
+        <goal y="3.82" x="-500"/>
+        <position y="3.82" x="17.84"/>
         <id>12</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="3.46" x="-500"/>
-        <position y="3.48" x="18.02"/>
+        <goal y="2.46" x="-500"/>
+        <position y="2.48" x="18.02"/>
         <id>13</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="5.6" x="-500"/>
-        <position y="5.56" x="18.54"/>
+        <goal y="4.6" x="-500"/>
+        <position y="4.56" x="18.54"/>
         <id>14</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="5.1" x="-500"/>
-        <position y="5.14" x="18.48"/>
+        <goal y="4.1" x="-500"/>
+        <position y="4.14" x="18.48"/>
         <id>15</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="5.86" x="-500"/>
-        <position y="5.88" x="18.62"/>
+        <goal y="4.86" x="-500"/>
+        <position y="4.88" x="18.62"/>
         <id>16</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="6.4" x="-500"/>
-        <position y="6.4" x="18.82"/>
+        <goal y="5.4" x="-500"/>
+        <position y="5.4" x="18.82"/>
         <id>17</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="6.18" x="-500"/>
-        <position y="6.2" x="18.4"/>
+        <goal y="5.18" x="-500"/>
+        <position y="5.2" x="18.4"/>
         <id>18</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="5.7" x="-500"/>
-        <position y="5.72" x="18.02"/>
+        <goal y="4.7" x="-500"/>
+        <position y="4.72" x="18.02"/>
         <id>19</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="5.3" x="-500"/>
-        <position y="5.3" x="17.98"/>
+        <goal y="4.3" x="-500"/>
+        <position y="4.3" x="17.98"/>
         <id>20</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="4.22" x="-500"/>
-        <position y="4.22" x="17.56"/>
+        <goal y="3.22" x="-500"/>
+        <position y="3.22" x="17.56"/>
         <id>21</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="3.12" x="-500"/>
-        <position y="3.14" x="17.6"/>
+        <goal y="2.12" x="-500"/>
+        <position y="2.14" x="17.6"/>
         <id>22</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="6.48" x="-500"/>
-        <position y="6.5" x="18.18"/>
+        <goal y="5.48" x="-500"/>
+        <position y="5.5" x="18.18"/>
         <id>23</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="6.74" x="-500"/>
-        <position y="6.76" x="18.56"/>
+        <goal y="5.74" x="-500"/>
+        <position y="5.76" x="18.56"/>
         <id>24</id>
         <preferedSpeed>1.0</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>

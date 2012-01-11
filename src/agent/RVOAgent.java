@@ -612,7 +612,12 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public class MyProxy {
 
         public Vector2d getVelocity() {
-            return velocity.toVector();
+            if(velocity!=null){
+                return velocity.toVector();
+            }else {
+                return new Vector2d();
+            }
+            
         }
 
         public Vector2d getPrefVelocity() {

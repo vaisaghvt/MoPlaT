@@ -556,15 +556,17 @@ public class SocialForce implements VelocityCalculator {
 //        double Xmax = PropertySet.WORLDXSIZE+5;         // Maximum x point of terrain (+5 is for buffer zone)
 //        double Ymin = -10;                              // Minimum y point of terrain
 //        double Ymax = PropertySet.WORLDYSIZE+5;         // Maximum y point of terrain
-
+         double Vxwall=0;
+        double Vywall=0; 
+if(!obses.isEmpty()){
         double[] Fwi = averageSurroundForce(Pxi, Pyi, Xmax, Ymax, N0x, N0y, Fw, Fwx, Fwy);
         double fiwx = Fwi[0];
         double fiwy = Fwi[1];
 //        System.out.println(fiwx);
 //        System.out.println(fiwy);
-        double Vxwall = (fiwx) / Mi * timeStep;
-        double Vywall = (fiwy) / Mi * timeStep;
-
+        Vxwall = (fiwx) / Mi * timeStep;
+        Vywall = (fiwy) / Mi * timeStep;
+}
 //        System.out.println("fijx: " + fijx);
 //        System.out.println("fijy: " + fijy);
 //        System.out.println("fiwx: " + fiwx);

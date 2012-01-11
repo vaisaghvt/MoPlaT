@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<SimulationScenario xmlns="http://geography.environment" logUsed="true" displayUsed="true" scale="50" Ysize="10" Xsize="30" name="ClusteringTest2" timeneeded="250">
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" displayUsed="true" scale="50" Ysize="6" Xsize="26" name="ClusteringTest2" timeneeded="250">
     <crowd>
         <goal y="3.8" x="29.68"/>
         <position y="5.0" x="0.38"/>
