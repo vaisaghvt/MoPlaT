@@ -352,14 +352,9 @@ public final class ClusteredSpace extends RVOSpace {
                                 agent, calculateMaxClusterRadiusForRegion(layer));
 
                         tempClusterList.add(tempCluster);
-
                     }
-
                     added = false;
-
                 }
-
-
 
                 for (ClusteredAgent currentCluster : tempClusterList) {
                     boolean toBeDeleted = false;
@@ -367,7 +362,6 @@ public final class ClusteredSpace extends RVOSpace {
 
                     // add all clusters to the list that haven't been deleted
                     if (!toBeDeleted) {
-
                         updatePositionOnMap(currentCluster, layer);
                     } else {
                         /*Add the agents as individual entities if they are actually to be deleted. 
