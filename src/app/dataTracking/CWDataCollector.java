@@ -15,7 +15,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import javax.swing.JFrame;
 import javax.vecmath.Vector2d;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
@@ -27,6 +26,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import sim.engine.SimState;
 import utility.Geometry;
+import utility.PrecisePoint;
 
 /**
  *
@@ -38,6 +38,8 @@ public class CWDataCollector implements DataTracker {
     private HashMap<RVOAgent, ArrayList<Double>> cumulativeDistanceForAgent;
     private HashMap<RVOAgent, ArrayList<Double>> energySpentByAgent;
     private HashMap<RVOAgent, ArrayList<Integer>> inconveniencesForAgent;
+    private HashMap<RVOAgent, PrecisePoint> startPositionForAgent;
+    private HashMap<RVOAgent, Double> displacementToGoalForAgent;
     private final RVOModel model;
     private int stepNumber;
     public static final float E_S = 2.23f;
@@ -46,11 +48,12 @@ public class CWDataCollector implements DataTracker {
     private ArrayList<Double> totalEnergyList;
     private ArrayList<Double> totalDistanceList;
     private ArrayList<Integer> totalInconvenienceList;
+    
     private final XYSeries energySeries;
     private final XYSeries distanceSeries;
     private final JFreeChart chart;
     private final XYSeries inconvenienceSeries;
-    private final static int NUMBER_OF_DATA_TO_COLLECT=5;
+    private final static int NUMBER_OF_DATA_TO_COLLECT=1;
 
     public CWDataCollector(RVOModel model, Collection<? extends RVOAgent> agents) {
         stepNumber = 0;
@@ -60,6 +63,8 @@ public class CWDataCollector implements DataTracker {
         speedListForAgent = new HashMap<RVOAgent, ArrayList<Double>>();
         cumulativeDistanceForAgent = new HashMap<RVOAgent, ArrayList<Double>>();
         inconveniencesForAgent = new HashMap<RVOAgent, ArrayList<Integer>>();
+        startPositionForAgent = new HashMap<RVOAgent, PrecisePoint> ();
+        displacementToGoalForAgent = new HashMap<RVOAgent, Double> ();
 
         totalDistanceList = new ArrayList<Double>();
         totalEnergyList = new ArrayList<Double>();
@@ -69,6 +74,7 @@ public class CWDataCollector implements DataTracker {
             speedListForAgent.put(agent, new ArrayList<Double>());
             energySpentByAgent.put(agent, new ArrayList<Double>());
             inconveniencesForAgent.put(agent, new ArrayList<Integer>());
+            startPositionForAgent.put(agent, new PrecisePoint(agent.getCurrentPosition().x, agent.getCurrentPosition().y));
         }
 
         energySeries = new XYSeries("EnergyGraph");
@@ -112,8 +118,19 @@ public class CWDataCollector implements DataTracker {
             if (stepNumber > 0) {
                 energySoFar = energySpentByAgent.get(agent).get(stepNumber - 1);
             }
-            energySpentByAgent.get(agent).add(energySoFar + energyInCurrentTimeStep);
+            energySpentByAgent.get(agent).add((energySoFar + energyInCurrentTimeStep));
             totalEnergy += energyInCurrentTimeStep;
+            
+            Vector2d distanceToGoalVector = new Vector2d(startPositionForAgent.get(agent).toVector());
+            distanceToGoalVector.sub(agent.getGoal());
+            Vector2d vectorToCurrentPosition = new Vector2d(startPositionForAgent.get(agent).toVector());
+            vectorToCurrentPosition.sub(agent.getCurrentPosition());
+            double displacementToGoal = vectorToCurrentPosition.dot(distanceToGoalVector);
+            displacementToGoalForAgent.put(agent, displacementToGoal);
+            
+            
+            
+            
 
             Vector2d relativeVelocity = new Vector2d(agent.getPrefVelocity());
             relativeVelocity.sub(agent.getVelocity());
@@ -187,6 +204,11 @@ public class CWDataCollector implements DataTracker {
             if (directory.exists()) {
                 currentFolder = currentFolder + timeString + File.separatorChar;
 
+                for (RVOAgent agent : energySpentByAgent.keySet()) {
+                    double energy = energySpentByAgent.get(agent).get(energySpentByAgent.get(agent).size()-1)/displacementToGoalForAgent.get(agent);
+                    energySpentByAgent.get(agent).remove(energySpentByAgent.get(agent).size()-1);
+                    energySpentByAgent.get(agent).add(energy);
+                }
 
                 writeToFileAgentNumberList(currentFolder + "Speed", speedListForAgent);
                 writeToFileAgentNumberList(currentFolder + "Distance", cumulativeDistanceForAgent);
@@ -196,12 +218,12 @@ public class CWDataCollector implements DataTracker {
 
                 PropertySet.writePropertiesToFile(currentFolder + "properties");
 
-                try {
-                    ChartUtilities.saveChartAsJPEG(new File(currentFolder + "chart.jpg"), chart, 500,
-                            300);
-                } catch (IOException e) {
-                    System.err.println("Problem occurred creating chart.");
-                }
+//                try {
+//                    ChartUtilities.saveChartAsJPEG(new File(currentFolder + "chart.jpg"), chart, 500,
+//                            300);
+//                } catch (IOException e) {
+//                    System.err.println("Problem occurred creating chart.");
+//                }
             }
         }
 
@@ -222,8 +244,8 @@ public class CWDataCollector implements DataTracker {
             writer.print("Agent " + agent.getId());
             int i=1;
             for (E element : dataForAgent.get(agent)) {
-                if(i%(writeTime)==0){
-       
+                if(i%(writeTime)==0){       
+                    
                     writer.print("\t" + element);
                 }
                 i++;
