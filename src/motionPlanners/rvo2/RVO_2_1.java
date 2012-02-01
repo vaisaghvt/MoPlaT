@@ -381,6 +381,7 @@ public class RVO_2_1 implements VelocityCalculator {
                 unitW.scale(me.getRadius());
                 unitW.add(RIGHTCUTOFF);
                 line.point = new Point2d(unitW);
+                orcaLines.add(line);
                 continue;
 
             }
