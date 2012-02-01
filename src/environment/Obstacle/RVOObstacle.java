@@ -35,6 +35,10 @@ public class RVOObstacle extends ObstaclePortrayal {
     public ArrayList<Point2d> getVertices() {
         return vertices;
     }
+    
+    public void setVertices(ArrayList<Point2d> vertices) {
+        this.vertices = new ArrayList<Point2d> (vertices);
+    }
 
     public void addVertex(Point2d vertex) {
         vertices.add(vertex);

@@ -87,29 +87,29 @@ public class LatticeSpace {
     public void addObstacle(Obstacle tempObst) {
 
 
-        double maxx = Double.MIN_VALUE, maxy = Double.MIN_VALUE, minx = Double.MAX_VALUE, miny = Double.MAX_VALUE;
+
         for (int i = 0; i < tempObst.getVertices().size(); i++) {
             Position currentVertex = tempObst.getVertices().get(i);
             Position nextVertex = tempObst.getVertices().get((i + 1) % tempObst.getVertices().size());
-          
+
             int x1 = (int) Math.floor(currentVertex.getX() / LATTICEGRIDSIZE);
             int x2 = (int) Math.floor(nextVertex.getX() / LATTICEGRIDSIZE);
             int y1 = (int) Math.floor(currentVertex.getY() / LATTICEGRIDSIZE);
             int y2 = (int) Math.floor(nextVertex.getY() / LATTICEGRIDSIZE);
-            
-            assert(x1==x2)||(y1==y2);
+
+            assert (x1 == x2) || (y1 == y2);
 
             if (x1 == x2) {
                 int k = x1;
-                int startY = Math.min(y1,y2);
-                int endY = Math.max(y1,y2);
+                int startY = Math.min(y1, y2);
+                int endY = Math.max(y1, y2);
                 for (int j = startY; j <= endY; j++) {
                     space.set(k, j, 2);
                 }
             } else {
                 int j = y1;
-                int startX = Math.min(x1,x2);
-                int endX = Math.max(x1,x2);
+                int startX = Math.min(x1, x2);
+                int endX = Math.max(x1, x2);
                 for (int k = startX; k <= endX; k++) {
                     space.set(k, j, 2);
                 }
@@ -118,7 +118,7 @@ public class LatticeSpace {
 
     }
 
-    public IntGrid2D getSpace() {
+    public Object getSpace() {
         return space;
     }
 
@@ -184,8 +184,8 @@ public class LatticeSpace {
 
         @Override
         public void step(SimState ss) {
-            assert DRIFT >=0;
-            
+            assert DRIFT >= 0;
+
 
             int[][] previousField = new int[space.field.length][space.field[0].length];
             for (int i = 0; i < space.field.length; i++) {
@@ -197,7 +197,7 @@ public class LatticeSpace {
             int myDirectionX = 0, myDirectionY = 0;
             int goalYCenter;
             int goalXCenter;
-            
+
 
 
 
@@ -205,10 +205,10 @@ public class LatticeSpace {
                 for (int j = 0; j < space.field[0].length; j++) {
                     // Traverse through lattice
 
-                    if (    (j == 0 && directionY == -1)
-                            || (j==space.getHeight()-1 && directionY == 1)
-                            || (i==0 && directionX == -1)
-                            || (j==space.getWidth()-1 && directionX ==1)) {
+                    if ((j == 0 && directionY == -1)
+                            || (j == space.getHeight() - 1 && directionY == 1)
+                            || (i == 0 && directionX == -1)
+                            || (j == space.getWidth() - 1 && directionX == 1)) {
                         // Goal reached
                         space.set(i, j, 0);
                     } else if (previousField[i][j] == 2) {
@@ -221,7 +221,7 @@ public class LatticeSpace {
                             //if it has already been set to be an agent then let it be an agent.
                             /* TODO: It is interesting to note that this whole algo 
                             is very likely to get totally messed up when the orientation of the space is changed 
-                            * because i sort of assume that it is processed form left to right*/
+                             * because i sort of assume that it is processed form left to right*/
                             continue;
                         }
 
@@ -286,7 +286,7 @@ public class LatticeSpace {
                         if (goalXStart == goalXEnd) {
                             //vertical Goal line
                             myDirectionX = myDirectionY = 0;
-                          
+
                             if (goalXStart > i) {//goalx is on the right
                                 myDirectionX = 1;
                             } else if (goalXStart < i) {
@@ -296,7 +296,7 @@ public class LatticeSpace {
 //                                myDirectionY = 0;
 //                                goalY = j;
 //                            } else {
-                      
+
 
                             if (goalYCenter > j) {//goaly is below the current position
                                 myDirectionY = 1;
@@ -398,13 +398,13 @@ public class LatticeSpace {
 
                                         double p = random.nextDouble();
 
-                                        if (p > (1.0-((1.0 - DRIFT) / 3.0))) {
+                                        if (p > (1.0 - ((1.0 - DRIFT) / 3.0))) {
                                             //negative Y direction
                                             space.set(i, j - myDirectionY, 1); // move it forward
                                             space.set(i, j, 0); // set the current space to 0
 
 
-                                        } else if (p < (( (1.0 - DRIFT) / 3.0) + driftX)) {
+                                        } else if (p < (((1.0 - DRIFT) / 3.0) + driftX)) {
                                             //positive Y direction
                                             space.set(i, j + myDirectionY, 1); // move it forward
                                             space.set(i, j, 0); // set the current space to 0
@@ -420,8 +420,8 @@ public class LatticeSpace {
                             }
                         } else {
 
-                            myDirectionY = myDirectionX =0;
-                           
+                            myDirectionY = myDirectionX = 0;
+
                             if (goalYStart > j) {//goalx is on the right
 
                                 myDirectionY = 1;
@@ -436,7 +436,7 @@ public class LatticeSpace {
 //
 //                            } else {
 
-                       
+
 //                                System.out.println(goalXCenter);
                             if (goalXCenter > i) {
                                 myDirectionX = 1;
@@ -555,7 +555,7 @@ public class LatticeSpace {
 
                                         double p = random.nextDouble();
 
-                                        if (p > (1.0- ((1.0 - DRIFT) / 3.0))) {
+                                        if (p > (1.0 - ((1.0 - DRIFT) / 3.0))) {
                                             //negative X direction
                                             space.set(i - myDirectionX, j, 1); // move it left
                                             space.set(i, j, 0); // set the current space to 0

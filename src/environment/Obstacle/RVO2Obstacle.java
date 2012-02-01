@@ -25,7 +25,7 @@ import sim.portrayal.DrawInfo2D;
  */
 public class RVO2Obstacle extends RVOObstacle{
 
-    boolean isConvex;
+    boolean convex;
     Point2d point;
 
 
@@ -36,17 +36,13 @@ public class RVO2Obstacle extends RVOObstacle{
          point = new Point2d();
      }
 
-    public RVO2Obstacle(boolean isConvex, Point2d point) {
-        this.isConvex = isConvex;
-        this.point = point;
-    }
 
     public boolean isConvex() {
-        return isConvex;
+        return convex;
     }
 
-    public void setIsConvex(boolean isConvex) {
-        this.isConvex = isConvex;
+    public void setConvex(boolean isConvex) {
+        this.convex = isConvex;
     }
 
     public Point2d getPoint() {

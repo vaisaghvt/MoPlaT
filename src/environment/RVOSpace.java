@@ -9,6 +9,7 @@ import environment.Obstacle.RVO2Obstacle;
 import environment.Obstacle.RVOObstacle;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
@@ -87,7 +88,8 @@ public class RVOSpace {
 
             RVO2Obstacle rvo2Obstacle;
 
-         for (int i = 0; i < obstacle.getVertices().size(); i++) {
+            obstacle.setVertices(makeRightOrder(obstacle.getVertices()));
+            for (int i = 0; i < obstacle.getVertices().size(); i++) {
                 rvo2Obstacle = new RVO2Obstacle();
                 rvo2Obstacle.setPoint(obstacle.getVertices().get(i));
                 obstacles.add(rvo2Obstacle);
@@ -104,12 +106,15 @@ public class RVOSpace {
                 } else {
                     obstacles.get(i).setNext(obstacles.get(i + 1));
                 }
-               // System.out.println(obstacles.get(i).getPoint());
+                // System.out.println(obstacles.get(i).getPoint());
                 if (obstacle.getVertices().size() == 2) {
-                    obstacles.get(i).setIsConvex(true);
+                    obstacles.get(i).setConvex(true);
                 } else {
-                    obstacles.get(i).setIsConvex(Geometry.leftOf(obstacles.get(i).getPrev().getPoint(), obstacles.get(i).getPoint(), obstacles.get(i).getNext().getPoint()));
-                    
+                    obstacles.get(i).setConvex(
+                            Geometry.leftOf(obstacles.get(i).getPrev().getPoint(),
+                            obstacles.get(i).getPoint(),
+                            obstacles.get(i).getNext().getPoint()));
+
                 }
                 this.obstacleList.add(obstacles.get(i));
                 obstacleSpace.setObjectLocation(obstacles.get(i), new Double2D(
@@ -117,15 +122,14 @@ public class RVOSpace {
                         obstacles.get(i).getPoint().getY()));
             }
 
-        } 
-            
-    else {
-            for(Point2d vertex: obstacle.getVertices())
-            obstacleSpace.setObjectLocation(
-                    obstacle,
-                    new Double2D(
+        } else {
+            for (Point2d vertex : obstacle.getVertices()) {
+                obstacleSpace.setObjectLocation(
+                        obstacle,
+                        new Double2D(
                         vertex.getX(),
                         vertex.getY()));
+            }
         }
 
 
@@ -139,7 +143,7 @@ public class RVOSpace {
 
     public Bag senseNeighbours(RVOAgent me) {
         double sensorRange = RVOAgent.SENSOR_RANGE;
-        Bag neighbours= findNeighbours(me.getCurrentPosition(), sensorRange * me.getRadius());
+        Bag neighbours = findNeighbours(me.getCurrentPosition(), sensorRange * me.getRadius());
 //        Vector2d unitAgentDirection =  new Vector2d(me.getPrefVelocity());
 //        unitAgentDirection.normalize();
 //        for(int i=0;i<neighbours.size();i++){
@@ -158,7 +162,7 @@ public class RVOSpace {
 //            neighbours= findNeighbours(me.getCurrentPosition(), sensorRange * me.getRadius());
 //        }
         return neighbours;
-        
+
     }
 
     public Bag findNeighbours(Double2D currentPosition, double radius) {
@@ -182,8 +186,6 @@ public class RVOSpace {
         return neighbours;
     }
 
-   
-
     public void addRoadMap(List<Point2d> actualRoadMap) {
         this.roadMap = actualRoadMap;
     }
@@ -198,25 +200,25 @@ public class RVOSpace {
 
     public Vector2d determinePrefVelocity(RVOAgent agent) {
         Vector2d result = null;
-        
+
         for (int i = roadMap.size() - 1; i >= 0; i--) {
             Point2d currentGoal = roadMap.get(i);
             Vector2d agentUnitVelocity = new Vector2d(agent.getVelocity());
-            if(agent.getVelocity().getX()!=0.0f
-                    || agent.getVelocity().getY()!=0.0f){
+            if (agent.getVelocity().getX() != 0.0f
+                    || agent.getVelocity().getY() != 0.0f) {
                 agentUnitVelocity.normalize();
             }
             Point2d agentTopPosition = new Point2d();
-            agentTopPosition.setX(agent.getCurrentPosition().getX()-agentUnitVelocity.getY()*RVOAgent.RADIUS);
-            agentTopPosition.setY(agent.getCurrentPosition().getY()+agentUnitVelocity.getX()*RVOAgent.RADIUS);
-            
+            agentTopPosition.setX(agent.getCurrentPosition().getX() - agentUnitVelocity.getY() * RVOAgent.RADIUS);
+            agentTopPosition.setY(agent.getCurrentPosition().getY() + agentUnitVelocity.getX() * RVOAgent.RADIUS);
+
             Point2d agentBottomPosition = new Point2d();
-            agentBottomPosition.setX(agent.getCurrentPosition().getX()+agentUnitVelocity.getY()*RVOAgent.RADIUS);
-            agentBottomPosition.setY(agent.getCurrentPosition().getY()-agentUnitVelocity.getX()*RVOAgent.RADIUS);
-         
+            agentBottomPosition.setX(agent.getCurrentPosition().getX() + agentUnitVelocity.getY() * RVOAgent.RADIUS);
+            agentBottomPosition.setY(agent.getCurrentPosition().getY() - agentUnitVelocity.getX() * RVOAgent.RADIUS);
+
             if (visibleFrom(currentGoal, agentTopPosition)
-                    &&visibleFrom(currentGoal, agentBottomPosition)) {
-                PrecisePoint cleanCurrentGoal = new PrecisePoint(currentGoal.getX(),currentGoal.getY());
+                    && visibleFrom(currentGoal, agentBottomPosition)) {
+                PrecisePoint cleanCurrentGoal = new PrecisePoint(currentGoal.getX(), currentGoal.getY());
                 result = new Vector2d(cleanCurrentGoal.toVector());
                 result.sub(agent.getCurrentPosition());
                 result.normalize();
@@ -226,7 +228,7 @@ public class RVOSpace {
         }
 
         if (result == null) {
-            result = new Vector2d(0,0);
+            result = new Vector2d(0, 0);
         }
         return result;
     }
@@ -242,6 +244,31 @@ public class RVOSpace {
         }
         return true;
     }
-
-   
+    
+    private ArrayList<Point2d> makeRightOrder(ArrayList<Point2d> points){
+        
+        int sum =0;
+        for(int i=0;i< points.size();i++){
+            Point2d currentPoint = points.get(i);
+            Point2d nextPoint = points.get((i+1)%points.size());
+            double x1 = currentPoint.getX();
+            double x2 = nextPoint.getX();
+            double y1 = currentPoint.getY();
+            double y2 = nextPoint.getY();
+            sum+= ( x2-x1) * (y2+y1);
+            
+        }
+        System.out.println(sum);
+        if(sum<0){
+         
+            return points;
+        }else {
+         
+            Collections.reverse(points);
+            return points;
+            
+        }
+        
+        
+    }
 }
