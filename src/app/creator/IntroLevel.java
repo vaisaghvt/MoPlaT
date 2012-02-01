@@ -50,6 +50,7 @@ class IntroLevel extends CreatorLevel {
         descriptionArea.repaint();
         
         frame.repaint();
+        frame.validate();
     }
 
     @Override

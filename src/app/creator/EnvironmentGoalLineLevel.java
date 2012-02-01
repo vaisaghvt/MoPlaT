@@ -211,6 +211,6 @@ public class EnvironmentGoalLineLevel extends CreatorLevel implements MouseListe
 
     @Override
     public String getName() {
-        return "Checkpoint Adder Level";
+        return "Goal Line Adder Level";
     }
 }

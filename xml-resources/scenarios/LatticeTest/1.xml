@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="true" displayUsed="true" direction="3" scale="50" Ysize="9" Xsize="9" name="LatticeTest">
+    <roadMap y="3.74" x="4.18"/>
+    <roadMap y="1.98" x="4.18"/>
+    <roadMap y="-10.22" x="4.18"/>
+    <obstacles>
+        <vertices y="3.08" x="1.32"/>
+        <vertices y="7.92" x="1.32"/>
+        <vertices y="7.92" x="7.92"/>
+        <vertices y="3.08" x="7.92"/>
+        <vertices y="3.08" x="4.84"/>
+        <vertices y="2.2" x="4.84"/>
+        <vertices y="2.2" x="8.8"/>
+        <vertices y="8.8" x="8.8"/>
+        <vertices y="8.8" x="0.44"/>
+        <vertices y="2.2" x="0.44"/>
+        <vertices y="2.2" x="3.52"/>
+        <vertices y="3.08" x="3.52"/>
+    </obstacles>
+     <environmentGoals>
+        <endPoint y="0.0" x="8.8"/>
+        <startPoint y="0.0" x="0.44"/>
+    </environmentGoals>
+    <environmentGoals>
+        <endPoint y="2.2" x="4.84"/>
+        <startPoint y="2.2" x="3.52"/>
+    </environmentGoals>
+    <environmentGoals>
+        <endPoint y="3.08" x="4.84"/>
+        <startPoint y="3.08" x="3.52"/>
+    </environmentGoals>
+    <agentGroups>
+        <endPoint y="7.48" x="7.48"/>
+        <startPoint y="6.6" x="1.76"/>
+        <size>10</size>
+        <minSpeed>1.0</minSpeed>
+        <maxSpeed>2.6</maxSpeed>
+        <meanSpeed>1.8</meanSpeed>
+        <sDevSpeed>0.0</sDevSpeed>
+    </agentGroups>
+</SimulationScenario>

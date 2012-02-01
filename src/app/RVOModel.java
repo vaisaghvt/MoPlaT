@@ -308,6 +308,7 @@ public class RVOModel extends SimState {
                 List<Point2d> actualRoadMap = new ArrayList<Point2d>();
                 for (Position point : xmlRoadMap) {
                     actualRoadMap.add(new Point2d(point.getX(), point.getY()));
+                  
                 }
                 rvoSpace.addRoadMap(actualRoadMap);
             }

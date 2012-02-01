@@ -102,7 +102,7 @@ public class PropertySet {
     
     static void initializeProperties() {
         PROPERTIES_FILEPATH = XML_SOURCE_FOLDER + "CrowdProperties"+File.separatorChar+
-            "CW2011PaperSettings.xml";
+            "LatticeTestSettings.xml";
         XML_SOURCE_FOLDER  = XML_SOURCE_FOLDER +"scenarios"+File.separatorChar;
         try {
             XMLScenarioManager settings = XMLScenarioManager.instance("app.params");
