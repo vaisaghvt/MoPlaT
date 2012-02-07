@@ -82,8 +82,8 @@ public class RVOModel extends SimState {
                 XMLScenarioManager settings = XMLScenarioManager.instance("environment.geography");
                 SimulationScenario scenario = (SimulationScenario) settings.unmarshal(PropertySet.FILEPATH);
                 RVOGui.scale = scenario.getScale();
-                worldXSize = SocialForce.worldXSize = RVOGui.checkSizeX = scenario.getXsize();
-                worldYSize = SocialForce.worldYSize = RVOGui.checkSizeY = scenario.getYsize();
+                worldXSize = SocialForce.Xmax = RVOGui.checkSizeX = scenario.getXsize();
+                worldYSize = SocialForce.Ymax = RVOGui.checkSizeY = scenario.getYsize();
             } catch (JAXBException ex) {
                 Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);
             }

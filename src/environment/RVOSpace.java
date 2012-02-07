@@ -258,7 +258,7 @@ public class RVOSpace {
             sum+= ( x2-x1) * (y2+y1);
             
         }
-        System.out.println(sum);
+//        System.out.println(sum);
         if(sum<0){
          
             return points;

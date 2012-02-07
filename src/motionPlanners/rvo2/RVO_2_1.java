@@ -93,10 +93,12 @@ public class RVO_2_1 implements VelocityCalculator {
             RVO2Obstacle obstacle1 = obstacleFromList;
             RVO2Obstacle obstacle2 = obstacle1.getNext();
 //            System.out.println(obstacle1.getPoint());
+            assert !obstacle1.getNext().getPoint().equals(obstacle1.getPoint());
             Vector2d obstacle1UnitDir = new Vector2d(obstacle1.getNext().getPoint());
             obstacle1UnitDir.sub(obstacle1.getPoint());
             obstacle1UnitDir.normalize();
-
+assert !Double.isNaN(
+                        obstacle1UnitDir.y) && !Double.isInfinite(obstacle1UnitDir.y);
             Vector2d obstacle2UnitDir = new Vector2d(obstacle2.getNext().getPoint());
             obstacle2UnitDir.sub(obstacle2.getPoint());
             obstacle2UnitDir.normalize();
@@ -171,7 +173,14 @@ public class RVO_2_1 implements VelocityCalculator {
                     line.direction = new Vector2d(-relativePosition1.y, relativePosition1.x);
                     line.direction.normalize();
                     orcaLines.add(line);
-
+                    assert !Double.isNaN(
+                            line.direction.y) && !Double.isInfinite(line.direction.y);
+                    assert !Double.isNaN(
+                            line.direction.x) && !Double.isInfinite(line.direction.x);
+                    assert !Double.isNaN(
+                            line.point.y) && !Double.isInfinite(line.point.y);
+                    assert !Double.isNaN(
+                            line.point.x) && !Double.isInfinite(line.point.x);
 
                     continue;
                 }
@@ -189,7 +198,14 @@ public class RVO_2_1 implements VelocityCalculator {
                     line.direction = new Vector2d(-relativePosition2.y, relativePosition2.x);
                     line.direction.normalize();
                     orcaLines.add(line);
-
+                    assert !Double.isNaN(
+                            line.direction.y) && !Double.isInfinite(line.direction.y);
+                    assert !Double.isNaN(
+                            line.direction.x) && !Double.isInfinite(line.direction.x);
+                    assert !Double.isNaN(
+                            line.point.y) && !Double.isInfinite(line.point.y);
+                    assert !Double.isNaN(
+                            line.point.x) && !Double.isInfinite(line.point.x);
 
                     continue;
 
@@ -206,6 +222,14 @@ public class RVO_2_1 implements VelocityCalculator {
                 line.direction.negate();
 
                 orcaLines.add(line);
+                assert !Double.isNaN(
+                        line.direction.y) && !Double.isInfinite(line.direction.y);
+                assert !Double.isNaN(
+                        line.direction.x) && !Double.isInfinite(line.direction.x);
+                assert !Double.isNaN(
+                        line.point.y) && !Double.isInfinite(line.point.y);
+                assert !Double.isNaN(
+                        line.point.x) && !Double.isInfinite(line.point.x);
                 continue;
             }
             /*No collision
@@ -273,11 +297,14 @@ public class RVO_2_1 implements VelocityCalculator {
                     final double LEG2 = Math.sqrt(Math.abs(distSq2 - radiusSq));
                     rightLegDirection = new Vector2d(relativePosition2.getX() * LEG2 + relativePosition2.getY() * me.getRadius(), negRelativePosition2.getX() * me.getRadius() + relativePosition2.getY() * LEG2);
                     rightLegDirection.scale(1.0f / distSq2);
+                    assert !Double.isNaN(
+                        rightLegDirection.y) && !Double.isInfinite(rightLegDirection.y);
                 } else {
                     /* Right vertex non-convex; right LEG extends cut-off line. */
                     rightLegDirection = new Vector2d(obstacle1UnitDir);
 
-
+assert !Double.isNaN(
+                        rightLegDirection.y) && !Double.isInfinite(rightLegDirection.y);
 
                 }
             }
@@ -319,6 +346,8 @@ public class RVO_2_1 implements VelocityCalculator {
                 /* Right LEG points into obstacle. */
 //                System.out.println("right leg into obstacle");
                 rightLegDirection = new Vector2d(obstacle2UnitDir);
+                assert !Double.isNaN(
+                        rightLegDirection.y) && !Double.isInfinite(rightLegDirection.y);
                 isRightLegForeign = true;
             }
 
@@ -369,6 +398,14 @@ public class RVO_2_1 implements VelocityCalculator {
                 unitW.add(LEFTCUTOFF);
                 line.point = new Point2d(unitW);
                 orcaLines.add(line);
+                assert !Double.isNaN(
+                        line.direction.y) && !Double.isInfinite(line.direction.y);
+                assert !Double.isNaN(
+                        line.direction.x) && !Double.isInfinite(line.direction.x);
+                assert !Double.isNaN(
+                        line.point.y) && !Double.isInfinite(line.point.y);
+                assert !Double.isNaN(
+                        line.point.x) && !Double.isInfinite(line.point.x);
                 continue;
             } else if (T > 1.0f && TRIGHT < 0.0f) {
                 /* Project on right cut-off circle. */
@@ -382,6 +419,14 @@ public class RVO_2_1 implements VelocityCalculator {
                 unitW.add(RIGHTCUTOFF);
                 line.point = new Point2d(unitW);
                 orcaLines.add(line);
+                assert !Double.isNaN(
+                        line.direction.y) && !Double.isInfinite(line.direction.y);
+                assert !Double.isNaN(
+                        line.direction.x) && !Double.isInfinite(line.direction.x);
+                assert !Double.isNaN(
+                        line.point.y) && !Double.isInfinite(line.point.y);
+                assert !Double.isNaN(
+                        line.point.x) && !Double.isInfinite(line.point.x);
                 continue;
 
             }
@@ -431,6 +476,14 @@ public class RVO_2_1 implements VelocityCalculator {
                 vectorForPoint.add(LEFTCUTOFF);
                 line.point = new Point2d(vectorForPoint);
                 orcaLines.add(line);
+                assert !Double.isNaN(
+                        line.direction.y) && !Double.isInfinite(line.direction.y);
+                assert !Double.isNaN(
+                        line.direction.x) && !Double.isInfinite(line.direction.x);
+                assert !Double.isNaN(
+                        line.point.y) && !Double.isInfinite(line.point.y);
+                assert !Double.isNaN(
+                        line.point.x) && !Double.isInfinite(line.point.x);
                 continue;
 
             } else if (DISTSQLEFT <= DISTSQRIGHT) { /* Project on left LEG. */
@@ -449,6 +502,14 @@ public class RVO_2_1 implements VelocityCalculator {
                 vectorForPoint.add(LEFTCUTOFF);
                 line.point = new Point2d(vectorForPoint);
                 orcaLines.add(line);
+                assert !Double.isNaN(
+                        line.direction.y) && !Double.isInfinite(line.direction.y);
+                assert !Double.isNaN(
+                        line.direction.x) && !Double.isInfinite(line.direction.x);
+                assert !Double.isNaN(
+                        line.point.y) && !Double.isInfinite(line.point.y);
+                assert !Double.isNaN(
+                        line.point.x) && !Double.isInfinite(line.point.x);
                 continue;
             } else { /* Project on right LEG. */
 
@@ -457,7 +518,8 @@ public class RVO_2_1 implements VelocityCalculator {
                     continue;
                 }
 
-
+                assert !Double.isNaN(
+                        rightLegDirection.y) && !Double.isInfinite(rightLegDirection.y);
 
                 line.direction = new Vector2d(rightLegDirection);
                 line.direction.negate();
@@ -468,6 +530,14 @@ public class RVO_2_1 implements VelocityCalculator {
                 vectorForPoint.add(RIGHTCUTOFF);
                 line.point = new Point2d(vectorForPoint);
                 orcaLines.add(line);
+                assert !Double.isNaN(
+                        line.direction.y) && !Double.isInfinite(line.direction.y);
+                assert !Double.isNaN(
+                        line.direction.x) && !Double.isInfinite(line.direction.x);
+                assert !Double.isNaN(
+                        line.point.y) && !Double.isInfinite(line.point.y);
+                assert !Double.isNaN(
+                        line.point.x) && !Double.isInfinite(line.point.x);
                 continue;
             }
 
@@ -582,6 +652,14 @@ public class RVO_2_1 implements VelocityCalculator {
             line.point = new Point2d(newU);
 
             orcaLines.add(line);
+            assert !Double.isNaN(
+                    line.direction.y) && !Double.isInfinite(line.direction.y);
+            assert !Double.isNaN(
+                    line.direction.x) && !Double.isInfinite(line.direction.x);
+            assert !Double.isNaN(
+                    line.point.y) && !Double.isInfinite(line.point.y);
+            assert !Double.isNaN(
+                    line.point.x) && !Double.isInfinite(line.point.x);
 
 
 
@@ -593,6 +671,16 @@ public class RVO_2_1 implements VelocityCalculator {
         if (lineFail < orcaLines.size()) {
             linearProgram3(orcaLines, numObstLines, lineFail, me.getMaxSpeed(), newVelocity);
         }
+
+        if (Double.isNaN(
+                newVelocity.x) || Double.isInfinite(newVelocity.x)) {
+            System.out.println(orcaLines.size());
+        }
+
+        assert !Double.isNaN(
+                newVelocity.x) && !Double.isInfinite(newVelocity.x);
+        assert !Double.isNaN(
+                newVelocity.y) && !Double.isInfinite(newVelocity.y);
         return newVelocity;
 
     }
@@ -620,6 +708,10 @@ public class RVO_2_1 implements VelocityCalculator {
         Vector2d lineNoPoint = new Vector2d(lines.get(lineNo).point);
         Vector2d lineNoDirection = new Vector2d(lines.get(lineNo).direction);
         double dotProduct = lineNoPoint.dot(lineNoDirection);
+        assert !Double.isNaN(
+                lineNoDirection.y) && !Double.isInfinite(lineNoDirection.y);
+        assert !Double.isNaN(
+                lineNoPoint.x) && !Double.isInfinite(lineNoPoint.x);
 
         //   final double detProduct = det(lines.get(lineNo).direction, lineNoPoint);
         //final double detProduct2 = lineNoPoint.dot(lineNoPoint);
@@ -636,6 +728,7 @@ public class RVO_2_1 implements VelocityCalculator {
 
         for (int i = 0; i < lineNo; ++i) {
             final double denominator = Geometry.det(lineNoDirection, lines.get(i).direction);
+
             Vector2d tempVector = new Vector2d(lineNoPoint);
             tempVector.sub(new Vector2d(lines.get(i).point));
             final double numerator = Geometry.det(lines.get(i).direction, tempVector);
@@ -680,11 +773,35 @@ public class RVO_2_1 implements VelocityCalculator {
             tempLineNoDirection.add(new Vector2d(lineNoPoint));
             result.x = tempLineNoDirection.x;
             result.y = tempLineNoDirection.y;
+            assert !Double.isNaN(
+                    result.x) && !Double.isInfinite(result.x);
+            assert !Double.isNaN(
+                    result.y) && !Double.isInfinite(result.y);
         } else {
             /* Optimize closest point. */
+
+            assert !Double.isNaN(
+                    optVelocity.x) && !Double.isInfinite(optVelocity.x);
+            assert !Double.isNaN(
+                    optVelocity.y) && !Double.isInfinite(optVelocity.y);
+            assert !Double.isNaN(
+                    lineNoDirection.x) && !Double.isInfinite(lineNoDirection.x);
+            assert !Double.isNaN(
+                    lineNoDirection.y) && !Double.isInfinite(lineNoDirection.y);
+            assert !Double.isNaN(
+                    lineNoPoint.x) && !Double.isInfinite(lineNoPoint.x);
+            assert !Double.isNaN(
+                    lineNoPoint.y) && !Double.isInfinite(lineNoPoint.y);
             Vector2d tempOptVector = new Vector2d(optVelocity);
             tempOptVector.sub(lineNoPoint);
             final double t = lineNoDirection.dot(tempOptVector);
+
+
+            assert !Double.isNaN(t) && !Double.isInfinite(t);
+            assert !Double.isNaN(tLeft) && !Double.isInfinite(tLeft);
+            assert !Double.isNaN(tRight) && !Double.isInfinite(tRight);
+
+
             Vector2d tempLineNoDirection = new Vector2d(lineNoDirection);
             if (Double.compare(t, tLeft) < 0) {
                 tempLineNoDirection.scale(tLeft);
@@ -696,6 +813,10 @@ public class RVO_2_1 implements VelocityCalculator {
             tempLineNoDirection.add(new Vector2d(lineNoPoint));
             result.x = tempLineNoDirection.x;
             result.y = tempLineNoDirection.y;
+            assert !Double.isNaN(
+                    result.x) && !Double.isInfinite(result.x);
+            assert !Double.isNaN(
+                    result.y) && !Double.isInfinite(result.y);
 
         }
 
@@ -718,18 +839,31 @@ public class RVO_2_1 implements VelocityCalculator {
             result.x = tempOpt.x;
             result.y = tempOpt.y;
             result.scale(radius);
+            assert !Double.isNaN(
+                    result.x) && !Double.isInfinite(result.x);
+            assert !Double.isNaN(
+                    result.y) && !Double.isInfinite(result.y);
         } else if (optVelocity.dot(optVelocity) > Math.pow(radius, 2.0f)) {
             /* Optimize closest point and outside circle. */
 
             result.x = optVelocity.x;
             result.y = optVelocity.y;
             result.normalize();//mhl: why normalize
+
             result.scale(radius);
+            assert !Double.isNaN(
+                    result.x) && !Double.isInfinite(result.x);
+            assert !Double.isNaN(
+                    result.y) && !Double.isInfinite(result.y);
         } else {
             /* Optimize closest point and inside circle. */
 
             result.x = optVelocity.x;
             result.y = optVelocity.y;
+            assert !Double.isNaN(
+                    result.x) && !Double.isInfinite(result.x);
+            assert !Double.isNaN(
+                    result.y) && !Double.isInfinite(result.y);
         }
 
         for (int i = 0; i < lines.size(); ++i) {
@@ -745,6 +879,10 @@ public class RVO_2_1 implements VelocityCalculator {
                 if (!linearProgram1(lines, i, radius, optVelocity, directionOpt, result)) {
                     result.x = tempResult.x;
                     result.y = tempResult.y;
+                    assert !Double.isNaN(
+                            result.x) && !Double.isInfinite(result.x);
+                    assert !Double.isNaN(
+                            result.y) && !Double.isInfinite(result.y);
                     return i;
                 }
             }

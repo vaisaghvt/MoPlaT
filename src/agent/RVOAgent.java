@@ -436,6 +436,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                     
                     Vector2d tempVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
                             prefVelocity, PropertySet.TIMESTEP);
+                    
                     chosenVelocity = new PrecisePoint(tempVelocity.getX(), tempVelocity.getY());
 
                }
