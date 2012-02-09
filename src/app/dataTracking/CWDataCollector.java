@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import javax.vecmath.Vector2d;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;

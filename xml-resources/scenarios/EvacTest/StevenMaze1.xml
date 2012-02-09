@@ -47,12 +47,12 @@
         <vertices x="21" y="15"/>
         <vertices x="24" y="15"/>
         <vertices x="24" y="19"/>
-        <vertices x="25" y="19"/>
+
     </obstacles> 
     <agentGroups>
         <startPoint x="26" y="1"/>
         <endPoint x="29" y="18"/>        
-        <size>1000</size>
+        <size>250</size>
         <minSpeed>0.5</minSpeed>
         <maxSpeed>1.5</maxSpeed>
         <meanSpeed>1.3</meanSpeed>

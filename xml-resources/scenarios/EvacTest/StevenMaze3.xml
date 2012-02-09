@@ -36,26 +36,26 @@
         <vertices y="6.15" x="20.7"/>
         <vertices y="12.3" x="20.7"/>
         <vertices y="12.3" x="18.5"/>
-        <vertices y="7.05" x="18.5"/>
+       
     </obstacles>
     <obstacles>
         <vertices y="11.0" x="17.15"/>
         <vertices y="15.4" x="17.15"/>
         <vertices y="15.4" x="15.85"/>
         <vertices y="11.0" x="15.85"/>
-        <vertices y="11.0" x="17.15"/>
+       
     </obstacles>
     <obstacles>
         <vertices y="11.0" x="22.45"/>
         <vertices y="15.4" x="22.45"/>
         <vertices y="15.4" x="24.2"/>
         <vertices y="11.0" x="24.2"/>
-        <vertices y="11.0" x="22.45"/>
+       
     </obstacles>
     <agentGroups>
         <endPoint y="25.82" x="33.92"/>
         <startPoint y="5.9" x="26.4"/>
-        <size>800</size>
+        <size>50</size>
         <minSpeed>1.0</minSpeed>
         <maxSpeed>2.0</maxSpeed>
         <meanSpeed>1.5</meanSpeed>

@@ -186,54 +186,8 @@ public class RVOSpace {
         return neighbours;
     }
 
-    public void addRoadMap(List<Point2d> actualRoadMap) {
-        this.roadMap = actualRoadMap;
-    }
-
-    public Point2d getFinalGoal() {
-        return roadMap.get(roadMap.size() - 1);
-    }
-
-    public boolean hasRoadMap() {
-        return !(roadMap == null);
-    }
-
-    public Vector2d determinePrefVelocity(RVOAgent agent) {
-        Vector2d result = null;
-
-        for (int i = roadMap.size() - 1; i >= 0; i--) {
-            Point2d currentGoal = roadMap.get(i);
-            Vector2d agentUnitVelocity = new Vector2d(agent.getVelocity());
-            if (agent.getVelocity().getX() != 0.0f
-                    || agent.getVelocity().getY() != 0.0f) {
-                agentUnitVelocity.normalize();
-            }
-            Point2d agentTopPosition = new Point2d();
-            agentTopPosition.setX(agent.getCurrentPosition().getX() - agentUnitVelocity.getY() * RVOAgent.RADIUS);
-            agentTopPosition.setY(agent.getCurrentPosition().getY() + agentUnitVelocity.getX() * RVOAgent.RADIUS);
-
-            Point2d agentBottomPosition = new Point2d();
-            agentBottomPosition.setX(agent.getCurrentPosition().getX() + agentUnitVelocity.getY() * RVOAgent.RADIUS);
-            agentBottomPosition.setY(agent.getCurrentPosition().getY() - agentUnitVelocity.getX() * RVOAgent.RADIUS);
-
-            if (visibleFrom(currentGoal, agentTopPosition)
-                    && visibleFrom(currentGoal, agentBottomPosition)) {
-                PrecisePoint cleanCurrentGoal = new PrecisePoint(currentGoal.getX(), currentGoal.getY());
-                result = new Vector2d(cleanCurrentGoal.toVector());
-                result.sub(agent.getCurrentPosition());
-                result.normalize();
-                agent.setCurrentGoal(currentGoal);
-                break;
-            }
-        }
-
-        if (result == null) {
-            result = new Vector2d(0, 0);
-        }
-        return result;
-    }
-
-    private boolean visibleFrom(Point2d goal, Point2d position) {
+   
+    public boolean visibleFrom(Point2d goal, Point2d position) {
         Point2d p1 = new Point2d(position.getX(), position.getY());
         Point2d p2 = new Point2d(goal.getX(), goal.getY());
         for (RVO2Obstacle obstacle : this.obstacleList) {

@@ -21,21 +21,21 @@
         <vertices y="25.1" x="15.85"/>
         <vertices y="25.1" x="1.75"/>
         <vertices y="4.4" x="1.75"/>
-        <vertices y="4.4" x="15.85"/>
+       
     </obstacles>
     <obstacles>
         <vertices y="11.9" x="17.6"/>
         <vertices y="18.05" x="17.6"/>
         <vertices y="18.05" x="19.35"/>
         <vertices y="11.9" x="19.35"/>
-        <vertices y="11.9" x="17.6"/>
+       
     </obstacles>
     <obstacles>
         <vertices y="11.9" x="10.6"/>
         <vertices y="18.05" x="10.6"/>
         <vertices y="18.05" x="12.35"/>
         <vertices y="11.9" x="12.35"/>
-        <vertices y="11.9" x="10.6"/>
+       
     </obstacles>
     <agentGroups>
         <endPoint y="23.3" x="31.71"/>

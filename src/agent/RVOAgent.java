@@ -46,9 +46,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public static double DEFAULT_PREFERRED_SPEED;
     public static int SENSOR_RANGE; //sensor range in proportion to agent radius
     public static int agentCount = 0; // number of agents
-    
- 
-
     protected int id;
     int currentGoal = 0;
     /**
@@ -69,7 +66,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      */
     protected PrecisePoint currentPosition;
     protected double mass = 70; // in KG
-    
     /**
      * Current velocity of the agent
      */
@@ -93,10 +89,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      * Environmental space of the agents, contains multiple MASON fields
      */
     protected RVOSpace mySpace;
-
     //@hunan: added for PBM only
     public boolean violateExpectancy;
-    
     /**
      * The motion planning system used by the agent, this can used any method
      * for motion planning that implements the VelocityCalculator interface
@@ -109,19 +103,22 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     private Act actAgent;
     private Point2d currentGoalPoint;
     private boolean dead = false;
+    private List<Point2d> roadMap;
 
     public RVOAgent(RVOSpace mySpace) {
         super(); //for portraying the trails on the agentportrayal layer
         this.mySpace = mySpace;
         currentPosition = new PrecisePoint();
         goal = new Point2d();
- 
+
         //@hunan: added for PBM only
         violateExpectancy = false;
-        
+
         //DEFAULT_PREFERRED_SPEED is the default value specified in 1.xml
         //the parameter value of preferredSpeed should be only set to this default value when it is not set with the value from the xml initialization file
-        if(preferredSpeed==0) preferredSpeed = RVOAgent.DEFAULT_PREFERRED_SPEED;
+        if (preferredSpeed == 0) {
+            preferredSpeed = RVOAgent.DEFAULT_PREFERRED_SPEED;
+        }
 
         if (PropertySet.MODEL == PropertySet.Model.RVO2) {
             velocityCalc = new RVO_2_1();
@@ -138,7 +135,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         }
         id = agentCount++;
     }
-    
+
     /*
      * Default constructor to create agents from XML file
      */
@@ -149,8 +146,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         this.goal = goal;
         findPrefVelocity();
     }
-    
-     /*
+
+    /*
      * The constructor to create agents from XML file for PBM Only!
      */
     public RVOAgent(Point2d startPosition, Point2d goal, RVOSpace mySpace, Color col, double prefSpd, int commitLevel) {
@@ -163,12 +160,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         this.goal = goal;
         findPrefVelocity();
         //set the initial velocity of each agent to its initial preferred velocity towards its goal
-        velocity = new PrecisePoint(prefVelocity.getX(),prefVelocity.getY());
+        velocity = new PrecisePoint(prefVelocity.getX(), prefVelocity.getY());
     }
-    
-    
-    
-        //@Should indicate, only called in VT's clusteredAgent
+
+    //@Should indicate, only called in VT's clusteredAgent
     public RVOAgent(RVOAgent otherAgent) {
         this(otherAgent.getMySpace());
         preferredSpeed = otherAgent.getPreferredSpeed();
@@ -180,9 +175,14 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         id = otherAgent.getId();
         agentCount--;
     }
-    
+
     public Point2d getGoal() {
-        return goal;
+        if (this.roadMap == null) {
+            return goal;
+        } else {
+            return this.getFinalGoal();
+    
+        }
     }
 
     public void setGoal(Point2d goal) {
@@ -245,8 +245,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      * @return new Preferred Velocity
      */
     public final Vector2d findPrefVelocity() {
-        if (mySpace.hasRoadMap()) {
-            prefVelocity = mySpace.determinePrefVelocity(this);
+        if (this.hasRoadMap()) {
+            prefVelocity = this.determinePrefVelocity(this);
             prefVelocity.scale(preferredSpeed);
         } else {
             prefVelocity = new Vector2d(goal);
@@ -279,7 +279,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      * @last modified by: hunan　at Dec 20th, 2011
      */
     public Point2d getNextPosition(int i) {
-        PrecisePoint predictPos = new PrecisePoint(this.getVelocity().getX(),this.getVelocity().getY());
+        PrecisePoint predictPos = new PrecisePoint(this.getVelocity().getX(), this.getVelocity().getY());
 //        Vector2d predictPos =new Vector2d(this.getVelocity().getX(),this.getVelocity().getY());
         predictPos.scale(i * PropertySet.TIMESTEP);
         predictPos.add(this.getCurrentPosition());
@@ -298,10 +298,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public String getName(LocationWrapper wrapper) {
         return "Agent " + id;
     }
-    
+
     @Override
-    public String toString(){
-        return "Agent" +id;
+    public String toString() {
+        return "Agent" + id;
     }
 
     public VelocityCalculator getRvoCalc() {
@@ -360,10 +360,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public void setMaximumSpeed(double maxSpeed) {
         this.maxSpeed = maxSpeed;
     }
-    
-    
- 
-    
 
     public class SenseThink implements Steppable {
 
@@ -388,65 +384,63 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                     determineInitialLists(sortedList, sensedNeighbours);
                     sensedNeighbours.clear();
                     sensedNeighbours.addAll(sortedList);
-               
+
                 }
-            
-               if(PropertySet.MODEL == PropertySet.Model.PatternBasedMotion){
-                   //use PBM to get the refined prefVel, which is expected to minimize collision
-                   prefVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
+
+                if (PropertySet.MODEL == PropertySet.Model.PatternBasedMotion) {
+                    //use PBM to get the refined prefVel, which is expected to minimize collision
+                    prefVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
                             prefVelocity, PropertySet.TIMESTEP);
 
 //                    use RVO2 as the motion adjustment mechanism to ensure collision free.
-                   VelocityCalculator velocityCalc2 = new RVO_2_1();
+                    VelocityCalculator velocityCalc2 = new RVO_2_1();
 
-                   Vector2d tempVelocity = velocityCalc2.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
+                    Vector2d tempVelocity = velocityCalc2.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
                             prefVelocity, PropertySet.TIMESTEP);
 
                     //Check expectancies according to the difference b/t prefVel and the actualVel (chosenVel)
-                   //the comparison of two vectors (velocities) depends both on direction and speed as follows
-                   Vector2d diff_V = new Vector2d(tempVelocity);
-                   diff_V.sub(prefVelocity);
-                   double diff_Speed = diff_V.length();
-                   double diff_Direction_cosine = Math.cos(tempVelocity.angle(prefVelocity));
+                    //the comparison of two vectors (velocities) depends both on direction and speed as follows
+                    Vector2d diff_V = new Vector2d(tempVelocity);
+                    diff_V.sub(prefVelocity);
+                    double diff_Speed = diff_V.length();
+                    double diff_Direction_cosine = Math.cos(tempVelocity.angle(prefVelocity));
 
-                   // To check whether the speed within variance of 0.2 and direction within angle of 10 degree
-                   if (diff_Speed <= 0.2 && diff_Direction_cosine >= Math.cos(10*Math.PI/180)) {
+                    // To check whether the speed within variance of 0.2 and direction within angle of 10 degree
+                    if (diff_Speed <= 0.2 && diff_Direction_cosine >= Math.cos(10 * Math.PI / 180)) {
                         //TODO: add in count to record the number of steps PBM gets good results for evaluation purpose later
-                       violateExpectancy = false;
+                        violateExpectancy = false;
+                    } else {
+                        //the actual vel violate the prefVel given by the Steering strategy
+                        violateExpectancy = true;
                     }
-                   else{
-                       //the actual vel violate the prefVel given by the Steering strategy
-                       violateExpectancy = true;
-                   }                
-                   chosenVelocity = new PrecisePoint(tempVelocity.getX(), tempVelocity.getY());
+                    chosenVelocity = new PrecisePoint(tempVelocity.getX(), tempVelocity.getY());
 //                   chosenVelocity = new PrecisePoint(prefVelocity.getX(), prefVelocity.getY());
-                }
-                else{
+                } else {
                     //default as towards the goal
-                   
-                   /**
-                    * Very slight perturbation of velocity to remove deadlock problems of perfect symmetry
-                    */
-                    prefVelocity.x+= Math.random()*0.000000001;
-                    prefVelocity.y+= Math.random()*0.000000001;
+
+                    /**
+                     * Very slight perturbation of velocity to remove deadlock problems of perfect symmetry
+                     */
+                    prefVelocity.x += Math.random() * 0.000000001;
+                    prefVelocity.y += Math.random() * 0.000000001;
 //                
 // if(id==0){
 //     System.out.println();
 // }
-                    
+
                     Vector2d tempVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
                             prefVelocity, PropertySet.TIMESTEP);
-                    
+
                     chosenVelocity = new PrecisePoint(tempVelocity.getX(), tempVelocity.getY());
 
-               }
+                }
             }//end of if(!dead)
         }//end of step(ss)
 
         private void determineInitialLists(List<RVOAgent> sortedList, Bag sensedNeighbours) {
             List<Double> distanceScoreList = new ArrayList<Double>();
-            for (Object temp: sensedNeighbours) {
-               RVOAgent tempAgent = (RVOAgent) temp;
+            for (Object temp : sensedNeighbours) {
+                RVOAgent tempAgent = (RVOAgent) temp;
                 Vector2d distanceVector = new Vector2d(tempAgent.getCurrentPosition());
                 distanceVector.sub(RVOAgent.this.getCurrentPosition());
 
@@ -577,7 +571,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         }
     }
 
-    
     /**
      * updates the actual position after calculation. The division of steps is to 
      * ensure that all agents update their positions and move simultaneously. 
@@ -598,7 +591,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 //                return;
 //            }
                 velocity = chosenVelocity;
-                
+
                 double currentPosition_x = (currentPosition.getX()
                         + velocity.getX() * PropertySet.TIMESTEP);
                 double currentPosition_y = (currentPosition.getY()
@@ -613,12 +606,12 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public class MyProxy {
 
         public Vector2d getVelocity() {
-            if(velocity!=null){
+            if (velocity != null) {
                 return velocity.toVector();
-            }else {
+            } else {
                 return new Vector2d();
             }
-            
+
         }
 
         public Vector2d getPrefVelocity() {
@@ -636,16 +629,14 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         public Point2d getCurrentGoal() {
             return currentGoalPoint;
         }
-        
+
         public double getPreferredSpeed() {
             return RVOAgent.this.preferredSpeed;
         }
-        
+
         public String getName() {
-            return "Agent "+RVOAgent.this.getId();
+            return "Agent " + RVOAgent.this.getId();
         }
-        
-      
     }
 
     @Override
@@ -669,6 +660,51 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         hash = 67 * hash + this.id;
         return hash;
     }
-    
-    
+
+    public void addRoadMap(List<Point2d> actualRoadMap) {
+        this.roadMap = actualRoadMap;
+    }
+
+    public Point2d getFinalGoal() {
+        return roadMap.get(roadMap.size() - 1);
+    }
+
+    public boolean hasRoadMap() {
+        return !(roadMap == null);
+    }
+
+    public Vector2d determinePrefVelocity(RVOAgent agent) {
+        Vector2d result = null;
+
+        for (int i = roadMap.size() - 1; i >= 0; i--) {
+            Point2d tempCurrentGoal = roadMap.get(i);
+            Vector2d agentUnitVelocity = new Vector2d(agent.getVelocity());
+            if (agent.getVelocity().getX() != 0.0f
+                    || agent.getVelocity().getY() != 0.0f) {
+                agentUnitVelocity.normalize();
+            }
+            Point2d agentTopPosition = new Point2d();
+            agentTopPosition.setX(agent.getCurrentPosition().getX() - agentUnitVelocity.getY() * RVOAgent.RADIUS);
+            agentTopPosition.setY(agent.getCurrentPosition().getY() + agentUnitVelocity.getX() * RVOAgent.RADIUS);
+
+            Point2d agentBottomPosition = new Point2d();
+            agentBottomPosition.setX(agent.getCurrentPosition().getX() + agentUnitVelocity.getY() * RVOAgent.RADIUS);
+            agentBottomPosition.setY(agent.getCurrentPosition().getY() - agentUnitVelocity.getX() * RVOAgent.RADIUS);
+
+            if (mySpace.visibleFrom(tempCurrentGoal, agentTopPosition)
+                    && mySpace.visibleFrom(tempCurrentGoal, agentBottomPosition)) {
+                PrecisePoint cleanCurrentGoal = new PrecisePoint(tempCurrentGoal.getX(), tempCurrentGoal.getY());
+                result = new Vector2d(cleanCurrentGoal.toVector());
+                result.sub(agent.getCurrentPosition());
+                result.normalize();
+                agent.setCurrentGoal(tempCurrentGoal);
+                break;
+            }
+        }
+
+        if (result == null) {
+            result = new Vector2d(0, 0);
+        }
+        return result;
+    }
 }
