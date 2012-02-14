@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="true" displayUsed="true" direction="5" scale="20" Ysize="30" Xsize="30" name="Scenario3">
+    <roadMap y="5.05" x="14.85"/>
+    <roadMap y="13.45" x="14.85"/>
+    <roadMap y="18.15" x="14.85"/>
+    <roadMap y="28.35" x="14.45"/>
+    <obstacles>
+        <vertices y="22.9" x="13.2"/>
+        <vertices y="18.9" x="13.2"/>
+        <vertices y="11.9" x="6.6"/>
+        <vertices y="12.75" x="5.7"/>
+        <vertices y="19.35" x="12.3"/>
+        <vertices y="22.9" x="12.3"/>
+    </obstacles>
+    <obstacles>
+        <vertices y="22.9" x="14.5"/>
+        <vertices y="18.9" x="14.5"/>
+        <vertices y="11.9" x="20.25"/>
+        <vertices y="12.75" x="21.1"/>
+        <vertices y="19.35" x="15.4"/>
+        <vertices y="22.9" x="15.4"/>
+    </obstacles>
+    <agentGroups>
+        <endPoint y="10.1" x="22.48"/>
+        <startPoint y="1.75" x="3.5"/>
+        <size>500</size>
+        <minSpeed>1.0</minSpeed>
+        <maxSpeed>2.0</maxSpeed>
+        <meanSpeed>1.5</meanSpeed>
+        <sDevSpeed>0.5</sDevSpeed>
+    </agentGroups>
+</SimulationScenario>

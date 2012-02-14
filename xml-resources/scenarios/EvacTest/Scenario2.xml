@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="true" displayUsed="true" direction="5" scale="20" Ysize="30" Xsize="30" name="Scenario2">
+    <roadMap y="9.9" x="13.85"/>
+    <roadMap y="7.3" x="13.85"/>
+    <roadMap y="7.25" x="8.1"/>
+    <roadMap y="4.65" x="8.1"/>
+    <roadMap y="1.55" x="13.9"/>
+    <obstacles>
+        <vertices y="8.8" x="10.1"/>
+        <vertices y="8.8" x="3.1"/>
+        <vertices y="25.5" x="3.1"/>
+        <vertices y="25.5" x="26.4"/>
+        <vertices y="8.8" x="26.4"/>
+        <vertices y="8.8" x="18.5"/>
+        <vertices y="7.9" x="18.5"/>
+        <vertices y="7.9" x="27.3"/>
+        <vertices y="26.4" x="27.3"/>
+        <vertices y="26.4" x="2.2"/>
+        <vertices y="7.9" x="2.2"/>
+        <vertices y="7.9" x="10.1"/>
+    </obstacles>
+    <obstacles>
+        <vertices y="6.6" x="9.25"/>
+        <vertices y="6.6" x="19.8"/>
+        <vertices y="5.7" x="19.8"/>
+        <vertices y="5.7" x="8.8"/>
+        <vertices y="6.6" x="8.8"/>
+    </obstacles>
+    <agentGroups>
+        <endPoint y="24.2" x="25.12"/>
+        <startPoint y="11.9" x="4.4"/>
+        <size>500</size>
+        <minSpeed>1.0</minSpeed>
+        <maxSpeed>2.0</maxSpeed>
+        <meanSpeed>1.5</meanSpeed>
+        <sDevSpeed>0.5</sDevSpeed>
+    </agentGroups>
+</SimulationScenario>
