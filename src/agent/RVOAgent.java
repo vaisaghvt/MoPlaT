@@ -13,6 +13,7 @@ package agent;
  * stored here.
  *
  */
+import com.google.common.collect.HashMultimap;
 import utility.PrecisePoint;
 import app.PropertySet;
 import environment.RVOSpace;
@@ -103,7 +104,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     private Act actAgent;
     private Point2d currentGoalPoint;
     private boolean dead = false;
-    private List<Point2d> roadMap;
+    private HashMultimap<Integer, Point2d> roadMap;
 
     public RVOAgent(RVOSpace mySpace) {
         super(); //for portraying the trails on the agentportrayal layer
@@ -181,7 +182,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             return goal;
         } else {
             return this.getFinalGoal();
-    
+
         }
     }
 
@@ -432,7 +433,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                             prefVelocity, PropertySet.TIMESTEP);
 
                     chosenVelocity = new PrecisePoint(tempVelocity.getX(), tempVelocity.getY());
-
+//System.out.println(chosenVelocity);
                 }
             }//end of if(!dead)
         }//end of step(ss)
@@ -661,12 +662,13 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         return hash;
     }
 
-    public void addRoadMap(List<Point2d> actualRoadMap) {
+    public void addRoadMap(HashMultimap<Integer, Point2d> actualRoadMap) {
         this.roadMap = actualRoadMap;
     }
 
     public Point2d getFinalGoal() {
-        return roadMap.get(roadMap.size() - 1);
+        assert roadMap.get(roadMap.keySet().size() - 1).size() == 1;
+        return roadMap.get(roadMap.keySet().size() - 1).iterator().next();
     }
 
     public boolean hasRoadMap() {
@@ -676,35 +678,48 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public Vector2d determinePrefVelocity(RVOAgent agent) {
         Vector2d result = null;
 
-        for (int i = roadMap.size() - 1; i >= 0; i--) {
-            Point2d tempCurrentGoal = roadMap.get(i);
-            Vector2d agentUnitVelocity = new Vector2d(agent.getVelocity());
-            if (agent.getVelocity().getX() != 0.0f
-                    || agent.getVelocity().getY() != 0.0f) {
-                agentUnitVelocity.normalize();
+
+        for (int i = roadMap.keySet().size() - 1; i >= 0; i--) {
+            double minDistance = Double.MAX_VALUE;
+            Point2d localCurrentGoal = null;
+            for (Point2d tempCurrentGoal : roadMap.get(i)) {
+
+                Vector2d agentUnitVelocity = new Vector2d(agent.getVelocity());
+                if (agent.getVelocity().getX() != 0.0f
+                        || agent.getVelocity().getY() != 0.0f) {
+                    agentUnitVelocity.normalize();
+                }
+                Point2d agentTopPosition = new Point2d();
+                agentTopPosition.setX(agent.getCurrentPosition().getX() - agentUnitVelocity.getY() * RVOAgent.RADIUS);
+                agentTopPosition.setY(agent.getCurrentPosition().getY() + agentUnitVelocity.getX() * RVOAgent.RADIUS);
+
+                Point2d agentBottomPosition = new Point2d();
+                agentBottomPosition.setX(agent.getCurrentPosition().getX() + agentUnitVelocity.getY() * RVOAgent.RADIUS);
+                agentBottomPosition.setY(agent.getCurrentPosition().getY() - agentUnitVelocity.getX() * RVOAgent.RADIUS);
+
+                if (mySpace.visibleFrom(tempCurrentGoal, agentTopPosition)
+                        && mySpace.visibleFrom(tempCurrentGoal, agentBottomPosition)) {
+                    if (agent.getCurrentPosition().distance(tempCurrentGoal) < minDistance) {
+                        minDistance = agent.getCurrentPosition().distance(tempCurrentGoal);
+                        localCurrentGoal = tempCurrentGoal;
+                    }
+                }
             }
-            Point2d agentTopPosition = new Point2d();
-            agentTopPosition.setX(agent.getCurrentPosition().getX() - agentUnitVelocity.getY() * RVOAgent.RADIUS);
-            agentTopPosition.setY(agent.getCurrentPosition().getY() + agentUnitVelocity.getX() * RVOAgent.RADIUS);
 
-            Point2d agentBottomPosition = new Point2d();
-            agentBottomPosition.setX(agent.getCurrentPosition().getX() + agentUnitVelocity.getY() * RVOAgent.RADIUS);
-            agentBottomPosition.setY(agent.getCurrentPosition().getY() - agentUnitVelocity.getX() * RVOAgent.RADIUS);
-
-            if (mySpace.visibleFrom(tempCurrentGoal, agentTopPosition)
-                    && mySpace.visibleFrom(tempCurrentGoal, agentBottomPosition)) {
-                PrecisePoint cleanCurrentGoal = new PrecisePoint(tempCurrentGoal.getX(), tempCurrentGoal.getY());
+            if (localCurrentGoal != null) {
+                PrecisePoint cleanCurrentGoal = new PrecisePoint(localCurrentGoal.getX(), localCurrentGoal.getY());
                 result = new Vector2d(cleanCurrentGoal.toVector());
                 result.sub(agent.getCurrentPosition());
                 result.normalize();
-                agent.setCurrentGoal(tempCurrentGoal);
+                agent.setCurrentGoal(localCurrentGoal);
                 break;
             }
         }
-
         if (result == null) {
+//            assert false;
             result = new Vector2d(0, 0);
         }
+//        System.out.println(result);
         return result;
     }
 }

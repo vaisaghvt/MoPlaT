@@ -17,8 +17,10 @@ import environment.geography.SimulationScenario;
 import agent.latticegas.LatticeSpace;
 import app.PropertySet.Model;
 import app.dataTracking.DataTracker;
+import com.google.common.collect.HashMultimap;
 import environment.geography.AgentGroup;
 import environment.geography.Position;
+import environment.geography.RoadMapPoint;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -300,12 +302,12 @@ public class RVOModel extends SimState {
             }
 
 
-            List<Position> xmlRoadMap = scenario.getRoadMap();
-            List<Point2d> actualRoadMap = null;
+            List<RoadMapPoint> xmlRoadMap = scenario.getRoadMap();
+            HashMultimap<Integer, Point2d> actualRoadMap = null;
             if (!xmlRoadMap.isEmpty()) {
-                actualRoadMap = new ArrayList<Point2d>();
-                for (Position point : xmlRoadMap) {
-                    actualRoadMap.add(new Point2d(point.getX(), point.getY()));
+                actualRoadMap = HashMultimap.create();
+                for (RoadMapPoint point : xmlRoadMap) {
+                    actualRoadMap.put(point.getNumber(), new Point2d(point.getPosition().getX(), point.getPosition().getY()));
 
                 }
 //                rvoSpace.addRoadMap(actualRoadMap);
@@ -325,18 +327,37 @@ public class RVOModel extends SimState {
 
                 Point2d start = new Point2d(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY());
                 Point2d end = new Point2d(tempAgentGroup.getEndPoint().getX(), tempAgentGroup.getEndPoint().getY());
+
+                final double maxSpeed = tempAgentGroup.getMaxSpeed();
+                final double minSpeed = tempAgentGroup.getMinSpeed();
+                final double meanSpeed = tempAgentGroup.getMeanSpeed();
+                final double sdevSpeed = tempAgentGroup.getSDevSpeed();
                 if (tempAgentGroup.getSize() == 1) {
                     double x = (start.getX() + end.getX()) / 2;
                     double y = (start.getY() + end.getY()) / 2;
                     RVOAgent agent = new RVOAgent(this.getRvoSpace());
                     agent.setCurrentPosition(x, y);
+                    agent.setCurrentPosition(x, y);
+
+
+                    double initialSpeed = random.nextGaussian() * sdevSpeed + meanSpeed;
+                    if (initialSpeed < minSpeed) {
+                        initialSpeed = minSpeed;
+                    } else if (initialSpeed > maxSpeed) {
+                        initialSpeed = maxSpeed;
+                    }
+
+
+                    agent.setPreferredSpeed(initialSpeed);
+                    agent.setMaximumSpeed(maxSpeed);
+
 
                     this.addNewAgent(agent);
-                    if (actualRoadMap!=null) {
+                    if (actualRoadMap != null) {
                         agent.addRoadMap(actualRoadMap);
-                        
+
                     }
-                    break;
+                    continue;
                 }
                 int numberPossibleOnWidth = (int) Math.floor((end.getX() - start.getX()) / (2.0 * RVOAgent.RADIUS));
                 int numberPossibleOnHeight = (int) Math.floor((end.getY() - start.getY()) / (2.0 * RVOAgent.RADIUS));
@@ -344,10 +365,7 @@ public class RVOModel extends SimState {
                 int spacesBetween = (int) Math.floor((maxPossible - tempAgentGroup.getSize()) / (tempAgentGroup.getSize() - 1));
                 spacesBetween++;
 
-                final double maxSpeed = tempAgentGroup.getMaxSpeed();
-                final double minSpeed = tempAgentGroup.getMinSpeed();
-                final double meanSpeed = tempAgentGroup.getMeanSpeed();
-                final double sdevSpeed = tempAgentGroup.getSDevSpeed();
+
 
                 for (double position = 1;
                         position <= maxPossible; position += spacesBetween) {
@@ -374,7 +392,7 @@ public class RVOModel extends SimState {
                     agent.setMaximumSpeed(maxSpeed);
 
                     this.addNewAgent(agent);
-                    if (actualRoadMap!=null) {
+                    if (actualRoadMap != null) {
                         agent.addRoadMap(actualRoadMap);
                     }
                     //          agent.setVelocity(agent.findPrefVelocity());

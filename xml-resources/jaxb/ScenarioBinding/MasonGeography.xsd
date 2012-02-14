@@ -50,17 +50,22 @@
             <xs:element name="minSpeed" type="xs:double"/>
             <xs:element name="maxSpeed" type="xs:double"/>
             <xs:element name="meanSpeed" type="xs:double"/>
-            <xs:element name="sDevSpeed" type="xs:double"/>
-                        
+            <xs:element name="sDevSpeed" type="xs:double"/>                        
         </xs:sequence>
     </xs:complexType>
 
+    <xs:complexType name="roadMapPoint">
+        <xs:sequence>
+            <xs:element name="position" type="Position" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="number" type="xs:int" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:element name="SimulationScenario">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="crowd" type="Agent" minOccurs="1" maxOccurs="unbounded"/>
-                <xs:element name="roadMap" type="Position" minOccurs="1" maxOccurs="unbounded"/>
+                <xs:element name="roadMap" type="roadMapPoint" minOccurs="1" maxOccurs="unbounded"/>
                 <xs:element name="obstacles" type="Obstacle" minOccurs="1" maxOccurs="unbounded"/>
                 <xs:element name="environmentGoals" type="Goals" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="generationLines" type="AgentLine" minOccurs="0" maxOccurs="unbounded"/>

@@ -11,11 +11,13 @@ import environment.geography.AgentLine;
 import environment.geography.Goals;
 import environment.geography.Obstacle;
 import environment.geography.Position;
+import environment.geography.RoadMapPoint;
 import environment.geography.SimulationScenario;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -52,6 +54,7 @@ class ModelDetails {
             if (environment.isLatticeModel() != null) {
                 this.setLatticeModel(environment.isLatticeModel());
             }
+           
             this.setRoadMap(environment.getRoadMap());
             this.setObstacles(environment.getObstacles());
             this.setAgents(environment.getCrowd());
@@ -204,12 +207,15 @@ class ModelDetails {
             for (int i = 0; i < roadMap.size(); i++) {
                 
                 
-                Position roadMapPoint = new Position();
-                roadMapPoint.setX((double) roadMap.get(i).getX());
-                roadMapPoint.setY((double) roadMap.get(i).getY());
+                Position roadMapPointPosition = new Position();
+                roadMapPointPosition.setX((double) roadMap.get(i).getX());
+                roadMapPointPosition.setY((double) roadMap.get(i).getY());
 
-                
-                environment.getRoadMap().add(roadMapPoint);
+                RoadMapPoint point = new RoadMapPoint();
+                point.setPosition(roadMapPointPosition);
+                point.setNumber(i);
+               environment.getRoadMap().add(point);
+
             }
         }
         
@@ -221,7 +227,7 @@ class ModelDetails {
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         } catch (JAXBException ex) {
-            ex.printStackTrace();
+//            ex.printStackTrace();
             System.out.println("writing to file failed");
             String message = "Failed to create" + environment.getName() + ".xml";
             JOptionPane.showMessageDialog(new JFrame(), message, "Error", JOptionPane.ERROR_MESSAGE);
@@ -327,8 +333,12 @@ class ModelDetails {
         return this.roadMap;
     }
 
-    public void setRoadMap(List<Position> roadMap) {
-        this.roadMap = roadMap;
+    public void setRoadMap(Collection<Position> roadMap) {
+        this.roadMap = new ArrayList(roadMap);
+    }
+
+    private void setRoadMap(List<RoadMapPoint> roadMap) {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
     
     
