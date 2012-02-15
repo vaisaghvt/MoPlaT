@@ -1,10 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="true" displayUsed="true" direction="5" scale="20" Ysize="30" Xsize="30" name="Scenario2">
-    <roadMap y="9.9" x="13.85"/>
-    <roadMap y="7.3" x="13.85"/>
-    <roadMap y="7.25" x="8.1"/>
-    <roadMap y="4.65" x="8.1"/>
-    <roadMap y="1.55" x="13.9"/>
+    <roadMap>         
+        <position  y="9.9" x="14.3"/>
+        <number>0</number>     
+    </roadMap>     
+    <roadMap>         
+        <position  y="7.25" x="14.3"/>
+        <number>1</number>     
+    </roadMap>     
+    <roadMap>         
+        <position  y="7.25" x="8.1"/>
+        <number>2</number>     
+    </roadMap>     
+    <roadMap>         
+        <position  y="7.25" x="20.5"/>
+        <number>2</number>     
+    </roadMap>  
+    <roadMap>         
+        <position  y="4.65" x="8.1"/>
+        <number>3</number>     
+    </roadMap>     
+    <roadMap>         
+        <position  y="4.65" x="20.5"/>
+        <number>3</number>     
+    </roadMap>  
+    <roadMap>         
+        <position  y="1.55" x="14.3"/>
+        <number>4</number>     
+    </roadMap> 
+     <roadMap>         
+        <position  y="-100.55" x="14.3"/>
+        <number>5</number>     
+    </roadMap> 
     <obstacles>
         <vertices y="8.8" x="10.1"/>
         <vertices y="8.8" x="3.1"/>
@@ -20,7 +47,6 @@
         <vertices y="7.9" x="10.1"/>
     </obstacles>
     <obstacles>
-        <vertices y="6.6" x="9.25"/>
         <vertices y="6.6" x="19.8"/>
         <vertices y="5.7" x="19.8"/>
         <vertices y="5.7" x="8.8"/>

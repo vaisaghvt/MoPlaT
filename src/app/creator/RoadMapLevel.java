@@ -53,6 +53,7 @@ class RoadMapLevel extends CreatorLevel implements MouseListener, MouseMotionLis
         if (model.getRoadMap() == null || model.getRoadMap().isEmpty()) {
             roadMapPoints = new ArrayList<Position>();
         } else {
+            System.out.println("blah blag");
             roadMapPoints = (ArrayList<Position>) model.getRoadMap();
         }
 

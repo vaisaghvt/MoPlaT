@@ -247,7 +247,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      */
     public final Vector2d findPrefVelocity() {
         if (this.hasRoadMap()) {
-            prefVelocity = this.determinePrefVelocity(this);
+            prefVelocity = this.determinePrefVelocity();
             prefVelocity.scale(preferredSpeed);
         } else {
             prefVelocity = new Vector2d(goal);
@@ -675,7 +675,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         return !(roadMap == null);
     }
 
-    public Vector2d determinePrefVelocity(RVOAgent agent) {
+    public Vector2d determinePrefVelocity() {
         Vector2d result = null;
 
 
@@ -684,23 +684,23 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             Point2d localCurrentGoal = null;
             for (Point2d tempCurrentGoal : roadMap.get(i)) {
 
-                Vector2d agentUnitVelocity = new Vector2d(agent.getVelocity());
-                if (agent.getVelocity().getX() != 0.0f
-                        || agent.getVelocity().getY() != 0.0f) {
+                Vector2d agentUnitVelocity = new Vector2d(this.getVelocity());
+                if (this.getVelocity().getX() != 0.0f
+                        || this.getVelocity().getY() != 0.0f) {
                     agentUnitVelocity.normalize();
                 }
                 Point2d agentTopPosition = new Point2d();
-                agentTopPosition.setX(agent.getCurrentPosition().getX() - agentUnitVelocity.getY() * RVOAgent.RADIUS);
-                agentTopPosition.setY(agent.getCurrentPosition().getY() + agentUnitVelocity.getX() * RVOAgent.RADIUS);
+                agentTopPosition.setX(this.getCurrentPosition().getX() - agentUnitVelocity.getY() * RVOAgent.RADIUS);
+                agentTopPosition.setY(this.getCurrentPosition().getY() + agentUnitVelocity.getX() * RVOAgent.RADIUS);
 
                 Point2d agentBottomPosition = new Point2d();
-                agentBottomPosition.setX(agent.getCurrentPosition().getX() + agentUnitVelocity.getY() * RVOAgent.RADIUS);
-                agentBottomPosition.setY(agent.getCurrentPosition().getY() - agentUnitVelocity.getX() * RVOAgent.RADIUS);
+                agentBottomPosition.setX(this.getCurrentPosition().getX() + agentUnitVelocity.getY() * RVOAgent.RADIUS);
+                agentBottomPosition.setY(this.getCurrentPosition().getY() - agentUnitVelocity.getX() * RVOAgent.RADIUS);
 
                 if (mySpace.visibleFrom(tempCurrentGoal, agentTopPosition)
                         && mySpace.visibleFrom(tempCurrentGoal, agentBottomPosition)) {
-                    if (agent.getCurrentPosition().distance(tempCurrentGoal) < minDistance) {
-                        minDistance = agent.getCurrentPosition().distance(tempCurrentGoal);
+                    if (this.getCurrentPosition().distance(tempCurrentGoal) < minDistance) {
+                        minDistance = this.getCurrentPosition().distance(tempCurrentGoal);
                         localCurrentGoal = tempCurrentGoal;
                     }
                 }
@@ -709,15 +709,50 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             if (localCurrentGoal != null) {
                 PrecisePoint cleanCurrentGoal = new PrecisePoint(localCurrentGoal.getX(), localCurrentGoal.getY());
                 result = new Vector2d(cleanCurrentGoal.toVector());
-                result.sub(agent.getCurrentPosition());
+                result.sub(this.getCurrentPosition());
                 result.normalize();
-                agent.setCurrentGoal(localCurrentGoal);
+                this.setCurrentGoal(localCurrentGoal);
                 break;
             }
         }
         if (result == null) {
 //            assert false;
-            result = new Vector2d(0, 0);
+
+            result = tryWeakTest();
+        }
+//        System.out.println(result);
+        return result;
+    }
+
+    private Vector2d tryWeakTest() {
+        Vector2d result = null;
+
+
+        for (int i = roadMap.keySet().size() - 1; i >= 0; i--) {
+            double minDistance = Double.MAX_VALUE;
+            Point2d localCurrentGoal = null;
+            for (Point2d tempCurrentGoal : roadMap.get(i)) {
+                if (mySpace.visibleFrom(tempCurrentGoal, getCurrentPosition())) {
+                    if (this.getCurrentPosition().distance(tempCurrentGoal) < minDistance) {
+                        minDistance = this.getCurrentPosition().distance(tempCurrentGoal);
+                        localCurrentGoal = tempCurrentGoal;
+                    }
+                }
+            }
+
+            if (localCurrentGoal != null) {
+                PrecisePoint cleanCurrentGoal = new PrecisePoint(localCurrentGoal.getX(), localCurrentGoal.getY());
+                result = new Vector2d(cleanCurrentGoal.toVector());
+                result.sub(this.getCurrentPosition());
+                result.normalize();
+                this.setCurrentGoal(localCurrentGoal);
+                break;
+            }
+        }
+        if (result == null) {
+//            assert false;
+
+            result = new Vector2d();
         }
 //        System.out.println(result);
         return result;

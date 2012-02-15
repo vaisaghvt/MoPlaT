@@ -54,8 +54,11 @@ class ModelDetails {
             if (environment.isLatticeModel() != null) {
                 this.setLatticeModel(environment.isLatticeModel());
             }
-           
-            this.setRoadMap(environment.getRoadMap());
+            List<Position> test = new ArrayList<Position>();
+           for(RoadMapPoint roadMapPoint : environment.getRoadMap()){
+               test.add(roadMapPoint.getPosition());
+           }
+            this.setRoadMap(test);
             this.setObstacles(environment.getObstacles());
             this.setAgents(environment.getCrowd());
             this.setAgentLines(environment.getGenerationLines());
@@ -330,16 +333,15 @@ class ModelDetails {
     }
 
     public List<Position> getRoadMap() {
+        assert roadMap!= null;
+        System.out.println("not null now");
         return this.roadMap;
     }
 
     public void setRoadMap(Collection<Position> roadMap) {
-        this.roadMap = new ArrayList(roadMap);
+        this.roadMap = new ArrayList<Position>(roadMap);
     }
 
-    private void setRoadMap(List<RoadMapPoint> roadMap) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-    
+
     
 }
