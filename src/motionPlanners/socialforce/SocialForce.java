@@ -433,8 +433,6 @@ public class SocialForce implements VelocityCalculator {
             fijy += (fsr + fp) * Nijy + ff * Tijy;
         }
 
-//        double Vxint = (fijx) / Mi * timeStep;
-//        double Vyint = (fijy) / Mi * timeStep;
         double Vxint = (fijx) / Mi;
         double Vyint = (fijy) / Mi;
 
@@ -443,13 +441,14 @@ public class SocialForce implements VelocityCalculator {
         // #################################################################
         double Vxwall = 0;
         double Vywall = 0;
-        double[] Fwi = averageSurroundForce(Pxi, Pyi, Xmax, Ymax, N0x, N0y, Fw, Fwx, Fwy);
-        double fiwx = Fwi[0];
-        double fiwy = Fwi[1];
-//        Vxwall = (fiwx) / Mi * timeStep;
-//        Vywall = (fiwy) / Mi * timeStep;
-        Vxwall = (fiwx) / Mi;
-        Vywall = (fiwy) / Mi;
+        
+        if ((Pxi>1) && (Pyi>1)){    // TO FIX OUT OF BOUND ERROR
+            double[] Fwi = averageSurroundForce(Pxi, Pyi, Xmax, Ymax, N0x, N0y, Fw, Fwx, Fwy);
+            double fiwx = Fwi[0];
+            double fiwy = Fwi[1];
+            Vxwall = (fiwx) / Mi;
+            Vywall = (fiwy) / Mi;
+        }
 
         // #################################################################
         // SUM AND BOUND TOTAL FORCE
