@@ -135,6 +135,9 @@ public class LatticeSpace {
         goals.add(tempGoal);
     }
 
+    public int[][] getField(){
+        return this.space.field;
+    }
     public void setDirection(int direction) {
         switch (direction) {
             case 0:

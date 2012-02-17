@@ -8,14 +8,15 @@ import agent.RVOAgent;
 import app.PropertySet;
 import app.RVOModel;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import java.io.BufferedWriter;
+import com.google.common.io.Files;
+import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.vecmath.Point2d;
 import javax.vecmath.Tuple2d;
 import javax.vecmath.Vector2d;
@@ -36,18 +37,19 @@ public class PhysicaDataTracker implements DataTracker {
     public static final float E_W = 1.26f;
     public static final String TRACKER_TYPE = "Physica";
     private final static int NUMBER_OF_DATA_TO_COLLECT = -1;
-    private final ArrayListMultimap<RVOAgent, Double> energySpentByAgent;
-    private final ArrayListMultimap<RVOAgent, Vector2d> velocityListForAgent;
-    private final ArrayListMultimap<RVOAgent, Point2d> positionListForAgent;
+//    private final ArrayListMultimap<Integer, Double> energySpentByAgent;
+    private final ArrayListMultimap<Integer, Vector2d> velocityListForAgent;
+    private final ArrayListMultimap<Integer, Point2d> positionListForAgent;
+    private final HashMap<Integer, int[][]> latticeStateForTimeStep;
 
     public PhysicaDataTracker(RVOModel model, Collection<? extends RVOAgent> agents) {
         stepNumber = 0;
         this.model = model;
 
-        energySpentByAgent = ArrayListMultimap.create();
+//        energySpentByAgent = ArrayListMultimap.create();
         velocityListForAgent = ArrayListMultimap.create();
         positionListForAgent = ArrayListMultimap.create();
-
+        latticeStateForTimeStep = new HashMap<Integer, int[][]>();
 
 
     }
@@ -57,17 +59,14 @@ public class PhysicaDataTracker implements DataTracker {
 
         for (RVOAgent agent : model.getAgentList()) {
 
-            velocityListForAgent.put(agent, agent.getVelocity());
+            velocityListForAgent.put(stepNumber, agent.getVelocity());
 
-            positionListForAgent.put(agent, agent.getCurrentPosition());
+            positionListForAgent.put(stepNumber, agent.getCurrentPosition());
 
+        }
 
-            double energyInCurrentTimeStep = agent.getMass() * (E_S + (E_W * agent.getVelocity().lengthSquared())) * PropertySet.TIMESTEP;
-            double energySoFar = 0;
-            if (stepNumber > 0) {
-                energySoFar = energySpentByAgent.get(agent).get(stepNumber - 1);
-            }
-            energySpentByAgent.put(agent, (energySoFar + energyInCurrentTimeStep));
+        if (PropertySet.LATTICEMODEL) {
+            latticeStateForTimeStep.put(stepNumber, model.getLatticeSpace().getField());
         }
 
         stepNumber++;
@@ -81,54 +80,35 @@ public class PhysicaDataTracker implements DataTracker {
     @Override
     public void storeToFile() {
 
-        LocalDate date = new LocalDate();
-        LocalTime time = new LocalTime();
+        String currentFolder = "data"
+                + File.separatorChar + this.trackerType()
+                + File.separatorChar + model.getScenarioName()
+                + File.separatorChar + PropertySet.MODEL
+                + File.separatorChar + PropertySet.SEED
+                + File.separatorChar;
 
-        String dateString = date.toString("dd-MMM-yyyy");
-        String timeString = time.toString("HH_mm_ss_sss");
-        String currentFolder = "data" + File.separatorChar;
-
-        File directory = new File(currentFolder + TRACKER_TYPE);
-        if (!directory.exists()) {
-            if (!directory.mkdir()) {
-                System.out.println("Type Directory could not be created for " + directory);
-            }
+        String testFile = currentFolder + "test";
+        try {
+            Files.createParentDirs(new File(testFile));
+        } catch (IOException ex) {
+            Logger.getLogger(PhysicaDataTracker.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (directory.exists()) {
-            currentFolder = currentFolder + TRACKER_TYPE + File.separatorChar;
 
-            directory = new File(currentFolder + dateString);
-            if (!directory.exists()) {
-                if (!directory.mkdir()) {
-                    System.out.println("Date Directory could not be created for " + directory);
-                }
+
+        currentFolder = currentFolder + PropertySet.SEED + File.separatorChar;
+        try {
+            writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + PropertySet.SEED + "_"
+                    + "Velocity", velocityListForAgent);
+            writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + PropertySet.SEED + "_"
+                    + "Position", positionListForAgent);
+
+            if (PropertySet.LATTICEMODEL) {
+                writeToFileLatticeState(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + PropertySet.SEED + "_"
+                        + "LatticeState", latticeStateForTimeStep);
             }
-            if (directory.exists()) {
-                currentFolder = currentFolder + dateString + File.separatorChar;
-            }
-            directory = new File(currentFolder + timeString);
-
-            if (!directory.mkdir()) {
-                System.out.println("Time Directory could not be created for " + directory);
-            }
-            if (directory.exists()) {
-                currentFolder = currentFolder + timeString + File.separatorChar;
-
-                writeToFileAgentTuple2dList(currentFolder + "Velocity", velocityListForAgent);
-                writeToFileAgentTuple2dList(currentFolder + "Position", positionListForAgent);
-                writeToFileAgentNumberList(currentFolder + "Energy", energySpentByAgent);
-
-
-
-                PropertySet.writePropertiesToFile(currentFolder + "properties");
-
-//                try {
-//                    ChartUtilities.saveChartAsJPEG(new File(currentFolder + "chart.jpg"), chart, 500,
-//                            300);
-//                } catch (IOException e) {
-//                    System.err.println("Problem occurred creating chart.");
-//                }
-            }
+        } catch (IOException ex) {
+            Logger.getLogger(PhysicaDataTracker.class.getName()).log(Level.SEVERE, null, ex);
+            assert false;
         }
 
 
@@ -144,76 +124,93 @@ public class PhysicaDataTracker implements DataTracker {
         return null;
     }
 
-    private static <E extends Tuple2d> void writeToFileAgentTuple2dList(String fileName, ArrayListMultimap<RVOAgent, E> dataForAgent) {
+    private static <E extends Tuple2d> void writeToFileAgentTuple2dList(String fileName, ArrayListMultimap<Integer, E> dataForAgent) throws IOException {
         File fileX = new File(fileName + "_x");
         File fileY = new File(fileName + "_y");
-        PrintWriter writerX = null;
-        PrintWriter writerY = null;
+        DataOutputStream writerX = null;
+        DataOutputStream writerY = null;
         try {
-            writerX = new PrintWriter(new BufferedWriter(new FileWriter(fileX)));
-            writerY = new PrintWriter(new BufferedWriter(new FileWriter(fileY)));
+            writerX = new DataOutputStream(new FileOutputStream(fileX));
+            writerY = new DataOutputStream(new FileOutputStream(fileY));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
 
-        for (RVOAgent agent : dataForAgent.keySet()) {
-
-            int writeTime;
-            if (NUMBER_OF_DATA_TO_COLLECT > 0) {
-                writeTime = dataForAgent.get(agent).size() / NUMBER_OF_DATA_TO_COLLECT;
-            } else if (NUMBER_OF_DATA_TO_COLLECT == -1) {
-                writeTime = 1;
-            } else {
-                assert false;
-            }
-            writerX.print("Agent " + agent.getId());
-            writerY.print("Agent " + agent.getId());
-            int i = 1;
-            for (E element : dataForAgent.get(agent)) {
-                if (i % (writeTime) == 0) {
-
-                    writerX.print("\t" + element);
-                    writerY.print("\t" + element);
-                }
-                i++;
-            }
-            writerX.println();
-            writerY.println();
+        int writeTime;
+        if (NUMBER_OF_DATA_TO_COLLECT > 0) {
+            writeTime = dataForAgent.keySet().size() / NUMBER_OF_DATA_TO_COLLECT;
+        } else if (NUMBER_OF_DATA_TO_COLLECT == -1) {
+            writeTime = 1;
+        } else {
+            assert false;
         }
+
+        for (Integer timeStep : dataForAgent.keySet()) {
+            if (writeTime != 1 && timeStep % (writeTime) == 0) {
+
+
+
+
+                for (E element : dataForAgent.get(timeStep)) {
+                    writerX.writeFloat((float) element.getX());
+                    writerY.writeFloat((float) element.getY());
+
+                    writerX.writeChar('\t');
+                    writerY.writeChar('\t');
+                }
+
+                writerX.writeChar('\n');
+                writerY.writeChar('\n');
+
+            }
+        }
+
         writerX.close();
         writerY.close();
     }
 
-    private static <E extends Number> void writeToFileAgentNumberList(String fileName, Multimap<RVOAgent, E> dataForAgent) {
+    private static void writeToFileLatticeState(String fileName, HashMap<Integer, int[][]> latticeStateForTimeStep) throws IOException {
         File file = new File(fileName);
-        PrintWriter writer = null;
+
+        DataOutputStream writer = null;
+
         try {
-            writer = new PrintWriter(new BufferedWriter(new FileWriter(file)));
+            writer = new DataOutputStream(new FileOutputStream(file));
+
         } catch (IOException ex) {
             ex.printStackTrace();
         }
 
-        for (RVOAgent agent : dataForAgent.keySet()) {
-
-            int writeTime;
-            if (NUMBER_OF_DATA_TO_COLLECT > 0) {
-                writeTime = dataForAgent.get(agent).size() / NUMBER_OF_DATA_TO_COLLECT;
-            } else if (NUMBER_OF_DATA_TO_COLLECT == -1) {
-                writeTime = 1;
-            } else {
-                assert false;
-            }
-            writer.print("Agent " + agent.getId());
-            int i = 1;
-            for (E element : dataForAgent.get(agent)) {
-                if (i % (writeTime) == 0) {
-
-                    writer.print("\t" + element);
-                }
-                i++;
-            }
-            writer.println();
+        int writeTime;
+        if (NUMBER_OF_DATA_TO_COLLECT > 0) {
+            writeTime = latticeStateForTimeStep.keySet().size() / NUMBER_OF_DATA_TO_COLLECT;
+        } else if (NUMBER_OF_DATA_TO_COLLECT == -1) {
+            writeTime = 1;
+        } else {
+            assert false;
         }
+
+        for (Integer timeStep : latticeStateForTimeStep.keySet()) {
+            if (writeTime != 1 && timeStep % (writeTime) == 0) {
+                int[][] currentState = latticeStateForTimeStep.get(timeStep);
+                for (int i = 0; i < currentState.length; i++) {
+                    for (int j = 0; j < latticeStateForTimeStep.get(timeStep)[0].length; j++) {
+                        writer.writeInt(currentState[i][j]);
+                        writer.writeChar(' ');
+
+                    }
+                    writer.writeChar('\n');
+                }
+
+
+//                writer.writeChar('\n');
+                writer.writeChar('\n');
+
+
+            }
+        }
+
         writer.close();
+
     }
 }

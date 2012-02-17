@@ -66,6 +66,7 @@ public class RVOModel extends SimState {
     private List<AgentGenerator> agentLineList;
     private Stoppable generatorStopper;
     private DataTracker dataTracker = null;
+    private String name;
 
 //    //the list to keep record of every agent's status in each timestep
 //    //each record contains a list of status for each agent
@@ -204,6 +205,8 @@ public class RVOModel extends SimState {
     public LatticeSpace getLatticeSpace() {
         return latticeSpace;
     }
+    
+   
 
     public Stoppable getGeneratorStoppable() {
         return generatorStopper;
@@ -235,6 +238,7 @@ public class RVOModel extends SimState {
         try {
             XMLScenarioManager settings = XMLScenarioManager.instance("environment.geography");
             SimulationScenario scenario = (SimulationScenario) settings.unmarshal(PropertySet.FILEPATH);
+            this.name = scenario.getName();
             double averageSpeed = 0.0;
             if (!PropertySet.USECLUSTERING) {
                 rvoSpace = new RVOSpace(worldXSize, worldYSize, gridSize, this);
@@ -424,5 +428,9 @@ public class RVOModel extends SimState {
         doLoop(RVOModel.class, args);
 
         System.exit(0);
+    }
+
+    public String getScenarioName() {
+        return name;
     }
 }
