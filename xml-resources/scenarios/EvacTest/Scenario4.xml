@@ -34,9 +34,9 @@
     <vertices y="14.1" x="29.5"/>
 </obstacles>
 <agentGroups>
-    <endPoint y="28.6" x="28.610000000000003"/>
+    <endPoint y="28.6" x="28.61"/>
     <startPoint y="18.05" x="1.75"/>
-    <size>500</size>
+    <size>200</size>
     <minSpeed>1.0</minSpeed>
     <maxSpeed>2.0</maxSpeed>
     <meanSpeed>1.5</meanSpeed>

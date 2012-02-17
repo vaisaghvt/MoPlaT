@@ -1,6 +1,7 @@
 package agent.latticegas;
 
 import agent.RVOAgent;
+import app.PropertySet;
 import app.RVOModel;
 import environment.geography.Obstacle;
 import sim.engine.SimState;
@@ -45,6 +46,7 @@ public class LatticeSpace {
      */
     protected RVOModel rvoModel;
     private ArrayList<GoalLines> goals;
+    private double timeStepsPerMovement;
 
     public LatticeSpace(int xSize, int ySize, RVOModel rm) {
 
@@ -153,6 +155,12 @@ public class LatticeSpace {
                 break;
         }
 
+    }
+
+    public void setSpeed(double speed) {
+        final double distanceMovedInOneStep = RVOAgent.RADIUS*2.0;
+        final double numberOfTimeStepsInOneSecond = 1.0/PropertySet.TIMESTEP;
+        this.timeStepsPerMovement = (distanceMovedInOneStep*numberOfTimeStepsInOneSecond) / speed;
     }
 
     private static class GoalLines {

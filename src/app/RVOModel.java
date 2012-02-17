@@ -18,8 +18,8 @@ import agent.latticegas.LatticeSpace;
 import app.PropertySet.Model;
 import app.dataTracking.DataTracker;
 import com.google.common.collect.HashMultimap;
+import ec.util.MersenneTwisterFast;
 import environment.geography.AgentGroup;
-import environment.geography.Position;
 import environment.geography.RoadMapPoint;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -235,7 +235,7 @@ public class RVOModel extends SimState {
         try {
             XMLScenarioManager settings = XMLScenarioManager.instance("environment.geography");
             SimulationScenario scenario = (SimulationScenario) settings.unmarshal(PropertySet.FILEPATH);
-
+            double averageSpeed = 0.0;
             if (!PropertySet.USECLUSTERING) {
                 rvoSpace = new RVOSpace(worldXSize, worldYSize, gridSize, this);
             } else {
@@ -325,59 +325,22 @@ public class RVOModel extends SimState {
             List<AgentGroup> xmlAgentGroupList = scenario.getAgentGroups();
             for (AgentGroup tempAgentGroup : xmlAgentGroupList) {
 
-                Point2d start = new Point2d(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY());
-                Point2d end = new Point2d(tempAgentGroup.getEndPoint().getX(), tempAgentGroup.getEndPoint().getY());
+
 
                 final double maxSpeed = tempAgentGroup.getMaxSpeed();
                 final double minSpeed = tempAgentGroup.getMinSpeed();
                 final double meanSpeed = tempAgentGroup.getMeanSpeed();
+                averageSpeed += meanSpeed;
                 final double sdevSpeed = tempAgentGroup.getSDevSpeed();
-                if (tempAgentGroup.getSize() == 1) {
-                    double x = (start.getX() + end.getX()) / 2;
-                    double y = (start.getY() + end.getY()) / 2;
-                    RVOAgent agent = new RVOAgent(this.getRvoSpace());
-                    agent.setCurrentPosition(x, y);
-                    agent.setCurrentPosition(x, y);
 
-
-                    double initialSpeed = random.nextGaussian() * sdevSpeed + meanSpeed;
-                    if (initialSpeed < minSpeed) {
-                        initialSpeed = minSpeed;
-                    } else if (initialSpeed > maxSpeed) {
-                        initialSpeed = maxSpeed;
-                    }
-
-
-                    agent.setPreferredSpeed(initialSpeed);
-                    agent.setMaximumSpeed(maxSpeed);
-
-
-                    this.addNewAgent(agent);
-                    if (actualRoadMap != null) {
-                        agent.addRoadMap(actualRoadMap);
-
-                    }
-                    continue;
-                }
-                int numberPossibleOnWidth = (int) Math.floor((end.getX() - start.getX()) / (2.0 * RVOAgent.RADIUS));
-                int numberPossibleOnHeight = (int) Math.floor((end.getY() - start.getY()) / (2.0 * RVOAgent.RADIUS));
-                int maxPossible = numberPossibleOnWidth * numberPossibleOnHeight;
-                int spacesBetween = (int) Math.floor((maxPossible - tempAgentGroup.getSize()) / (tempAgentGroup.getSize() - 1));
-                spacesBetween++;
-
-
-
-                for (double position = 1;
-                        position <= maxPossible; position += spacesBetween) {
-
-                    double distanceFromStart = (RVOAgent.RADIUS + 2 * (position - 1) * RVOAgent.RADIUS);
-
-                    double x = start.getX() + (distanceFromStart % (end.getX() - start.getX()));
-                    double y = (start.getY() + (((int) (distanceFromStart / (end.getX() - start.getX()))) * RVOAgent.RADIUS * 2.0));
+                for (int i = 0; i < tempAgentGroup.getSize(); i++) {
 
 
                     RVOAgent agent = new RVOAgent(this.getRvoSpace());
-                    agent.setCurrentPosition(x, y);
+                    Point2d position = this.getAgentPosition(
+                            tempAgentGroup.getStartPoint().getX().intValue(), tempAgentGroup.getStartPoint().getY().intValue(),
+                            tempAgentGroup.getEndPoint().getX().intValue(), tempAgentGroup.getEndPoint().getY().intValue());
+                    agent.setCurrentPosition(position.x, position.y);
 
 
                     double initialSpeed = random.nextGaussian() * sdevSpeed + meanSpeed;
@@ -398,6 +361,9 @@ public class RVOModel extends SimState {
                     //          agent.setVelocity(agent.findPrefVelocity());
                 }
             }
+            if (PropertySet.LATTICEMODEL) {
+                latticeSpace.setSpeed(averageSpeed);
+            }
         } catch (JAXBException ex) {
             Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -414,6 +380,40 @@ public class RVOModel extends SimState {
             dataTracker.storeToFile();
             dataTracker = null;
         }
+    }
+
+    private Point2d getAgentPosition(int mnx, int mny, int mxx, int mxy) {
+        // determine the mass of the agent;
+        MersenneTwisterFast localRandom = new MersenneTwisterFast(PropertySet.SEED);
+
+
+
+
+
+        Point2d pos = null;
+        while (pos == null) {
+            int x = mnx + localRandom.nextInt(mxx - mnx);
+            int y = mny + localRandom.nextInt(mxy - mny);
+            pos = new Point2d(x, y);
+
+            // make sure agents are not created on top of each other
+            for (RVOAgent agent : this.getAgentList()) {
+                double dx = x - agent.getCurrentPosition().getX();
+                double dy = y - agent.getCurrentPosition().getY();
+                double d = Math.hypot(dx, dy);
+
+                double minDist = (agent.getRadius() * 2 + RVOAgent.RADIUS) / 2.0;
+
+                // if d<=minDist then the agents are 'overlapping'...
+                if (d <= minDist) {
+                    pos = null;
+                    break;
+                }
+            }
+        }
+
+        return pos;
+
     }
 
     public static void main(String[] args) {

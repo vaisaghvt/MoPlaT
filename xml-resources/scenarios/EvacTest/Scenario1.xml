@@ -48,10 +48,22 @@
         <vertices y="7.5" x="19.8"/>
         <vertices y="6.6" x="19.8"/>
     </obstacles>
+    <environmentGoals>
+        <endPoint x="5.716666666666667" y="4.833333333333333"/>
+        <startPoint x="3.966666666666667" y="4.833333333333333"/>
+    </environmentGoals>
+    <environmentGoals>
+        <endPoint x="5.716666666666667" y="3.966666666666667"/>
+        <startPoint x="3.966666666666667" y="3.966666666666667"/>
+    </environmentGoals>
+    <environmentGoals>
+        <endPoint x="11.883333333333333" y="0.0"/>
+        <startPoint x="0.0" y="0.0"/>
+    </environmentGoals>
     <agentGroups>
         <endPoint y="22.91" x="24.65"/>
         <startPoint y="8.8" x="4.85"/>
-        <size>500</size>
+        <size>200</size>
         <minSpeed>1.0</minSpeed>
         <maxSpeed>2.0</maxSpeed>
         <meanSpeed>1.5</meanSpeed>
