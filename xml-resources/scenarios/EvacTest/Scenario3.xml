@@ -40,7 +40,7 @@
 <agentGroups>
     <endPoint y="10.1" x="20.48"/>
     <startPoint y="1.75" x="7"/>
-    <size>200</size>
+    <size>100</size>
     <minSpeed>1.0</minSpeed>
     <maxSpeed>2.0</maxSpeed>
     <meanSpeed>1.5</meanSpeed>

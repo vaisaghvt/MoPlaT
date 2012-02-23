@@ -113,6 +113,7 @@ public class RVOModel extends SimState {
             dataTracker = new CWDataCollector(this, agentList);
             schedule.scheduleRepeating(dataTracker, 4, 1.0);
         }
+        schedule.scheduleRepeating(new WrapUp(this, agentList), 5, 1.0);
 
     }
 
@@ -380,6 +381,7 @@ public class RVOModel extends SimState {
 
     @Override
     public void finish() {
+        System.out.println("wraapping up");
         if (dataTracker != null) {
             dataTracker.storeToFile();
             dataTracker = null;

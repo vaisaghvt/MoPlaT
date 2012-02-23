@@ -99,7 +99,7 @@ public class LatticeSpace {
             int y1 = (int) Math.floor(currentVertex.getY() / LATTICEGRIDSIZE);
             int y2 = (int) Math.floor(nextVertex.getY() / LATTICEGRIDSIZE);
 
-            assert (x1 == x2) || (y1 == y2);
+//            assert (x1 == x2) || (y1 == y2);
 
             if (x1 == x2) {
                 int k = x1;
@@ -108,14 +108,48 @@ public class LatticeSpace {
                 for (int j = startY; j <= endY; j++) {
                     space.set(k, j, 2);
                 }
-            } else {
+            } else if (y1 == y2) {
                 int j = y1;
                 int startX = Math.min(x1, x2);
                 int endX = Math.max(x1, x2);
                 for (int k = startX; k <= endX; k++) {
                     space.set(k, j, 2);
                 }
+            } else {
+                int mnx = Math.min(x1, x2);
+                int mxx = Math.max(x1, x2);
+                int mny = Math.min(y1, y2);
+                int mxy = Math.max(y1, y2);
+
+                if ((x1 - x2) * (y1 - y2) > 0) {
+                    int k = mnx, j = mny;
+                    for (; k <= mxx && j <= mxy; k++, j++) {
+                        space.set(k, j, 2);
+                    }
+                    while (k <= mxx) {
+                        space.set(k, j, 2);
+                        k++;
+                    }
+                    while (j <= mxy) {
+                        space.set(k, j, 2);
+                        j++;
+                    }
+                }else{
+                    int k = mnx, j = mxy;
+                    for (; k <= mxx && j >= mny; k++, j--) {
+                        space.set(k, j, 2);
+                    }
+                    while (k <= mxx) {
+                        space.set(k, j, 2);
+                        k++;
+                    }
+                    while (j >= mny) {
+                        space.set(k, j, 2);
+                        j--;
+                    }
+                }
             }
+
         }
 
     }
@@ -135,9 +169,10 @@ public class LatticeSpace {
         goals.add(tempGoal);
     }
 
-    public int[][] getField(){
+    public int[][] getField() {
         return this.space.field;
     }
+
     public void setDirection(int direction) {
         switch (direction) {
             case 0:
@@ -161,9 +196,9 @@ public class LatticeSpace {
     }
 
     public void setSpeed(double speed) {
-        final double distanceMovedInOneStep = RVOAgent.RADIUS*2.0;
-        final double numberOfTimeStepsInOneSecond = 1.0/PropertySet.TIMESTEP;
-        this.timeStepsPerMovement = (distanceMovedInOneStep*numberOfTimeStepsInOneSecond) / speed;
+        final double distanceMovedInOneStep = RVOAgent.RADIUS * 2.0;
+        final double numberOfTimeStepsInOneSecond = 1.0 / PropertySet.TIMESTEP;
+        this.timeStepsPerMovement = (distanceMovedInOneStep * numberOfTimeStepsInOneSecond) / speed;
     }
 
     private static class GoalLines {

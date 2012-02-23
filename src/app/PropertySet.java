@@ -26,19 +26,17 @@ import utility.Geometry;
  * @author vaisaghvt
  */
 public class PropertySet {
-    private static final String PROPERTIES_FILENAME = "CrowdProperties"+File.separatorChar+
-            "LatticeTestSettings.xml";
 
-  
+    private static final String PROPERTIES_FILENAME = "CrowdProperties" + File.separatorChar
+            + "LatticeTestSettings.xml";
 
     public static enum Model {
 
         RVO2, PatternBasedMotion, RVO1Standard, RVO1Acceleration, RuleBasedNew, SocialForce
     }
     //TODO : Be careful  about this seed... need to change for random simulation
-    public static String XML_SOURCE_FOLDER = "xml-resources"+File.separatorChar;
+    public static String XML_SOURCE_FOLDER = "xml-resources" + File.separatorChar;
     public static String PROPERTIES_FILEPATH;
-   
     public static long SEED;
     public static int WORLDXSIZE;
     public static int WORLDYSIZE;
@@ -57,7 +55,7 @@ public class PropertySet {
     public static boolean TRACK_DATA;
 
     public static void writePropertiesToFile(String fileName) {
-         File file = new File(fileName);
+        File file = new File(fileName);
 
         PrintWriter writer = null;
         try {
@@ -65,46 +63,46 @@ public class PropertySet {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        
+
         System.out.println("writing properties");
-        writer.println("Properties File ="+PROPERTIES_FILEPATH);
-        
-        writer.println("Scenario File ="+FILEPATH);
-        
+        writer.println("Properties File =" + PROPERTIES_FILEPATH);
+
+        writer.println("Scenario File =" + FILEPATH);
+
         writer.println("Model used = " + MODEL);
-        
+
         writer.println("******Summary of main points*******");
-        writer.println("Seed ="+SEED);
-        writer.println("TimeStep ="+TIMESTEP);
-              
-        
-        writer.println("Radius= "+ RVOAgent.RADIUS);
-        writer.println("Sensor= "+ RVOAgent.SENSOR_RANGE);
-        
-        
-        writer.println("Clustering ="+USECLUSTERING);
-        if(USECLUSTERING){
-            writer.println("\t Alpha ="+ClusteredSpace.ALPHA);
-            writer.println("\t Number Of Clustering Spaces ="+ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES);
+        writer.println("Seed =" + SEED);
+        writer.println("TimeStep =" + TIMESTEP);
+
+
+        writer.println("Radius= " + RVOAgent.RADIUS);
+        writer.println("Sensor= " + RVOAgent.SENSOR_RANGE);
+
+
+        writer.println("Clustering =" + USECLUSTERING);
+        if (USECLUSTERING) {
+            writer.println("\t Alpha =" + ClusteredSpace.ALPHA);
+            writer.println("\t Number Of Clustering Spaces =" + ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES);
         }
-        writer.println("Info Processing ="+INFOPROCESSING);
-        if(INFOPROCESSING){
-            writer.println("\t InfoLimit ="+RVOAgent.INFO_LIMIT);
+        writer.println("Info Processing =" + INFOPROCESSING);
+        if (INFOPROCESSING) {
+            writer.println("\t InfoLimit =" + RVOAgent.INFO_LIMIT);
         }
-        
+
         writer.println("RVO parameters");
-        writer.println("\t Time Horizon ="+ RVO_2_1.TIME_HORIZON);
-        writer.println("\t Time Horizon obst ="+ RVO_2_1.TIME_HORIZON_OBSTACLE);
-        
-           if (LATTICEMODEL) {
-                writer.println("Drift ="+LatticeSpace.DRIFT) ;
-            }
+        writer.println("\t Time Horizon =" + RVO_2_1.TIME_HORIZON);
+        writer.println("\t Time Horizon obst =" + RVO_2_1.TIME_HORIZON_OBSTACLE);
+
+        if (LATTICEMODEL) {
+            writer.println("Drift =" + LatticeSpace.DRIFT);
+        }
         writer.close();
     }
-    
+
     static void initializeProperties() {
         PROPERTIES_FILEPATH = XML_SOURCE_FOLDER + PROPERTIES_FILENAME;
-        XML_SOURCE_FOLDER  = XML_SOURCE_FOLDER +"scenarios"+File.separatorChar;
+        XML_SOURCE_FOLDER = XML_SOURCE_FOLDER + "scenarios" + File.separatorChar;
         try {
             XMLScenarioManager settings = XMLScenarioManager.instance("app.params");
             SimulationParameters params = (SimulationParameters) settings.unmarshal(PropertySet.PROPERTIES_FILEPATH);
@@ -157,7 +155,7 @@ public class PropertySet {
 
             RVO_2_1.TIME_HORIZON = params.getTimeHorizon();
             RVO_2_1.TIME_HORIZON_OBSTACLE = params.getTimeHorizonObst();
-          
+
 
         } catch (JAXBException ex) {
             Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);
