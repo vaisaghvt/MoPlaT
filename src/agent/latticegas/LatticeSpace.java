@@ -120,11 +120,25 @@ public class LatticeSpace {
                 int mxx = Math.max(x1, x2);
                 int mny = Math.min(y1, y2);
                 int mxy = Math.max(y1, y2);
-
+                int slopeY = (mxy - mny) / (mxx - mnx);
+                int slopeX = (mxx - mnx) / (mxy - mny);
                 if ((x1 - x2) * (y1 - y2) > 0) {
                     int k = mnx, j = mny;
-                    for (; k <= mxx && j <= mxy; k++, j++) {
-                        space.set(k, j, 2);
+                    if (slopeY > 0) {
+                        for (; k <= mxx && j <= mxy; k++) {
+                            space.set(k, j, 2);
+                            if (k % slopeY == 0) {
+                                j++;
+                            }
+                        }
+                    }
+                    else{
+                        for (; k <= mxx && j <= mxy; j++) {
+                            space.set(k, j, 2);
+                            if (j % slopeX == 0) {
+                                k++;
+                            }
+                        }
                     }
                     while (k <= mxx) {
                         space.set(k, j, 2);
@@ -134,10 +148,23 @@ public class LatticeSpace {
                         space.set(k, j, 2);
                         j++;
                     }
-                }else{
+                } else {
                     int k = mnx, j = mxy;
-                    for (; k <= mxx && j >= mny; k++, j--) {
-                        space.set(k, j, 2);
+                    if (slopeY > 0) {
+                        for (; k <= mxx && j >= mny; k++) {
+                            space.set(k, j, 2);
+                            if (k % slopeY == 0) {
+                                j--;
+                            }
+                        }
+                    }
+                    else{
+                        for (; k <= mxx && j >= mny; j--) {
+                            space.set(k, j, 2);
+                            if (j % slopeX == 0) {
+                                k++;
+                            }
+                        }
                     }
                     while (k <= mxx) {
                         space.set(k, j, 2);
