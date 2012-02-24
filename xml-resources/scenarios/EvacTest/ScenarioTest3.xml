@@ -33,14 +33,14 @@
     <obstacles>
         <vertices y="3.0" x="14.5"/>
         <vertices y="4.0" x="14.5"/>
-        <vertices y="4.0" x="0.0"/>
-        <vertices y="3.0" x="0.0"/>
+        <vertices y="4.0" x="3.0"/>
+        <vertices y="3.0" x="3.0"/>
     </obstacles>
     <obstacles>
         <vertices y="3.0" x="15.5"/>
         <vertices y="4.0" x="15.5"/>
-        <vertices y="4.0" x="30.0"/>
-        <vertices y="3.0" x="30.0"/>
+        <vertices y="4.0" x="29.5"/>
+        <vertices y="3.0" x="29.5"/>
     </obstacles>
     <agentGroups>
         <endPoint y="28.0" x="28.0"/>

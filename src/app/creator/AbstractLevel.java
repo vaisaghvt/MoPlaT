@@ -27,7 +27,7 @@ import javax.swing.JPanel;
  *
  * @author vaisagh
  */
-public abstract class CreatorLevel {
+public abstract class AbstractLevel {
 
     protected ModelDetails model;
     protected JFrame frame;
@@ -36,7 +36,7 @@ public abstract class CreatorLevel {
     protected JButton clearButton;
     protected JButton nextButton;
 
-    public CreatorLevel(ModelDetails model, JFrame frame, JLabel statusBar, JPanel buttonArea) {
+    public AbstractLevel(ModelDetails model, JFrame frame, JLabel statusBar, JPanel buttonArea) {
         this.model = model;
         this.frame = frame;
         this.statusBar = statusBar;

@@ -23,7 +23,7 @@ import javax.swing.JPanel;
  *
  * @author vaisagh
  */
-class AgentGeneratorLevel extends CreatorLevel implements MouseListener, MouseMotionListener {
+class AgentGeneratorLevel extends AbstractLevel implements MouseListener, MouseMotionListener {
 
     private DrawingPanel interactionArea;
     private ArrayList<Position> points;

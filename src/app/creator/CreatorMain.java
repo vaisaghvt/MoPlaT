@@ -28,7 +28,7 @@ import javax.swing.JProgressBar;
  */
 public class CreatorMain implements ActionListener {
 
-    public static final double AGENT_RADIUS = 0.22;
+    public static final double AGENT_RADIUS = 0.15;
     public JLabel statusBar = new JLabel();
     JPanel buttonArea = new JPanel();
     JButton clearButton;
@@ -37,7 +37,7 @@ public class CreatorMain implements ActionListener {
     JFrame frame;
     private JFileChooser fileChooser;
     private int currentLevel;
-    ArrayList<CreatorLevel> listOfLevels;
+    ArrayList<AbstractLevel> listOfLevels;
     private ModelDetails model;
     private JProgressBar progress;
 
@@ -182,7 +182,7 @@ public class CreatorMain implements ActionListener {
     }
 
     private void initializeLevels() {
-        listOfLevels = new ArrayList<CreatorLevel>();
+        listOfLevels = new ArrayList<AbstractLevel>();
 
         listOfLevels.add(new IntroLevel(model, frame, statusBar, buttonArea));
 

@@ -13,9 +13,9 @@ import javax.swing.JPanel;
  */
 class DrawingPanel extends JPanel {
  
-    CreatorLevel currentLevel;
+    AbstractLevel currentLevel;
     
-    public void setCurrentLevel(CreatorLevel currentLevel){
+    public void setCurrentLevel(AbstractLevel currentLevel){
         this.currentLevel = currentLevel;
     }
     

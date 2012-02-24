@@ -206,8 +206,6 @@ public class RVOModel extends SimState {
     public LatticeSpace getLatticeSpace() {
         return latticeSpace;
     }
-    
-   
 
     public Stoppable getGeneratorStoppable() {
         return generatorStopper;
@@ -337,14 +335,14 @@ public class RVOModel extends SimState {
                 final double meanSpeed = tempAgentGroup.getMeanSpeed();
                 averageSpeed += meanSpeed;
                 final double sdevSpeed = tempAgentGroup.getSDevSpeed();
-
+                int[][] spaces = initializeLattice(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY(),
+                        tempAgentGroup.getEndPoint().getX(), tempAgentGroup.getEndPoint().getY());
                 for (int i = 0; i < tempAgentGroup.getSize(); i++) {
 
 
                     RVOAgent agent = new RVOAgent(this.getRvoSpace());
-                    Point2d position = this.getAgentPosition(
-                            tempAgentGroup.getStartPoint().getX().intValue(), tempAgentGroup.getStartPoint().getY().intValue(),
-                            tempAgentGroup.getEndPoint().getX().intValue(), tempAgentGroup.getEndPoint().getY().intValue());
+                    Point2d position = this.getAgentPosition(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY(),
+                            spaces);
                     agent.setCurrentPosition(position.x, position.y);
 
 
@@ -381,44 +379,47 @@ public class RVOModel extends SimState {
 
     @Override
     public void finish() {
-        System.out.println("wraapping up");
+        System.out.println("wrapping up");
         if (dataTracker != null) {
             dataTracker.storeToFile();
             dataTracker = null;
         }
     }
 
-    private Point2d getAgentPosition(int mnx, int mny, int mxx, int mxy) {
+    private Point2d getAgentPosition(double mnx, double mny, int[][] spaces) {
         // determine the mass of the agent;
-        MersenneTwisterFast localRandom = new MersenneTwisterFast(PropertySet.SEED);
 
 
 
 
-
-        Point2d pos = null;
-        while (pos == null) {
-            int x = mnx + localRandom.nextInt(mxx - mnx);
-            int y = mny + localRandom.nextInt(mxy - mny);
-            pos = new Point2d(x, y);
-
-            // make sure agents are not created on top of each other
-            for (RVOAgent agent : this.getAgentList()) {
-                double dx = x - agent.getCurrentPosition().getX();
-                double dy = y - agent.getCurrentPosition().getY();
-                double d = Math.hypot(dx, dy);
-
-                double minDist = (agent.getRadius() * 2 + RVOAgent.RADIUS) / 2.0;
-
-                // if d<=minDist then the agents are 'overlapping'...
-                if (d <= minDist) {
-                    pos = null;
-                    break;
-                }
+        int x = 0, y = 0;
+ 
+        while (true) {
+            x = this.random.nextInt(spaces.length);
+            y = this.random.nextInt(spaces[0].length);
+//            pos = new Point2d(x, y);
+            if (spaces[x][y] == 0) {
+                spaces[x][y] = 1;
+                break;
             }
+            // make sure agents are not created on top of each other
+//            for (RVOAgent agent : this.getAgentList()) {
+//                double dx = x - agent.getCurrentPosition().getX();
+//                double dy = y - agent.getCurrentPosition().getY();
+//                double d = Math.hypot(dx, dy);
+//
+//                double minDist = (agent.getRadius() * 2 + RVOAgent.RADIUS) / 2.0;
+//
+//                // if d<=minDist then the agents are 'overlapping'...
+//                if (d <= minDist) {
+//                    pos = null;
+//                    break;
+//                }
+//            }
         }
 
-        return pos;
+
+        return new Point2d(mnx + (x * RVOAgent.RADIUS * 2) + RVOAgent.RADIUS, mny + (y * RVOAgent.RADIUS * 2) + RVOAgent.RADIUS);
 
     }
 
@@ -434,5 +435,12 @@ public class RVOModel extends SimState {
 
     public String getScenarioName() {
         return name;
+    }
+
+    private int[][] initializeLattice(Double startx, Double starty, Double endx, Double endy) {
+        int sizeX = (int) Math.floor((endx - startx) / (RVOAgent.RADIUS * 2));
+        int sizeY = (int) Math.floor((endy - starty) / (RVOAgent.RADIUS * 2));
+        return new int[sizeX][sizeY];
+
     }
 }

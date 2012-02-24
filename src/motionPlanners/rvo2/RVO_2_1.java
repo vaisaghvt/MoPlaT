@@ -97,8 +97,8 @@ public class RVO_2_1 implements VelocityCalculator {
             Vector2d obstacle1UnitDir = new Vector2d(obstacle1.getNext().getPoint());
             obstacle1UnitDir.sub(obstacle1.getPoint());
             obstacle1UnitDir.normalize();
-assert !Double.isNaN(
-                        obstacle1UnitDir.y) && !Double.isInfinite(obstacle1UnitDir.y);
+            assert !Double.isNaN(
+                    obstacle1UnitDir.y) && !Double.isInfinite(obstacle1UnitDir.y);
             Vector2d obstacle2UnitDir = new Vector2d(obstacle2.getNext().getPoint());
             obstacle2UnitDir.sub(obstacle2.getPoint());
             obstacle2UnitDir.normalize();
@@ -298,13 +298,13 @@ assert !Double.isNaN(
                     rightLegDirection = new Vector2d(relativePosition2.getX() * LEG2 + relativePosition2.getY() * me.getRadius(), negRelativePosition2.getX() * me.getRadius() + relativePosition2.getY() * LEG2);
                     rightLegDirection.scale(1.0f / distSq2);
                     assert !Double.isNaN(
-                        rightLegDirection.y) && !Double.isInfinite(rightLegDirection.y);
+                            rightLegDirection.y) && !Double.isInfinite(rightLegDirection.y);
                 } else {
                     /* Right vertex non-convex; right LEG extends cut-off line. */
                     rightLegDirection = new Vector2d(obstacle1UnitDir);
 
-assert !Double.isNaN(
-                        rightLegDirection.y) && !Double.isInfinite(rightLegDirection.y);
+                    assert !Double.isNaN(
+                            rightLegDirection.y) && !Double.isInfinite(rightLegDirection.y);
 
                 }
             }
@@ -626,7 +626,7 @@ assert !Double.isNaN(
 //                System.out.println("Collision!!!");
 
                 final double invTimeStep = 1.0f / timeStep;
-
+assert relativePosition.length()!=0;
                 Vector2d w = new Vector2d(relativePosition);
                 w.scale(invTimeStep);
                 w.sub(relativeVelocity);
@@ -637,11 +637,13 @@ assert !Double.isNaN(
 
                 Vector2d unitW = new Vector2d(w);
                 unitW.scale(1.0 / wLength);
+                assert wLength != 0;
 
                 line.direction = new Vector2d(unitW.getY(), -unitW.getX());
                 u = new Vector2d(unitW);
                 u.scale((combinedRadius * invTimeStep) - wLength);
-
+                assert !Double.isNaN(
+                        line.direction.y) && !Double.isInfinite(line.direction.y);
 
 
             }

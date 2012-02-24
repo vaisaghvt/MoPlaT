@@ -22,7 +22,7 @@ import javax.swing.JPanel;
  *
  * @author vaisagh
  */
-public class EnvironmentGoalLineLevel extends CreatorLevel implements MouseListener, MouseMotionListener{
+public class EnvironmentGoalLineLevel extends AbstractLevel implements MouseListener, MouseMotionListener{
     private DrawingPanel interactionArea;
     private ArrayList<Position> points;
     private ArrayList<Goals> goalLines;

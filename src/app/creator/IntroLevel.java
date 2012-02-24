@@ -18,7 +18,7 @@ import javax.swing.JTextField;
  *
  * @author vaisagh
  */
-class IntroLevel extends CreatorLevel {
+class IntroLevel extends AbstractLevel {
 
     JPanel descriptionArea;
     JTextField name;

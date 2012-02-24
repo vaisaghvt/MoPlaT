@@ -17,7 +17,7 @@ import javax.swing.JPanel;
  *
  * @author vaisagh
  */
-class AgentEditorLevel extends CreatorLevel  {
+class AgentEditorLevel extends AbstractLevel  {
 
     private DrawingPanel interactionArea;
     private ArrayList<Boolean> highlightedAgents;

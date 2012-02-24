@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" name="ScenarioTest2" Xsize="30" Ysize="30" scale="20" direction="5" displayUsed="true" latticeModel="true" logUsed="true">
+    <roadMap>
+        <position x="15.0" y="5.0"/>
+        <number>0</number>
+    </roadMap>
+    <roadMap>
+        <position x="15.0" y="2.0"/>
+        <number>1</number>
+    </roadMap>
+    <roadMap>
+        <position x="15.0" y="-100.0"/>
+        <number>2</number>
+    </roadMap>
+    <obstacles>
+        <vertices x="13.65" y="2.65"/>
+        <vertices x="0.9" y="2.65"/>
+        <vertices x="0.9" y="29.05"/>
+        <vertices x="29.5" y="29.05"/>
+        <vertices x="29.5" y="2.65"/>
+        <vertices x="15.4" y="2.65"/>
+        <vertices x="15.4" y="3.95"/>
+        <vertices x="28.15" y="3.95"/>
+        <vertices x="28.15" y="27.7"/>
+        <vertices x="2.2" y="27.7"/>
+        <vertices x="2.2" y="3.95"/>
+        <vertices x="13.65" y="3.95"/>
+    </obstacles>
+    <environmentGoals>
+        <endPoint x="15.4" y="3.95"/>
+        <startPoint x="13.65" y="3.95"/>
+    </environmentGoals>
+    <environmentGoals>
+        <endPoint x="15.4" y="2.65"/>
+        <startPoint x="13.65" y="2.65"/>
+    </environmentGoals>
+    <environmentGoals>
+        <endPoint x="29.9" y="0.45"/>
+        <startPoint x="0.45" y="0.45"/>
+    </environmentGoals>
+    <agentGroups>
+        <endPoint x="27.7" y="27.330000000000002"/>
+        <startPoint x="2.65" y="7.9"/>
+        <size>200</size>
+        <minSpeed>0.0</minSpeed>
+        <maxSpeed>2.6</maxSpeed>
+        <meanSpeed>1.3</meanSpeed>
+        <sDevSpeed>0.0</sDevSpeed>
+    </agentGroups>
+</SimulationScenario>

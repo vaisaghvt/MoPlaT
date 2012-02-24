@@ -16,7 +16,7 @@ import javax.swing.JPanel;
  *
  * @author vaisagh
  */
-class FinalLevel extends CreatorLevel {
+class FinalLevel extends AbstractLevel {
 
     private DrawingPanel interactionArea;
 

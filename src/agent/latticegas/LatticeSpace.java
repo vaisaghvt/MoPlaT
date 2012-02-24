@@ -36,6 +36,7 @@ public class LatticeSpace {
     protected double driftY;
     protected int directionX;
     protected int directionY;
+    protected int numberOfAgents;
     /**
      * This is the only space used by this model. 0 = freeSpace 1 = agent 2 =
      * obstacle
@@ -46,7 +47,7 @@ public class LatticeSpace {
      */
     protected RVOModel rvoModel;
     private ArrayList<GoalLines> goals;
-    private double timeStepsPerMovement;
+    private int timeStepsPerMovement;
 
     public LatticeSpace(int xSize, int ySize, RVOModel rm) {
 
@@ -66,6 +67,8 @@ public class LatticeSpace {
         random = new MersenneTwisterFast();
         goals = new ArrayList<GoalLines>();
 
+        numberOfAgents = 0;
+
     }
 
     public Int2D generateRandomLocation() {
@@ -75,9 +78,9 @@ public class LatticeSpace {
     }
 
     public void addAgentAt(Double x, Double y) {
-        space.set((int) Math.round((x - (LATTICEGRIDSIZE / 2)) / LATTICEGRIDSIZE),
-                (int) Math.round((y - (LATTICEGRIDSIZE / 2)) / LATTICEGRIDSIZE), 1);
-
+        space.set((int) Math.round((x - (LATTICEGRIDSIZE / 2)) / LATTICEGRIDSIZE) - 1,
+                (int) Math.round((y - (LATTICEGRIDSIZE / 2)) / LATTICEGRIDSIZE) - 1, 1);
+        numberOfAgents++;
     }
 
     /**
@@ -94,10 +97,10 @@ public class LatticeSpace {
             Position currentVertex = tempObst.getVertices().get(i);
             Position nextVertex = tempObst.getVertices().get((i + 1) % tempObst.getVertices().size());
 
-            int x1 = (int) Math.floor(currentVertex.getX() / LATTICEGRIDSIZE);
-            int x2 = (int) Math.floor(nextVertex.getX() / LATTICEGRIDSIZE);
-            int y1 = (int) Math.floor(currentVertex.getY() / LATTICEGRIDSIZE);
-            int y2 = (int) Math.floor(nextVertex.getY() / LATTICEGRIDSIZE);
+            int x1 = (int) Math.floor(currentVertex.getX() / LATTICEGRIDSIZE) - 1;
+            int x2 = (int) Math.floor(nextVertex.getX() / LATTICEGRIDSIZE) - 1;
+            int y1 = (int) Math.floor(currentVertex.getY() / LATTICEGRIDSIZE) - 1;
+            int y2 = (int) Math.floor(nextVertex.getY() / LATTICEGRIDSIZE) - 1;
 
 //            assert (x1 == x2) || (y1 == y2);
 
@@ -131,8 +134,7 @@ public class LatticeSpace {
                                 j++;
                             }
                         }
-                    }
-                    else{
+                    } else {
                         for (; k <= mxx && j <= mxy; j++) {
                             space.set(k, j, 2);
                             if (j % slopeX == 0) {
@@ -157,8 +159,7 @@ public class LatticeSpace {
                                 j--;
                             }
                         }
-                    }
-                    else{
+                    } else {
                         for (; k <= mxx && j >= mny; j--) {
                             space.set(k, j, 2);
                             if (j % slopeX == 0) {
@@ -225,7 +226,11 @@ public class LatticeSpace {
     public void setSpeed(double speed) {
         final double distanceMovedInOneStep = RVOAgent.RADIUS * 2.0;
         final double numberOfTimeStepsInOneSecond = 1.0 / PropertySet.TIMESTEP;
-        this.timeStepsPerMovement = (distanceMovedInOneStep * numberOfTimeStepsInOneSecond) / speed;
+        this.timeStepsPerMovement = (int) ((distanceMovedInOneStep * numberOfTimeStepsInOneSecond) / speed);
+    }
+
+    public boolean isEmpty() {
+        return numberOfAgents == 0;
     }
 
     private static class GoalLines {
@@ -251,12 +256,43 @@ public class LatticeSpace {
         public Point2d getEnd() {
             return end;
         }
+
+        private int YdistanceTo(int i, int j) {
+            int yDistance;
+            if (j >= start.y && j <= end.y) {
+                return Integer.MAX_VALUE;
+            } else if (j < start.y) {
+                yDistance = (int) (start.y - j);
+            } else {
+                yDistance = (int) (j - end.y);
+            }
+
+            return yDistance;
+        }
+
+        private int XdistanceTo(int i, int j) {
+            int xDistance;
+            if (i >= start.x && i <= end.x) {
+                return Integer.MAX_VALUE;
+            } else if (i < start.x) {
+                xDistance = (int) (start.x - i);
+            } else {
+                xDistance = (int) (i - end.x);
+            }
+
+
+            return xDistance;
+
+        }
     }
 
     class LatticeStep implements Steppable {
 
         @Override
         public void step(SimState ss) {
+            if (ss.schedule.getSteps() % LatticeSpace.this.timeStepsPerMovement != 0) {
+                return;
+            }
             assert DRIFT >= 0;
 
 
@@ -284,6 +320,7 @@ public class LatticeSpace {
                             || (j == space.getWidth() - 1 && directionX == 1)) {
                         // Goal reached
                         space.set(i, j, 0);
+                        numberOfAgents--;
                     } else if (previousField[i][j] == 2) {
                         // if it is an obstacle it
                         //remains an obstacle
@@ -326,182 +363,204 @@ public class LatticeSpace {
                             //HERE THE AGENTS ARE SUPPOSED TO BE MOVING UP OR DOWN
 
                             //Search for the closest goal in the direction of propagation
-                            for (int p = j + directionY; p >= 0 && p < space.getHeight(); p += directionY) {
-                                for (GoalLines tempGoal : goals) {
+//                            for (int p = j + directionY; p >= 0 && p < space.getHeight(); p += directionY) {
+                            int minDistanceY;
+                            minDistanceY = Integer.MAX_VALUE;
+                            int minDistanceX;
+                            minDistanceX = Integer.MAX_VALUE;
+//                                GoalLines chosenGoal = null;
+                            for (GoalLines tempGoal : goals) {
+                                if (j < tempGoal.start.y) {
+                                    continue;
+                                }
+                                int distanceY = tempGoal.YdistanceTo(i, j);
+                                if (distanceY < minDistanceY) {
 
-                                    if (Math.abs(tempGoal.getStart().getY() - p) <= 0.1) {
+                                    goalXStart = (int) Math.round(tempGoal.getStart().getX());
+                                    goalYStart = (int) Math.round(tempGoal.getStart().getY());
+                                    goalXEnd = (int) Math.round(tempGoal.getEnd().getX());
+                                    goalYEnd = (int) Math.round(tempGoal.getEnd().getY());
+                                    minDistanceY = distanceY;
+                                    minDistanceX = tempGoal.XdistanceTo(i, j);
+//                                     System.out.println(" Comparing p= " + p + "with " + goals.get(q).getStart().getY());
+//                                        break;
+                                } else if (distanceY == minDistanceY) {
+                                    int distanceX = tempGoal.XdistanceTo(i, j);
+                                    if (distanceX < minDistanceX) {
+
                                         goalXStart = (int) Math.round(tempGoal.getStart().getX());
                                         goalYStart = (int) Math.round(tempGoal.getStart().getY());
                                         goalXEnd = (int) Math.round(tempGoal.getEnd().getX());
                                         goalYEnd = (int) Math.round(tempGoal.getEnd().getY());
-                                        breakable = true;
-
+                                        minDistanceY = distanceY;
+                                        minDistanceX = distanceX;
 //                                     System.out.println(" Comparing p= " + p + "with " + goals.get(q).getStart().getY());
-                                        break;
+//                                        break;}
                                     }
                                 }
-                                if (breakable) {
-                                    break;
+//                                System.out.println(minDistance);
+//                                if (breakable) {
+//                                    break;
+//                                }
+//                            }
+
+                            }
+
+//                        assert breakable == true;
+                            goalYCenter = (goalYStart + goalYEnd) / 2;
+                            goalXCenter = (goalXStart + goalXEnd) / 2;
+
+
+                            driftX = DRIFT * (double) (Math.abs(i - goalXCenter) / (double) ((Math.abs(i - goalXCenter)) + (Math.abs(j - goalYCenter))));
+                            driftY = DRIFT * (double) (Math.abs(j - goalYCenter) / (double) ((Math.abs(i - goalXCenter)) + (Math.abs(j - goalYCenter))));
+
+
+                            if (goalXStart == goalXEnd) {
+                                //vertical Goal line
+                                myDirectionX = myDirectionY = 0;
+
+                                if (goalXStart > i) {//goalx is on the right
+                                    myDirectionX = 1;
+                                } else if (goalXStart < i) {
+                                    myDirectionX = -1;
                                 }
-                            }
-
-                        }
-
-                        assert breakable == true;
-                        goalYCenter = (goalYStart + goalYEnd) / 2;
-                        goalXCenter = (goalXStart + goalXEnd) / 2;
-
-
-                        driftX = DRIFT * (double) (Math.abs(i - goalXCenter) / (double) ((Math.abs(i - goalXCenter)) + (Math.abs(j - goalYCenter))));
-                        driftY = DRIFT * (double) (Math.abs(j - goalYCenter) / (double) ((Math.abs(i - goalXCenter)) + (Math.abs(j - goalYCenter))));
-
-
-                        if (goalXStart == goalXEnd) {
-                            //vertical Goal line
-                            myDirectionX = myDirectionY = 0;
-
-                            if (goalXStart > i) {//goalx is on the right
-                                myDirectionX = 1;
-                            } else if (goalXStart < i) {
-                                myDirectionX = -1;
-                            }
 //                            if (j > goalYStart && j < goalYEnd) {
 //                                myDirectionY = 0;
 //                                goalY = j;
 //                            } else {
 
 
-                            if (goalYCenter > j) {//goaly is below the current position
-                                myDirectionY = 1;
+                                if (goalYCenter > j) {//goaly is below the current position
+                                    myDirectionY = 1;
 
-                            } else if (goalYCenter < j) {
-                                myDirectionY = -1;
-                            }
+                                } else if (goalYCenter < j) {
+                                    myDirectionY = -1;
+                                }
 //                            }
 
-                            /**
-                             * Now to check where to move: since it is vertical
-                             * door i.e. fixed X -myDirectionX is not considered
-                             */
-                            if ((space.get(i, j + myDirectionY) == 1) || (previousField[i][j + myDirectionY] == 2) || ((space.get(i, j + myDirectionY) == -1) && (previousField[i][j + myDirectionY] == 1))) {
-                                if ((space.get(i, j - myDirectionY) == 1) || (previousField[i][j - myDirectionY] == 2) || ((space.get(i, j - myDirectionY) == -1) && (previousField[i][j - myDirectionY] == 1))) {
-                                    if ((space.get(i + myDirectionX, j) == 1) || (previousField[i + myDirectionX][j] == 2) || ((space.get(i + myDirectionX, j) == -1) && (previousField[i + myDirectionX][j] == 1))) {
-                                        //All three are obstacles
-                                        //so keep agent at current position
-                                        space.set(i, j, 1);
-
-                                    } else {
-                                        //only positive X possible
-                                        space.set(i + myDirectionX, j, 1); // move it forward
-                                        space.set(i, j, 0); // set the current space to 0
-
-
-                                    }
-                                } else {
-                                    if ((space.get(i + myDirectionX, j) == 1) || (previousField[i + myDirectionX][j] == 2) || ((space.get(i + myDirectionX, j) == -1) && (previousField[i + myDirectionX][j] == 1))) {
-                                        //only negative Y possible
-                                        space.set(i, j - myDirectionY, 1); // move it forward
-                                        space.set(i, j, 0);
-                                    } else {
-                                        //negative y or positive X
-                                        double p = random.nextDouble();
-
-                                        if (p < ((1.0 - DRIFT) / 2.0)) {
-                                            //negative Y direction
-                                            space.set(i, j - myDirectionY, 1); // move it forward
-                                            space.set(i, j, 0); // set the current space to 0
+                                /**
+                                 * Now to check where to move: since it is vertical
+                                 * door i.e. fixed X -myDirectionX is not considered
+                                 */
+                                if ((space.get(i, j + myDirectionY) == 1) || (previousField[i][j + myDirectionY] == 2) || ((space.get(i, j + myDirectionY) == -1) && (previousField[i][j + myDirectionY] == 1))) {
+                                    if ((space.get(i, j - myDirectionY) == 1) || (previousField[i][j - myDirectionY] == 2) || ((space.get(i, j - myDirectionY) == -1) && (previousField[i][j - myDirectionY] == 1))) {
+                                        if ((space.get(i + myDirectionX, j) == 1) || (previousField[i + myDirectionX][j] == 2) || ((space.get(i + myDirectionX, j) == -1) && (previousField[i + myDirectionX][j] == 1))) {
+                                            //All three are obstacles
+                                            //so keep agent at current position
+                                            space.set(i, j, 1);
 
                                         } else {
-                                            //positive X direction
+                                            //only positive X possible
                                             space.set(i + myDirectionX, j, 1); // move it forward
                                             space.set(i, j, 0); // set the current space to 0
 
+
                                         }
+                                    } else {
+                                        if ((space.get(i + myDirectionX, j) == 1) || (previousField[i + myDirectionX][j] == 2) || ((space.get(i + myDirectionX, j) == -1) && (previousField[i + myDirectionX][j] == 1))) {
+                                            //only negative Y possible
+                                            space.set(i, j - myDirectionY, 1); // move it forward
+                                            space.set(i, j, 0);
+                                        } else {
+                                            //negative y or positive X
+                                            double p = random.nextDouble();
+
+                                            if (p < ((1.0 - DRIFT) / 2.0)) {
+                                                //negative Y direction
+                                                space.set(i, j - myDirectionY, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
+
+                                            } else {
+                                                //positive X direction
+                                                space.set(i + myDirectionX, j, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
+
+                                            }
 
 
+                                        }
+                                    }
+                                } else {
+                                    if ((space.get(i, j - myDirectionY) == 1) || (previousField[i][j - myDirectionY] == 2) || ((space.get(i, j - myDirectionY) == -1) && (previousField[i][j - myDirectionY] == 1))) {
+                                        if ((space.get(i + myDirectionX, j) == 1) || (previousField[i + myDirectionX][j] == 2) || ((space.get(i + myDirectionX, j) == -1) && (previousField[i + myDirectionX][j] == 1))) {
+                                            //only positive Y is possible
+                                            space.set(i, j + myDirectionY, 1); // move it forward
+                                            space.set(i, j, 0);
+                                        } else {
+
+                                            //only negative direction X is an obstacle
+                                            // move positive x or positive Y
+
+                                            double p = random.nextDouble();
+
+                                            if (p < (driftX + (1.0 - DRIFT) / 2.0)) {
+                                                //positive X direction
+                                                space.set(i + myDirectionX, j, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
+
+                                            } else {
+                                                //positive Y direction
+                                                space.set(i, j + myDirectionY, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
+
+                                            }
+                                        }
+                                    } else {
+                                        if ((space.get(i + myDirectionX, j) == 1) || (previousField[i + myDirectionX][j] == 2) || ((space.get(i + myDirectionX, j) == -1) && (previousField[i + myDirectionX][j] == 1))) {
+                                            //negative y or positive y
+
+                                            double p = random.nextDouble();
+
+                                            if (p < (DRIFT + (1.0 - DRIFT) / 2.0)) {
+                                                //positive Y direction
+                                                space.set(i, j + myDirectionY, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
+
+                                            } else {
+                                                //negative Y direction
+                                                space.set(i, j - myDirectionY, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
+
+                                            }
+
+                                        } else {
+
+                                            // no obstacles
+                                            // all three directions possible
+
+                                            double p = random.nextDouble();
+
+                                            if (p > (1.0 - ((1.0 - DRIFT) / 3.0))) {
+                                                //negative Y direction
+                                                space.set(i, j - myDirectionY, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
+
+
+                                            } else if (p < (((1.0 - DRIFT) / 3.0) + driftX)) {
+                                                //positive Y direction
+                                                space.set(i, j + myDirectionY, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
+
+                                            } else {
+                                                //positive X direction
+                                                space.set(i + myDirectionX, j, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
+
+                                            }
+                                        }
                                     }
                                 }
                             } else {
-                                if ((space.get(i, j - myDirectionY) == 1) || (previousField[i][j - myDirectionY] == 2) || ((space.get(i, j - myDirectionY) == -1) && (previousField[i][j - myDirectionY] == 1))) {
-                                    if ((space.get(i + myDirectionX, j) == 1) || (previousField[i + myDirectionX][j] == 2) || ((space.get(i + myDirectionX, j) == -1) && (previousField[i + myDirectionX][j] == 1))) {
-                                        //only positive Y is possible
-                                        space.set(i, j + myDirectionY, 1); // move it forward
-                                        space.set(i, j, 0);
-                                    } else {
 
-                                        //only negative direction X is an obstacle
-                                        // move positive x or positive Y
+                                myDirectionY = myDirectionX = 0;
 
-                                        double p = random.nextDouble();
+                                if (goalYStart > j) {//goalx is on the right
 
-                                        if (p < (driftX + (1.0 - DRIFT) / 2.0)) {
-                                            //positive X direction
-                                            space.set(i + myDirectionX, j, 1); // move it forward
-                                            space.set(i, j, 0); // set the current space to 0
+                                    myDirectionY = 1;
+                                } else if (goalYStart < j) {
 
-                                        } else {
-                                            //positive Y direction
-                                            space.set(i, j + myDirectionY, 1); // move it forward
-                                            space.set(i, j, 0); // set the current space to 0
-
-                                        }
-                                    }
-                                } else {
-                                    if ((space.get(i + myDirectionX, j) == 1) || (previousField[i + myDirectionX][j] == 2) || ((space.get(i + myDirectionX, j) == -1) && (previousField[i + myDirectionX][j] == 1))) {
-                                        //negative y or positive y
-
-                                        double p = random.nextDouble();
-
-                                        if (p < (DRIFT + (1.0 - DRIFT) / 2.0)) {
-                                            //positive Y direction
-                                            space.set(i, j + myDirectionY, 1); // move it forward
-                                            space.set(i, j, 0); // set the current space to 0
-
-                                        } else {
-                                            //negative Y direction
-                                            space.set(i, j - myDirectionY, 1); // move it forward
-                                            space.set(i, j, 0); // set the current space to 0
-
-                                        }
-
-                                    } else {
-
-                                        // no obstacles
-                                        // all three directions possible
-
-                                        double p = random.nextDouble();
-
-                                        if (p > (1.0 - ((1.0 - DRIFT) / 3.0))) {
-                                            //negative Y direction
-                                            space.set(i, j - myDirectionY, 1); // move it forward
-                                            space.set(i, j, 0); // set the current space to 0
-
-
-                                        } else if (p < (((1.0 - DRIFT) / 3.0) + driftX)) {
-                                            //positive Y direction
-                                            space.set(i, j + myDirectionY, 1); // move it forward
-                                            space.set(i, j, 0); // set the current space to 0
-
-                                        } else {
-                                            //positive X direction
-                                            space.set(i + myDirectionX, j, 1); // move it forward
-                                            space.set(i, j, 0); // set the current space to 0
-
-                                        }
-                                    }
+                                    myDirectionY = -1;
                                 }
-                            }
-                        } else {
-
-                            myDirectionY = myDirectionX = 0;
-
-                            if (goalYStart > j) {//goalx is on the right
-
-                                myDirectionY = 1;
-                            } else if (goalYStart < j) {
-
-                                myDirectionY = -1;
-                            }
 //                            if (i > goalXStart && i < goalXEnd) {
 //
 //                                myDirectionX = 0;
@@ -511,144 +570,145 @@ public class LatticeSpace {
 
 
 //                                System.out.println(goalXCenter);
-                            if (goalXCenter > i) {
-                                myDirectionX = 1;
+                                if (goalXCenter > i) {
+                                    myDirectionX = 1;
 
-                            } else if (goalXCenter < i) {
-                                myDirectionX = -1;
-                            }
+                                } else if (goalXCenter < i) {
+                                    myDirectionX = -1;
+                                }
 
 
-                            //                         }
+                                //                         }
 //                            System.out.println("My direction y  =" + myDirectionY);
 //                            System.out.println("My direction x  =" + myDirectionX);
-                            /**
-                             * Now to check where to move: since it is
-                             * horizontal door i.e. fixed Y -myDirectionY is not
-                             * considered
-                             */
-                            if ((space.get(i + myDirectionX, j) == 1) || (previousField[i + myDirectionX][j] == 2) || ((space.get(i + myDirectionX, j) == -1) && (previousField[i + myDirectionX][j] == 1))) {
-                                if ((space.get(i - myDirectionX, j) == 1) || (previousField[i - myDirectionX][j] == 2) || ((space.get(i - myDirectionX, j) == -1) && (previousField[i - myDirectionX][j] == 1))) {
-                                    if ((space.get(i, j + myDirectionY) == 1) || (previousField[i][j + myDirectionY] == 2) || ((space.get(i, j + myDirectionY) == -1) && (previousField[i][j + myDirectionY] == 1))) {
-                                        //All three are obstacles
-                                        //so keep agent at current position
+                                /**
+                                 * Now to check where to move: since it is
+                                 * horizontal door i.e. fixed Y -myDirectionY is not
+                                 * considered
+                                 */
+                                if ((space.get(i + myDirectionX, j) == 1) || (previousField[i + myDirectionX][j] == 2) || ((space.get(i + myDirectionX, j) == -1) && (previousField[i + myDirectionX][j] == 1))) {
+                                    if ((space.get(i - myDirectionX, j) == 1) || (previousField[i - myDirectionX][j] == 2) || ((space.get(i - myDirectionX, j) == -1) && (previousField[i - myDirectionX][j] == 1))) {
+                                        if ((space.get(i, j + myDirectionY) == 1) || (previousField[i][j + myDirectionY] == 2) || ((space.get(i, j + myDirectionY) == -1) && (previousField[i][j + myDirectionY] == 1))) {
+                                            //All three are obstacles
+                                            //so keep agent at current position
 //                                        System.out.println("Stationary ");
-                                        space.set(i, j, 1);
+                                            space.set(i, j, 1);
 
-                                    } else {
-                                        //Obstacles on two sides
-                                        //Can move forward
-//                                        System.out.println("Forward definite");
-                                        space.set(i, j + myDirectionY, 1); // move it forward
-                                        space.set(i, j, 0); // set the current space to 0
-                                    }
-
-
-
-                                } else {
-                                    if ((space.get(i, j + myDirectionY) == 1) || (previousField[i][j + myDirectionY] == 2) || ((space.get(i, j + myDirectionY) == -1) && (previousField[i][j + myDirectionY] == 1))) {
-                                        //up and positive directionx are obstacles
-                                        //move in megativeX Direction
-//                                        System.out.println("Left definite");
-                                        space.set(i - myDirectionX, j, 1); // move it forward
-                                        space.set(i, j, 0); // set the current space to 0
-
-
-
-                                    } else {
-                                        //obstacle in positiveXdirection
-                                        // move negative x or positive Y
-
-                                        double p = random.nextDouble();
-
-                                        if (p < ((1.0 - DRIFT) / 2.0)) {
-                                            //negative X direction
-                                            space.set(i - myDirectionX, j, 1); // move it forward
-                                            space.set(i, j, 0); // set the current space to 0
-//                                            System.out.println("Left random");
                                         } else {
-                                            //positive Y direction
+                                            //Obstacles on two sides
+                                            //Can move forward
+//                                        System.out.println("Forward definite");
                                             space.set(i, j + myDirectionY, 1); // move it forward
                                             space.set(i, j, 0); // set the current space to 0
+                                        }
+
+
+
+                                    } else {
+                                        if ((space.get(i, j + myDirectionY) == 1) || (previousField[i][j + myDirectionY] == 2) || ((space.get(i, j + myDirectionY) == -1) && (previousField[i][j + myDirectionY] == 1))) {
+                                            //up and positive directionx are obstacles
+                                            //move in megativeX Direction
+//                                        System.out.println("Left definite");
+                                            space.set(i - myDirectionX, j, 1); // move it forward
+                                            space.set(i, j, 0); // set the current space to 0
+
+
+
+                                        } else {
+                                            //obstacle in positiveXdirection
+                                            // move negative x or positive Y
+
+                                            double p = random.nextDouble();
+
+                                            if (p < ((1.0 - DRIFT) / 2.0)) {
+                                                //negative X direction
+                                                space.set(i - myDirectionX, j, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
+//                                            System.out.println("Left random");
+                                            } else {
+                                                //positive Y direction
+                                                space.set(i, j + myDirectionY, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
 //                                            System.out.println("forward random");
+                                            }
                                         }
                                     }
-                                }
-                            } else {
-                                if ((space.get(i - myDirectionX, j) == 1) || (previousField[i - myDirectionX][j] == 2) || ((space.get(i - myDirectionX, j) == -1) && (previousField[i - myDirectionX][j] == 1))) {
-                                    if ((space.get(i, j + myDirectionY) == 1) || (previousField[i][j + myDirectionY] == 2) || ((space.get(i, j + myDirectionY) == -1) && (previousField[i][j + myDirectionY] == 1))) {
-                                        //up and negative directionx are obstacles
-                                        //move in positiveX Direction
-                                        space.set(i + myDirectionX, j, 1); // move it forward
-                                        space.set(i, j, 0); // set the current space to 0
+                                } else {
+                                    if ((space.get(i - myDirectionX, j) == 1) || (previousField[i - myDirectionX][j] == 2) || ((space.get(i - myDirectionX, j) == -1) && (previousField[i - myDirectionX][j] == 1))) {
+                                        if ((space.get(i, j + myDirectionY) == 1) || (previousField[i][j + myDirectionY] == 2) || ((space.get(i, j + myDirectionY) == -1) && (previousField[i][j + myDirectionY] == 1))) {
+                                            //up and negative directionx are obstacles
+                                            //move in positiveX Direction
+                                            space.set(i + myDirectionX, j, 1); // move it forward
+                                            space.set(i, j, 0); // set the current space to 0
 
 //                                        System.out.println("right fixed");
-                                    } else {
+                                        } else {
 
-                                        //only negative direction X is an obstacle
-                                        // move positive x or positive Y
+                                            //only negative direction X is an obstacle
+                                            // move positive x or positive Y
 
-                                        double p = random.nextDouble();
+                                            double p = random.nextDouble();
 
-                                        if (p < (driftX + (1.0 - DRIFT) / 2.0)) {
-                                            //positive X direction
-                                            space.set(i + myDirectionX, j, 1); // move it forward
-                                            space.set(i, j, 0); // set the current space to 0
+                                            if (p < (driftX + (1.0 - DRIFT) / 2.0)) {
+                                                //positive X direction
+                                                space.set(i + myDirectionX, j, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
 //                                            System.out.println("right random out of front and right");
 
-                                        } else {
-                                            //positive Y direction
-                                            space.set(i, j + myDirectionY, 1); // move it forward
-                                            space.set(i, j, 0); // set the current space to 0
+                                            } else {
+                                                //positive Y direction
+                                                space.set(i, j + myDirectionY, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
 //                                            System.out.println("forward random");
+                                            }
                                         }
-                                    }
-                                } else {
-                                    if ((space.get(i, j + myDirectionY) == 1) || (previousField[i][j + myDirectionY] == 2) || ((space.get(i, j + myDirectionY) == -1) && (previousField[i][j + myDirectionY] == 1))) {
-                                        //only positive direction Y is an obstacle
-                                        // move positive x or negative X
-
-                                        double p = random.nextDouble();
-
-                                        if (p < (DRIFT + (1.0 - DRIFT) / 2.0)) {
-                                            //positive X direction
-                                            space.set(i + myDirectionX, j, 1); // move it forward
-                                            space.set(i, j, 0); // set the current space to 0
-//                                            System.out.println("right random");
-                                        } else {
-                                            //negative X direction
-                                            space.set(i - myDirectionX, j, 1); // move it forward
-                                            space.set(i, j, 0); // set the current space to 0
-//                                            System.out.println("Left random");
-                                        }
-
                                     } else {
-                                        // no obstacles
-                                        // all three directions possible
+                                        if ((space.get(i, j + myDirectionY) == 1) || (previousField[i][j + myDirectionY] == 2) || ((space.get(i, j + myDirectionY) == -1) && (previousField[i][j + myDirectionY] == 1))) {
+                                            //only positive direction Y is an obstacle
+                                            // move positive x or negative X
 
-                                        double p = random.nextDouble();
+                                            double p = random.nextDouble();
 
-                                        if (p > (1.0 - ((1.0 - DRIFT) / 3.0))) {
-                                            //negative X direction
-                                            space.set(i - myDirectionX, j, 1); // move it left
-                                            space.set(i, j, 0); // set the current space to 0
-//                                            System.out.println("Left random out of all");
-                                        } else if (p < (((1.0 - DRIFT) / 3.0) + driftY)) {
-                                            //positive Y direction
-                                            space.set(i, j + myDirectionY, 1); // move it forward
-                                            space.set(i, j, 0); // set the current space to 0
-//                                            System.out.println("front random out of all");
+                                            if (p < (DRIFT + (1.0 - DRIFT) / 2.0)) {
+                                                //positive X direction
+                                                space.set(i + myDirectionX, j, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
+//                                            System.out.println("right random");
+                                            } else {
+                                                //negative X direction
+                                                space.set(i - myDirectionX, j, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
+//                                            System.out.println("Left random");
+                                            }
+
                                         } else {
-                                            //positive X direction
-                                            space.set(i + myDirectionX, j, 1); // move it right
-                                            space.set(i, j, 0); // set the current space to 0
-//                                            System.out.println("right random out of all");
-                                        }
+                                            // no obstacles
+                                            // all three directions possible
 
+                                            double p = random.nextDouble();
+
+                                            if (p > (1.0 - ((1.0 - DRIFT) / 3.0))) {
+                                                //negative X direction
+                                                space.set(i - myDirectionX, j, 1); // move it left
+                                                space.set(i, j, 0); // set the current space to 0
+//                                            System.out.println("Left random out of all");
+                                            } else if (p < (((1.0 - DRIFT) / 3.0) + driftY)) {
+                                                //positive Y direction
+                                                space.set(i, j + myDirectionY, 1); // move it forward
+                                                space.set(i, j, 0); // set the current space to 0
+//                                            System.out.println("front random out of all");
+                                            } else {
+                                                //positive X direction
+                                                space.set(i + myDirectionX, j, 1); // move it right
+                                                space.set(i, j, 0); // set the current space to 0
+//                                            System.out.println("right random out of all");
+                                            }
+
+                                        }
                                     }
                                 }
-                            }
 
+                            }
                         }
                     }
                 }

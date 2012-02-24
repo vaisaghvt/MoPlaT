@@ -22,7 +22,7 @@ import javax.swing.JPanel;
  *
  * @author vaisagh
  */
-class RoadMapLevel extends CreatorLevel implements MouseListener, MouseMotionListener {
+class RoadMapLevel extends AbstractLevel implements MouseListener, MouseMotionListener {
 
     private DrawingPanel interactionArea;
     private ArrayList<Position> points;

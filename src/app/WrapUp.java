@@ -25,6 +25,11 @@ class WrapUp implements Steppable {
 
     @Override
     public void step(SimState arg0) {
+        if (PropertySet.LATTICEMODEL) {
+            if (!state.getLatticeSpace().isEmpty()) {
+                return;
+            }
+        }
         for (RVOAgent agent : agents) {
             if (agent.getCurrentPosition().getX() > 0
                     && agent.getCurrentPosition().getY() > 0
