@@ -3,16 +3,16 @@ package agent.latticegas;
 import agent.RVOAgent;
 import app.PropertySet;
 import app.RVOModel;
+import ec.util.MersenneTwisterFast;
+import environment.geography.Goals;
 import environment.geography.Obstacle;
+import environment.geography.Position;
+import java.util.ArrayList;
+import javax.vecmath.Point2d;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.field.grid.IntGrid2D;
 import sim.util.Int2D;
-import ec.util.MersenneTwisterFast;
-import environment.geography.Goals;
-import environment.geography.Position;
-import java.util.ArrayList;
-import javax.vecmath.Point2d;
 
 /**
  * This class implements the lattice gas model. There will be only one agent
@@ -78,8 +78,8 @@ public class LatticeSpace {
     }
 
     public void addAgentAt(Double x, Double y) {
-        space.set((int) Math.round((x - (LATTICEGRIDSIZE / 2)) / LATTICEGRIDSIZE) - 1,
-                (int) Math.round((y - (LATTICEGRIDSIZE / 2)) / LATTICEGRIDSIZE) - 1, 1);
+        space.set((int) Math.round((x - (LATTICEGRIDSIZE / 2)) / LATTICEGRIDSIZE),
+                (int) Math.round((y - (LATTICEGRIDSIZE / 2)) / LATTICEGRIDSIZE), 1);
         numberOfAgents++;
     }
 
@@ -97,10 +97,10 @@ public class LatticeSpace {
             Position currentVertex = tempObst.getVertices().get(i);
             Position nextVertex = tempObst.getVertices().get((i + 1) % tempObst.getVertices().size());
 
-            int x1 = (int) Math.floor(currentVertex.getX() / LATTICEGRIDSIZE) - 1;
-            int x2 = (int) Math.floor(nextVertex.getX() / LATTICEGRIDSIZE) - 1;
-            int y1 = (int) Math.floor(currentVertex.getY() / LATTICEGRIDSIZE) - 1;
-            int y2 = (int) Math.floor(nextVertex.getY() / LATTICEGRIDSIZE) - 1;
+            int x1 = (int) Math.floor(currentVertex.getX() / LATTICEGRIDSIZE);
+            int x2 = (int) Math.floor(nextVertex.getX() / LATTICEGRIDSIZE);
+            int y1 = (int) Math.floor(currentVertex.getY() / LATTICEGRIDSIZE);
+            int y2 = (int) Math.floor(nextVertex.getY() / LATTICEGRIDSIZE);
 
 //            assert (x1 == x2) || (y1 == y2);
 
@@ -319,8 +319,11 @@ public class LatticeSpace {
                             || (i == 0 && directionX == -1)
                             || (j == space.getWidth() - 1 && directionX == 1)) {
                         // Goal reached
-                        space.set(i, j, 0);
-                        numberOfAgents--;
+                        if (previousField[i][j] == 1) {
+                            space.set(i, j, 0);
+                            numberOfAgents--;
+                        }
+//                        System.out.println(numberOfAgents);
                     } else if (previousField[i][j] == 2) {
                         // if it is an obstacle it
                         //remains an obstacle
@@ -329,9 +332,12 @@ public class LatticeSpace {
                         //if it used to be an agent
                         if (space.get(i, j) == 1) {
                             //if it has already been set to be an agent then let it be an agent.
-                            /* TODO: It is interesting to note that this whole algo 
-                            is very likely to get totally messed up when the orientation of the space is changed 
-                             * because i sort of assume that it is processed form left to right*/
+                            /*
+                             * TODO: It is interesting to note that this whole
+                             * algo is very likely to get totally messed up when
+                             * the orientation of the space is changed because i
+                             * sort of assume that it is processed form left to right
+                             */
                             continue;
                         }
 
@@ -439,8 +445,9 @@ public class LatticeSpace {
 //                            }
 
                                 /**
-                                 * Now to check where to move: since it is vertical
-                                 * door i.e. fixed X -myDirectionX is not considered
+                                 * Now to check where to move: since it is
+                                 * vertical door i.e. fixed X -myDirectionX is
+                                 * not considered
                                  */
                                 if ((space.get(i, j + myDirectionY) == 1) || (previousField[i][j + myDirectionY] == 2) || ((space.get(i, j + myDirectionY) == -1) && (previousField[i][j + myDirectionY] == 1))) {
                                     if ((space.get(i, j - myDirectionY) == 1) || (previousField[i][j - myDirectionY] == 2) || ((space.get(i, j - myDirectionY) == -1) && (previousField[i][j - myDirectionY] == 1))) {
@@ -583,8 +590,8 @@ public class LatticeSpace {
 //                            System.out.println("My direction x  =" + myDirectionX);
                                 /**
                                  * Now to check where to move: since it is
-                                 * horizontal door i.e. fixed Y -myDirectionY is not
-                                 * considered
+                                 * horizontal door i.e. fixed Y -myDirectionY is
+                                 * not considered
                                  */
                                 if ((space.get(i + myDirectionX, j) == 1) || (previousField[i + myDirectionX][j] == 2) || ((space.get(i + myDirectionX, j) == -1) && (previousField[i + myDirectionX][j] == 1))) {
                                     if ((space.get(i - myDirectionX, j) == 1) || (previousField[i - myDirectionX][j] == 2) || ((space.get(i - myDirectionX, j) == -1) && (previousField[i - myDirectionX][j] == 1))) {

@@ -84,7 +84,7 @@ public class PhysicaDataTracker implements DataTracker {
                 + File.separatorChar + this.trackerType()
                 + File.separatorChar + model.getScenarioName()
                 + File.separatorChar + PropertySet.MODEL
-                + File.separatorChar + PropertySet.SEED
+                + File.separatorChar + model.seed()
                 + File.separatorChar;
 
         String testFile = currentFolder + "test";
@@ -95,7 +95,7 @@ public class PhysicaDataTracker implements DataTracker {
         }
 
 
-        currentFolder = currentFolder + PropertySet.SEED + File.separatorChar;
+
         try {
             writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + PropertySet.SEED + "_"
                     + "Velocity", velocityListForAgent);

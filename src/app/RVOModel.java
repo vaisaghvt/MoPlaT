@@ -17,6 +17,7 @@ import environment.geography.SimulationScenario;
 import agent.latticegas.LatticeSpace;
 import app.PropertySet.Model;
 import app.dataTracking.DataTracker;
+import app.dataTracking.PhysicaDataTracker;
 import com.google.common.collect.HashMultimap;
 import ec.util.MersenneTwisterFast;
 import environment.geography.AgentGroup;
@@ -110,7 +111,8 @@ public class RVOModel extends SimState {
             createAgents();
         }
         if (PropertySet.TRACK_DATA) {
-            dataTracker = new CWDataCollector(this, agentList);
+//            dataTracker = new CWDataCollector(this, agentList);
+            dataTracker = new PhysicaDataTracker(this, agentList);
             schedule.scheduleRepeating(dataTracker, 4, 1.0);
         }
         schedule.scheduleRepeating(new WrapUp(this, agentList), 5, 1.0);
