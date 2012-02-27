@@ -2,11 +2,11 @@
 <SimulationScenario xmlns="http://geography.environment" name="Scenario1Mod" Xsize="30" Ysize="30" scale="20" direction="3" displayUsed="true" latticeModel="true" logUsed="true">
  
     <roadMap>
-        <position x="15.45" y="4.05"/>
+        <position x="15.3" y="4.05"/>
         <number>0</number>
     </roadMap>
     <roadMap>
-        <position x="15.45" y="2.25"/>
+        <position x="15.3" y="2.25"/>
         <number>1</number>
     </roadMap>
     <roadMap>
@@ -26,7 +26,7 @@
         <number>3</number>
     </roadMap>
     <roadMap>
-        <position x="15.45" y="-100.0"/>
+        <position x="15.3" y="-100.0"/>
         <number>4</number>
     </roadMap>
    
@@ -35,53 +35,53 @@
         <vertices x="0.3" y="29.1"/>
         <vertices x="29.7" y="29.1"/>
         <vertices x="29.7" y="2.7"/>
-        <vertices x="16.2" y="2.7"/>
-        <vertices x="16.2" y="3.6"/>
-        <vertices x="28.8" y="3.6"/>
-        <vertices x="28.8" y="28.2"/>
-        <vertices x="1.2" y="28.2"/>
-        <vertices x="1.2" y="3.6"/>
+        <vertices x="15.9" y="2.7"/>
+        <vertices x="15.9" y="3.6"/>
+        <vertices x="29.1" y="3.6"/>
+        <vertices x="29.1" y="28.2"/>
+        <vertices x="1.5" y="28.2"/>
+        <vertices x="1.5" y="3.6"/>
         <vertices x="14.7" y="3.6"/>
         <vertices x="14.7" y="2.7"/>
     </obstacles>
-     <obstacles>
-        <vertices y="1.8" x="13.5"/>
-        <vertices y="1.8" x="17.1"/>
-        <vertices y="0.9" x="17.1"/>
-        <vertices y="0.9" x="13.5"/>
+    <obstacles>
+        <vertices y="1.8" x="13.8"/>
+        <vertices y="1.8" x="16.8"/>
+        <vertices y="0.9" x="16.8"/>
+        <vertices y="0.9" x="13.8"/>
     </obstacles>
     <environmentGoals>
         <endPoint x="29.7" y="0"/>
         <startPoint x="0.3" y="0"/>
     </environmentGoals>
-        <environmentGoals>
-        <endPoint x="13.5" y="0.9"/>
-        <startPoint x="1.2" y="0.9"/>
+    <environmentGoals>
+        <endPoint x="13.8" y="0.9"/>
+        <startPoint x="1.5" y="0.9"/>
     </environmentGoals>
     <environmentGoals>
-        <endPoint x="17.1" y="0.9"/>
-        <startPoint x="28.8" y="0.9"/>
-    </environmentGoals>
-   <environmentGoals>
-        <endPoint x="13.5" y="1.8"/>
-        <startPoint x="1.2" y="1.8"/>
+        <endPoint x="16.8" y="0.9"/>
+        <startPoint x="29.1" y="0.9"/>
     </environmentGoals>
     <environmentGoals>
-        <endPoint x="17.1" y="1.8"/>
-        <startPoint x="28.8" y="1.8"/>
+        <endPoint x="13.8" y="1.8"/>
+        <startPoint x="1.5" y="1.8"/>
     </environmentGoals>
     <environmentGoals>
-        <endPoint x="16.2" y="2.7"/>
+        <endPoint x="16.8" y="1.8"/>
+        <startPoint x="29.1" y="1.8"/>
+    </environmentGoals>
+    <environmentGoals>
+        <endPoint x="15.9" y="2.7"/>
         <startPoint x="14.7" y="2.7"/>
     </environmentGoals>
     <environmentGoals>
-        <endPoint x="16.2" y="3.6"/>
+        <endPoint x="15.9" y="3.6"/>
         <startPoint x="14.7" y="3.6"/>
     </environmentGoals>
    
     
-    <agentGroups>
-        <endPoint x="28.2" y="27.6"/>
+   <agentGroups>
+        <endPoint x="28.8" y="27.6"/>
         <startPoint x="1.8" y="8.4"/>
         <size>200</size>
         <minSpeed>0.0</minSpeed>

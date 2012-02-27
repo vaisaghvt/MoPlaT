@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <SimulationScenario xmlns="http://geography.environment" name="Scenario1Mod" Xsize="30" Ysize="30" scale="20" direction="3" displayUsed="true" latticeModel="true" logUsed="true">
     <roadMap>
-        <position x="15.45" y="13.0"/>
+        <position x="15" y="13.0"/>
         <number>0</number>
     </roadMap>
     <roadMap>
-        <position x="15.45" y="5.0"/>
+        <position x="15" y="5.0"/>
         <number>1</number>
     </roadMap>
     <roadMap>
-        <position x="15.45" y="2.0"/>
+        <position x="15" y="2.0"/>
         <number>2</number>
     </roadMap>
     <roadMap>
-        <position x="15.45" y="-100.0"/>
+        <position x="15" y="-100.0"/>
         <number>3</number>
     </roadMap>
     <obstacles>
         <vertices x="14.4" y="1.3"/>
         <vertices x="14.4" y="3.4"/>
-        <vertices x="4.8" y="12.9"/>
-        <vertices x="2.1" y="12.9"/>
-        <vertices x="2.1" y="27.6"/>
-        <vertices x="27.3" y="27.6"/>
-        <vertices x="27.3" y="12.9"/>
+        <vertices x="5.1" y="12.9"/>
+        <vertices x="2.4" y="12.9"/>
+        <vertices x="2.4" y="27.6"/>
+        <vertices x="27.6" y="27.6"/>
+        <vertices x="27.6" y="12.9"/>
         <vertices x="24.9" y="12.9"/>
         <vertices x="15.6" y="3.4"/>
         <vertices x="15.6" y="1.3"/>
@@ -32,7 +32,7 @@
         <vertices x="29.1" y="28.8"/>
         <vertices x="0.6" y="28.8"/>
         <vertices x="0.6" y="10.8"/>
-        <vertices x="4.8" y="10.8"/>
+        <vertices x="5.1" y="10.8"/>
     </obstacles>
     <environmentGoals>
         <endPoint x="15.6" y="4.2"/>
@@ -47,12 +47,12 @@
         <startPoint x="14.4" y="0"/>
     </environmentGoals>
     <environmentGoals>
-        <endPoint x="24.3" y="12.9"/>
+        <endPoint x="24.9" y="12.9"/>
         <startPoint x="5.1" y="12.9"/>
     </environmentGoals>
     <agentGroups>
-        <endPoint x="27.0" y="27.3"/>
-        <startPoint x="2.4" y="13.5"/>
+        <endPoint x="27.3" y="27.3"/>
+        <startPoint x="2.7" y="13.5"/>
         <size>200</size>
         <minSpeed>0.0</minSpeed>
         <maxSpeed>2.6</maxSpeed>
