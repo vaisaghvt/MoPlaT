@@ -15,14 +15,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.vecmath.Point2d;
 import javax.vecmath.Tuple2d;
 import javax.vecmath.Vector2d;
 import org.jfree.chart.JFreeChart;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import sim.engine.SimState;
 
 /**
@@ -31,12 +30,13 @@ import sim.engine.SimState;
  */
 public class PhysicaDataTracker implements DataTracker {
 
+    private static int numberOfAgents;
     private final RVOModel model;
     private int stepNumber;
     public static final float E_S = 2.23f;
     public static final float E_W = 1.26f;
     public static final String TRACKER_TYPE = "Physica";
-    private final static int NUMBER_OF_DATA_TO_COLLECT = -1;
+    private final static int NUMBER_TO_COLLECT = -1;
 //    private final ArrayListMultimap<Integer, Double> energySpentByAgent;
     private final ArrayListMultimap<Integer, Vector2d> velocityListForAgent;
     private final ArrayListMultimap<Integer, Point2d> positionListForAgent;
@@ -51,7 +51,7 @@ public class PhysicaDataTracker implements DataTracker {
         positionListForAgent = ArrayListMultimap.create();
         latticeStateForTimeStep = new HashMap<Integer, int[][]>();
 
-
+        numberOfAgents = model.getAgentList().size();
     }
 
     @Override
@@ -125,6 +125,7 @@ public class PhysicaDataTracker implements DataTracker {
     }
 
     private static <E extends Tuple2d> void writeToFileAgentTuple2dList(String fileName, ArrayListMultimap<Integer, E> dataForAgent) throws IOException {
+             System.out.println("Creating "+fileName);
         File fileX = new File(fileName + "_x");
         File fileY = new File(fileName + "_y");
         DataOutputStream writerX = null;
@@ -137,40 +138,52 @@ public class PhysicaDataTracker implements DataTracker {
         }
 
         int writeTime;
-        if (NUMBER_OF_DATA_TO_COLLECT > 0) {
-            writeTime = dataForAgent.keySet().size() / NUMBER_OF_DATA_TO_COLLECT;
-        } else if (NUMBER_OF_DATA_TO_COLLECT == -1) {
+        if (NUMBER_TO_COLLECT > 0) {
+            writeTime = dataForAgent.keySet().size() / NUMBER_TO_COLLECT;
+            //Write integer TimeSteps
+            writerX.writeInt(NUMBER_TO_COLLECT);
+            writerY.writeInt(NUMBER_TO_COLLECT);
+        } else if (NUMBER_TO_COLLECT == -1) {
             writeTime = 1;
+            writerX.writeInt(dataForAgent.keySet().size());
+            writerY.writeInt(dataForAgent.keySet().size());
         } else {
             assert false;
         }
 
-        for (Integer timeStep : dataForAgent.keySet()) {
-            if (writeTime != 1 && timeStep % (writeTime) == 0) {
 
 
+//write integerNumberOfAgents
+        writerX.writeInt(numberOfAgents);
+        writerY.writeInt(numberOfAgents);
+
+        for (Integer timeStep : new TreeSet<Integer>(dataForAgent.keySet())) {
+            if (timeStep % (writeTime) == 0) {
+
+//                System.out.println(timeStep);
 
 
                 for (E element : dataForAgent.get(timeStep)) {
                     writerX.writeFloat((float) element.getX());
                     writerY.writeFloat((float) element.getY());
 
-                    writerX.writeChar('\t');
-                    writerY.writeChar('\t');
+//                    writerX.writeChar('\t');
+//                    writerY.writeChar('\t');
                 }
 
-                writerX.writeChar('\n');
-                writerY.writeChar('\n');
+//                writerX.writeChar('\n');
+//                writerY.writeChar('\n');
 
             }
         }
-
+        System.out.println("done");
         writerX.close();
         writerY.close();
     }
 
     private static void writeToFileLatticeState(String fileName, HashMap<Integer, int[][]> latticeStateForTimeStep) throws IOException {
         File file = new File(fileName);
+        System.out.println("Creating "+fileName);
 
         DataOutputStream writer = null;
 
@@ -182,33 +195,47 @@ public class PhysicaDataTracker implements DataTracker {
         }
 
         int writeTime;
-        if (NUMBER_OF_DATA_TO_COLLECT > 0) {
-            writeTime = latticeStateForTimeStep.keySet().size() / NUMBER_OF_DATA_TO_COLLECT;
-        } else if (NUMBER_OF_DATA_TO_COLLECT == -1) {
+        if (NUMBER_TO_COLLECT > 0) {
+            writeTime = latticeStateForTimeStep.keySet().size() / NUMBER_TO_COLLECT;
+            //Write integer TimeSteps
+            writer.writeInt(NUMBER_TO_COLLECT);
+
+        } else if (NUMBER_TO_COLLECT == -1) {
             writeTime = 1;
+            writer.writeInt(latticeStateForTimeStep.keySet().size());
         } else {
             assert false;
         }
 
-        for (Integer timeStep : latticeStateForTimeStep.keySet()) {
-            if (writeTime != 1 && timeStep % (writeTime) == 0) {
+
+
+
+        //write LATTICE SIZE
+        writer.writeInt(latticeStateForTimeStep.get(0).length);
+        writer.writeInt(latticeStateForTimeStep.get(0)[0].length);
+
+        for (Integer timeStep : new TreeSet<Integer>(latticeStateForTimeStep.keySet())) {
+            if (timeStep % (writeTime) == 0) {
+                System.out.println(timeStep);
                 int[][] currentState = latticeStateForTimeStep.get(timeStep);
                 for (int i = 0; i < currentState.length; i++) {
                     for (int j = 0; j < latticeStateForTimeStep.get(timeStep)[0].length; j++) {
-                        writer.writeInt(currentState[i][j]);
-                        writer.writeChar(' ');
+                        writer.writeByte((byte) currentState[i][j]);
+//                        writer.writeChar(' ');
 
                     }
-                    writer.writeChar('\n');
+//                    writer.writeChar('\n');
                 }
 
 
 //                writer.writeChar('\n');
-                writer.writeChar('\n');
+//                writer.writeChar('\n');
 
 
             }
+
         }
+        System.out.println("done");
 
         writer.close();
 
