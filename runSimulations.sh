@@ -27,7 +27,7 @@ END {
 		indices[j] = 0
 	}
 
-	count =0
+	
 	while(indices[0]!=1){
 		timeNeeded=0
 
@@ -45,11 +45,11 @@ END {
 		# c = "timeNeeded " filePathLine;
   #       c |getline runTime;
   #       close(c)
-  		seed = int(count/2) +1
-		javaCommand = "java -cp dist/CrowdSimulation.jar app.RVOModel -repeat 100 -time 50 -seed " seed
-		print javaCommand
+  		seed = 1
+		javaCommand = "java -cp dist/CrowdSimulation.jar app.RVOModel -repeat 100 -time 100 -seed " seed
+		# print javaCommand
 		system(javaCommand)
-		count= count +1
+		
 		for(j=NR;j>=1;j--){
 			if(startingPoint[j]+indices[j]==startingPoint[j+1]){
 				indices[j]=0
