@@ -148,6 +148,10 @@ public class PropertySet {
 
             MODEL = Model.valueOf(params.getModel());
 
+            if(MODEL == Model.SocialForce) {
+            LATTICEMODEL = false;
+        }
+            
             if (LATTICEMODEL) {
                 LatticeSpace.DRIFT = params.getDrift();
             }

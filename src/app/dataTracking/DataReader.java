@@ -55,11 +55,11 @@ public class DataReader {
                     int latticeHeight = reader.readInt();
                     System.out.println("length =" + latticeHeight);
                     for (int x = 0; x < numberOfTimeSteps; x++) {
-                        for (int y = 0; y < latticeWidth; y++) {
-                            for (int z = 0; z < latticeHeight; z++) {
+                        for (int y = 0; y < latticeHeight; y++) {
+                            for (int z = 0; z < latticeWidth; z++) {
 //                                System.out.println("Here");
                                 writer.print(reader.readByte());
-                                if (y != latticeWidth - 1) {
+                                if (z != latticeWidth - 1) {
                                     writer.print(",");
                                 }
                             }

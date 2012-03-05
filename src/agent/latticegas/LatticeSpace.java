@@ -48,6 +48,7 @@ public class LatticeSpace {
     protected RVOModel rvoModel;
     private ArrayList<GoalLines> goals;
     private int timeStepsPerMovement;
+    private final int[][] previousField;
 
     public LatticeSpace(int xSize, int ySize, RVOModel rm) {
 
@@ -68,7 +69,7 @@ public class LatticeSpace {
         goals = new ArrayList<GoalLines>();
 
         numberOfAgents = 0;
-
+        previousField = new int[space.field.length][space.field[0].length];
     }
 
     public Int2D generateRandomLocation() {
@@ -197,8 +198,13 @@ public class LatticeSpace {
         goals.add(tempGoal);
     }
 
-    public int[][] getField() {
-        return this.space.field;
+    public synchronized int[][] getField() {
+       int[][] result = new int[space.field.length][space.field[0].length];
+        for (int i = 0; i < space.field.length; i++) {
+            System.arraycopy(space.field[i], 0, result[i], 0, space.field[0].length);
+        }
+        return result;
+//        return this.previousField;
     }
 
     public void setDirection(int direction) {
@@ -296,7 +302,7 @@ public class LatticeSpace {
             assert DRIFT >= 0;
 
 
-            int[][] previousField = new int[space.field.length][space.field[0].length];
+
             for (int i = 0; i < space.field.length; i++) {
                 for (int j = 0; j < space.field[0].length; j++) {
                     previousField[i][j] = space.get(i, j);
@@ -306,9 +312,6 @@ public class LatticeSpace {
             int myDirectionX = 0, myDirectionY = 0;
             int goalYCenter;
             int goalXCenter;
-
-
-
 
             for (int i = 0; i < space.field.length; i++) {
                 for (int j = 0; j < space.field[0].length; j++) {
@@ -719,6 +722,16 @@ public class LatticeSpace {
                         }
                     }
                 }
+            }
+            for (int i = 0;
+                    i < space.field.length;
+                    i++) {
+                for (int j = 0; j < space.field[0].length; j++) {
+                    if (space.get(i, j) == -1) {
+                        space.set(i, j, 0);
+                    }
+                }
+//                System.out.println();
             }
         }
     }

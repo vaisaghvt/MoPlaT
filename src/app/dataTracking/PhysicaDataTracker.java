@@ -66,7 +66,20 @@ public class PhysicaDataTracker implements DataTracker {
         }
 
         if (PropertySet.LATTICEMODEL) {
+            
             latticeStateForTimeStep.put(stepNumber, model.getLatticeSpace().getField());
+//            for (int k = 0; k < stepNumber; k++) {
+//                for (int i = 0; i < latticeStateForTimeStep.get(k).length; i++) {
+//                    for (int j = 0; j < latticeStateForTimeStep.get(k)[0].length; j++) {
+//                        if (latticeStateForTimeStep.get(k)[i][j] == 1) {
+//                            System.out.print(latticeStateForTimeStep.get(k)[i][j] + ",");
+//                        }
+//
+//                    }
+////            System.out.println();
+//                }
+//                System.out.println();
+//            }
         }
 
         stepNumber++;
@@ -125,7 +138,7 @@ public class PhysicaDataTracker implements DataTracker {
     }
 
     private static <E extends Tuple2d> void writeToFileAgentTuple2dList(String fileName, ArrayListMultimap<Integer, E> dataForAgent) throws IOException {
-             System.out.println("Creating "+fileName);
+        System.out.println("Creating " + fileName);
         File fileX = new File(fileName + "_x");
         File fileY = new File(fileName + "_y");
         DataOutputStream writerX = null;
@@ -183,7 +196,7 @@ public class PhysicaDataTracker implements DataTracker {
 
     private static void writeToFileLatticeState(String fileName, HashMap<Integer, int[][]> latticeStateForTimeStep) throws IOException {
         File file = new File(fileName);
-        System.out.println("Creating "+fileName);
+        System.out.println("Creating " + fileName);
 
         DataOutputStream writer = null;
 
@@ -216,11 +229,12 @@ public class PhysicaDataTracker implements DataTracker {
 
         for (Integer timeStep : new TreeSet<Integer>(latticeStateForTimeStep.keySet())) {
             if (timeStep % (writeTime) == 0) {
-                System.out.println(timeStep);
+//                System.out.println(timeStep);
                 int[][] currentState = latticeStateForTimeStep.get(timeStep);
                 for (int i = 0; i < currentState.length; i++) {
                     for (int j = 0; j < latticeStateForTimeStep.get(timeStep)[0].length; j++) {
                         writer.writeByte((byte) currentState[i][j]);
+                    
 //                        writer.writeChar(' ');
 
                     }
@@ -233,7 +247,7 @@ public class PhysicaDataTracker implements DataTracker {
 
 
             }
-
+            
         }
         System.out.println("done");
 
