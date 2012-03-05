@@ -5,7 +5,7 @@ opath=$PATH
 PATH=/bin:/usr/bin
 
 case $# in
-	0|1) echo 'Usage runSimulations settings File xmlFile' 1>&2; exit 1
+	0|1) echo 'Usage runSimulations settingsFile xmlFile' 1>&2; exit 1
 esac
 
 
@@ -27,6 +27,7 @@ END {
 		indices[j] = 0
 	}
 
+	count =0
 	while(indices[0]!=1){
 		timeNeeded=0
 
@@ -36,17 +37,19 @@ END {
 		 	# print command
 		 	system(command)		
 		}
+		
 		testCommand = "grep FilePath " xmlFile;
 		testCommand |getline filePathLine
 		close(testCommand)
 
-		c = "timeNeeded " filePathLine;
-        c |getline runTime;
-        close(c)
-
-		javaCommand = "java -cp dist/CrowdSimulation.jar app.RVOModel -time 50 -for " runTime
+		# c = "timeNeeded " filePathLine;
+  #       c |getline runTime;
+  #       close(c)
+  		seed = int(count/2) +1
+		javaCommand = "java -cp dist/CrowdSimulation.jar app.RVOModel -repeat 100 -time 50 -seed " seed
 		print javaCommand
 		system(javaCommand)
+		count= count +1
 		for(j=NR;j>=1;j--){
 			if(startingPoint[j]+indices[j]==startingPoint[j+1]){
 				indices[j]=0
@@ -59,3 +62,5 @@ END {
 		}
 	}
 }' $1
+
+echo $1 $2 "run complete"|mail -s "Run Complete" vaisaghvt@gmail.com
