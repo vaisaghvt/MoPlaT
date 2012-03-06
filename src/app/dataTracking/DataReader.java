@@ -27,7 +27,8 @@ public class DataReader {
 
     public static void main(String[] args) {
         if (args.length < 2) {
-            System.out.println("usage: DataReader TYPE files");
+            System.out.println("you used: DataReader"+ Arrays.toString(args));
+            System.out.println("actual usage: DataReader TYPE files");
             System.exit(1);
         }
         PrintWriter writer;
@@ -76,25 +77,31 @@ public class DataReader {
 
 
             }
+            System.out.println("done");
         } else if (args[0].equalsIgnoreCase(FILE_TYPE.FLOAT.toString())) {
             for (int i = 1; i < args.length; i++) {
-                File inputFIle = new File(args[i]);
-                if (!inputFIle.exists()) {
-                    System.out.println("Invalid file!" + inputFIle + " \n Usage: DataReader TYPE files");
+                File inputFile = new File(args[i]);
+                if (!inputFile.exists()) {
+                    System.out.println("Invalid file!" + inputFile + " \n Usage: DataReader TYPE files");
                     System.exit(1);
                 }
                 DataInputStream reader = null;
 
                 try {
-                    reader = new DataInputStream(new FileInputStream(inputFIle));
+                    reader = new DataInputStream(new FileInputStream(inputFile));
 
 
                     File outputFile = new File(args[i] + ".txt");
 
-
+System.out.println(inputFile);
                     writer = new PrintWriter(new BufferedWriter(new FileWriter(outputFile)));
+                    
+                    System.out.println(reader.available());
+                    
                     int numberOfTimeSteps = reader.readInt();
+                    System.out.println("steps="+numberOfTimeSteps);
                     int numberOfAgents = reader.readInt();
+                    System.out.println("agents"+numberOfAgents);
 
                     for (int x = 0; x < numberOfTimeSteps; x++) {
                         for (int y = 0; y < numberOfAgents; y++) {
@@ -107,6 +114,8 @@ public class DataReader {
                         }
                         writer.println();
                     }
+                     writer.close();
+                    reader.close();
 
                 } catch (IOException ex) {
                     ex.printStackTrace();
