@@ -81,7 +81,7 @@ public class RVOSpace {
 
     public void addNewObstacle(RVOObstacle obstacle) {
 
-        if (PropertySet.MODEL == Model.RVO2 || PropertySet.MODEL == Model.SocialForce) {
+        if (PropertySet.MODEL == Model.RVO2 || PropertySet.MODEL == Model.SocialForce || PropertySet.MODEL == Model.PatternBasedMotion) {
             //If RVO2 is the model then the RVO2 obstacle requires obstacles to
             //broken down
             ArrayList<RVO2Obstacle> obstacles = new ArrayList<RVO2Obstacle>();
@@ -199,6 +199,9 @@ public class RVOSpace {
         return true;
     }
     
+    /*
+     * make the vertices in counter-clock wise order
+     */
     private ArrayList<Point2d> makeRightOrder(ArrayList<Point2d> points){
         
         int sum =0;

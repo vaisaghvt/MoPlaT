@@ -10,6 +10,7 @@
             <xs:attribute name="ShowVelocity" type="xs:boolean"/>
             <xs:attribute name="Trails" type="xs:boolean"/>
             <xs:attribute name="ShowLines" type="xs:boolean"/>
+            <xs:attribute name="ShowPerception" type="xs:boolean"/>
            
             <xs:attribute name="MaxClusteringRadius" type="xs:double"/>
             <xs:attribute name="Alpha" type="xs:int"/>

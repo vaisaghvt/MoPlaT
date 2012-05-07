@@ -11,7 +11,7 @@
         <vertices y="3" x="4.0"/>
         <vertices y="4.0" x="4"/>
         <vertices y="4.0" x="6.0"/>
-        <vertices y="3.0" x="6."/>
+        <vertices y="3.0" x="6.0"/>
     </obstacles>
     <obstacles>
         <vertices y="5.975" x="6.025"/>

@@ -263,9 +263,11 @@ public class RVOModel extends SimState {
                     RVOAgent tempRVOAgent = new RVOAgent(
                             new Point2d(tempAgent.getPosition().getX(), tempAgent.getPosition().getY()),
                             new Point2d(tempAgent.getGoal().getX(), tempAgent.getGoal().getY()),
-                            rvoSpace, new Color(0.0f, 0.0f, 1.0f),
+                            rvoSpace, 
+//                            new Color(Color.HSBtoRGB((float) i / (float) xmlAgentList.size(),1.0f, 0.68f)),
+                            Color.BLACK,
                             tempAgent.getPreferedSpeed(), tempAgent.getCommitmentLevel());
-
+                    
                     addNewAgent(tempRVOAgent);
                 } else {
                     RVOAgent tempRVOAgent = new RVOAgent(

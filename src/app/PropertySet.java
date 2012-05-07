@@ -28,7 +28,7 @@ import utility.Geometry;
 public class PropertySet {
 
     private static final String PROPERTIES_FILENAME = "CrowdProperties" + File.separatorChar
-            + "LatticeTestSettings.xml";
+            + "PBMTesting.xml";
 
     public static enum Model {
 
@@ -131,8 +131,9 @@ public class PropertySet {
             AgentPortrayal.SHOW_ORCA_LINES = params.isShowLines();
             AgentPortrayal.SHOW_VELOCITY = params.isShowVelocity();
             AgentPortrayal.SHOW_TRAILS = params.isTrails();
-
-
+            
+            AgentPortrayal.SHOW_PERCEPTION = params.isShowPerception();
+            AgentPortrayal.SHOW_STP = false; //default false
 
             //AGENT PARAMETERS
             RVOAgent.RADIUS = params.getAgentRadius();
@@ -156,6 +157,16 @@ public class PropertySet {
                 LatticeSpace.DRIFT = params.getDrift();
             }
 
+//            if (MODEL == PropertySet.Model.RVO2) {
+                
+                RVO_2_1.TIME_HORIZON = params.getTimeHorizon();
+                RVO_2_1.TIME_HORIZON_OBSTACLE = params.getTimeHorizonObst();
+//            }
+            
+            if(params.isUseClustering()){
+                ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES = params.getNumberOfClusteringSpaces();
+                
+            }
 
             RVO_2_1.TIME_HORIZON = params.getTimeHorizon();
             RVO_2_1.TIME_HORIZON_OBSTACLE = params.getTimeHorizonObst();

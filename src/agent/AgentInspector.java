@@ -20,6 +20,7 @@ import java.awt.event.ActionListener;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.plaf.basic.BasicSliderUI.ActionScroller;
 import sim.display.Controller;
 import sim.display.GUIState;
 import sim.engine.SimState;
@@ -92,6 +93,36 @@ public class AgentInspector extends Inspector {
 
                         // update everything: console, inspectors, displays,
                         // everything that might be affected by randomization
+                        console.refresh();
+                    }
+                }
+            });
+        }
+        
+        if(PropertySet.MODEL == Model.PatternBasedMotion){
+            JButton perceptionSwitch = new JButton("Toggle Vision");
+            viewBox.add(perceptionSwitch);
+            viewBox.add(Box.createGlue());
+            perceptionSwitch.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    synchronized(state.schedule){
+                        agent.togglePerception();
+                        console.refresh();
+                    }
+                }
+            });
+            
+            JButton stpSwitch = new JButton("Toggle STP-T0");
+            viewBox.add(stpSwitch);
+            viewBox.add(Box.createGlue());
+            stpSwitch.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    synchronized(state.schedule){
+                        agent.toggleSTP();
                         console.refresh();
                     }
                 }

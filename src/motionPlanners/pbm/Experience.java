@@ -25,7 +25,7 @@ public class Experience extends ArrayList {
      * add a new exp instance
      */
     public void addExpInstance(ExperienceInstance ei){
-        expBase.add(0, ei);
+        expBase.add(0, ei); //insert at the position with index 0 (STACK)
     }
     
     /*

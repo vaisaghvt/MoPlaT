@@ -22,6 +22,9 @@ class STPattern {
     /*
      * constructor
      */
+    public STPattern(){
+    }
+    
     public STPattern(int pf, int a_row, int a_column) {
         this.pattern = new int [pf+1][a_row][a_column];
     }

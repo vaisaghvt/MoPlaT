@@ -4,26 +4,39 @@ import agent.RVOAgent;
 import app.PropertySet;
 import app.RVOModel;
 import java.awt.Color;
+import java.util.ArrayList;
+import javax.media.j3d.Geometry;
 import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MoveAction;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 import motionPlanners.pbm.WorkingMemory.STRATEGY;
 import sim.util.Bag;
+import ec.util.MersenneTwisterFast;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class Decision {
     Bag neighbor;
-    RVOAgent me;
+    int targetIndex; //column index of the target in the stp
     int targetID;
     WorkingMemory wm;
     boolean left; //from which side of the target to execute the strategy
+    
     private STRATEGY currentStrategy; //current action = MOVE or current executing strategy (selected)
+    private STRATEGY tentCurrentStategy;
+    
+    TreeMap<Integer,Integer> tentTargetIndex;
+    TreeMap<Integer,Integer> tentTargetID;
+    TreeMap<Integer,Side> tentSide;
+    
     int instructedTime; //number of frames, within which to execute the strategy
     
     int midIndex;
-    int targetIndex; //column index of the target in the stp
-//    
-//   
-//    int instructedTime;
+    int midIndex_odd;
+    int numOfVisualColumns;
 
     //for recording of whether the matching fail is because of failed for overtaking or both overtaking and following
     boolean overtakeFlag;
@@ -40,21 +53,38 @@ public class Decision {
         return startVelocity;
     }
     
-    public int getT1(){
-        return instructedTime;
+     public static enum Side{
+        LEFT,RIGHT
     }
     
     public Decision(WorkingMemory wm) {
         this.wm = wm;
-        me = wm.getMyAgent();
+//        me = wm.getMyAgent();
+//        System.out.println("initial velocity at wm is: "+me.getVelocity());//correct
         targetID = -1;
         targetIndex = -1;  
+        
+        tentTargetID = new TreeMap<Integer,Integer>();
+        tentTargetIndex = new TreeMap<Integer,Integer>();
+        tentSide=new TreeMap<Integer,Side>();
+        
         left = true; //default left
         instructedTime = -1;
-        midIndex = 5;
-        this.currentStrategy = null;
-        overtakeFlag=false;
+        currentStrategy = null;
+        tentCurrentStategy = null;
+        
+        if(wm.ps_discrete == motionPlanners.pbm.WorkingMemory.PreferredSpeed_Discrete.FAST){
+            overtakeFlag=true; 
+        }
+        else{
+            overtakeFlag=false;
+        }
+        
         neighbor = new Bag();
+        midIndex =-1;
+        midIndex_odd =-1;
+        numOfVisualColumns=0;
+
     }
 
     public STRATEGY getCurrentStrategy() {
@@ -63,13 +93,22 @@ public class Decision {
 
    private void setCurrentStrategy(STRATEGY strategy) {
         this.currentStrategy = strategy;
-        this.wm.getAction().finishCurrentStrategy = false;
     }
+   
+   public STRATEGY getTentCurrentStrategy() {
+        return tentCurrentStategy;
+    }
+
+   private void setTentCurrentStrategy(STRATEGY strategy) {
+        this.tentCurrentStategy = strategy;
+    }
+    
     
     public boolean isLeft() {
         return left;
     }
-
+    
+    
     public int getInstructedTime() {
         return instructedTime;
     }
@@ -78,323 +117,598 @@ public class Decision {
         return targetID;
     }
 
-    void execute(Bag sensedneighbor) {
-        if (needNewDicison(sensedneighbor)) {
+    void execute(Bag sensedneighbor, Bag sensedObstacles) {
+        if (needNewDicison(sensedneighbor, sensedObstacles)) {
             selectNewStrategy();
         }
     }
 
     //each time when updating all agents' states, this function is called before execute specific action in Action class
-    public boolean needNewDicison(Bag sensedneighbor) {
-        if (wm.getAction().frameFromLastDecision >= wm.getDecision().getInstructedTime() || wm.getMyAgent().violateExpectancy || wm.getAction().finishCurrentStrategy 
-                || this.currentStrategy == STRATEGY.FOLLOW
+    public boolean needNewDicison(Bag sensedneighbor, Bag sensedObstacles) {
+        if (
+                (this.currentStrategy == STRATEGY.OVERTAKE && wm.getAction().frameFromLastDecision >= wm.getDecision().getInstructedTime() * 1.5)
+                || wm.isFinishCurrentStrategy() 
+                || wm.isViolateExpectancy()
+                || (this.currentStrategy == STRATEGY.FOLLOW) //should be put into expectancyViolation or finishStrategy of following execution
                 || this.currentStrategy == null
-                || this.currentStrategy == STRATEGY.INSTINCTIVERACTION) {
+//                || this.currentStrategy == STRATEGY.INSTINCTIVERACTION   //no explicity strategy called instinctive reaction, if it is null, it is possibly i.r, need to identify in action and RVOAgent
+           ) 
+        {
+            wm.setStrategyChanged(true); //need to make new decision
+            wm.setFinishCurrentStrategy(false);
+            wm.setViolateExpectancy(false);
+            targetID = -1;
+            targetIndex = -1;
+            tentCurrentStategy=null;
+            tentSide.clear();
+            tentTargetID.clear();
+            tentTargetIndex.clear();
+            currentStrategy=null;
+
             wm.getAction().frameFromLastDecision = 0; //reset frame counter for new strategy execution        
-            startPosition = new Point2d(me.getCurrentPosition());
-            startVelocity = new Vector2d(me.getVelocity());
+            wm.getMyAgent().setPrefVelocity();
+            wm.getMyAgent().setVelocity(wm.getMyAgent().getPrefVelocity());//vision is set based on velocity rather than prefVel currently
             
-            //once the current strategy is finished, set the current velocity back towards goal
-            wm.getMyAgent().setVelocity(wm.getMyAgent().getPrefVelocity());
-            wm.getVision().setStrategySelected(false);
+            startPosition = new Point2d(wm.getMyAgent().getCurrentPosition());
+            startVelocity = new Vector2d(wm.getMyAgent().getVelocity());
+            
             neighbor = new Bag(sensedneighbor);
-            wm.getVision().execute(sensedneighbor);
+            wm.getVision().execute(sensedneighbor, sensedObstacles);
+           
+//            if(wm.getMyAgent().getId()==3){
+//                System.out.println();
+//            }
+//            
+            midIndex=-1;
+            midIndex_odd=-1;
+            
+            if(wm.getVision().getHasNeighbourForReaction()){
+                currentStrategy = null; // instinctive reaction to resolve immenant collisions
+                wm.setPreviousStrategy(wm.getCurrentStrategy());
+                wm.setCurrentStrategy(currentStrategy);  
+                System.out.println("Instinctive reaction to resolve immenant collisions");
+                return false;
+            }else if(wm.getVision().getHasNeighbourForSteering()){
+                numOfVisualColumns = (int)Math.floor(wm.getVision().getVisualRange()/wm.getVision().getAngle());
+                if(numOfVisualColumns >=3){
+                    if(numOfVisualColumns%2==0){
+                        midIndex = numOfVisualColumns/2;
+                        midIndex_odd = numOfVisualColumns/2 - 1;
+                    }else{
+                        midIndex = numOfVisualColumns/2;
+                    } 
+                    System.out.println("*************Agt"+wm.getMyAgent().getId()+" needs to make new decision, its velocity reset to prefVel towards its goal: "+wm.getMyAgent().getVelocity());
+                }else{
+                    this.currentStrategy = null; //got agent already too close to me, instincitive reaction
+                    wm.setPreviousStrategy(wm.getCurrentStrategy());
+                    wm.setCurrentStrategy(currentStrategy);  
+                    System.out.println("Instinctive reaction2 to resolve immenant collisions");
+                    return false;
+                }
+            }else{
+                this.currentStrategy = null;  // perceived no other agents in my vision for steering, thus strategy need to be applied
+                wm.setPreviousStrategy(wm.getCurrentStrategy());
+                wm.setCurrentStrategy(currentStrategy);  
+                System.out.println("Non strategic moving");
+                return false;
+            }
             return true;
-        } else {
-            wm.getVision().setStrategySelected(true);
+        } 
+        //No New decision is Needed, Still Executing the Previous Strategy
+        else {
+            wm.setStrategyChanged(false); //no need to make new decision
             return false;
         }
     }
     
-    private void selectNewStrategy() {
-        //setCurrentStrategy(STRATEGY.FOLLOW);
-        //The current prototypical patterns are only designed and only necessary for fast pedestrians
+    private void selectNewStrategy() {       
+            //set tentative strategy for three strategies, also set tentTargetID and tentTargetIndex inside this function
+            initialMatching(wm.getVision().getSpacepattern());
+            
+            if(tentCurrentStategy==null){
+                currentStrategy = null;
+                wm.setPreviousStrategy(wm.getCurrentStrategy());
+                wm.setCurrentStrategy(currentStrategy);  
+                return;
+            }
+            
+            //have the tentative strategy, target and side(OVERTAKE, AVOID): 
+            //1. set the verifyVelocity (mental simulate the strategy execution) 
+            //2. Generated predicted frames in STP
+            //3. verifyMatching (this is similar or the same as violency check during execution)
+            verifyMatching();
+//                    wm.getVision().setStrategySelected(true);
+//            wm.setStrategyChanged(true);  //a strategy is newly selected, no matther whether it is the same as the previous one as the stp may be totally different
+            wm.setPreviousStrategy(wm.getCurrentStrategy());
+            wm.setCurrentStrategy(currentStrategy);
+    }
+    
+    /*
+     * set the tentative strategy that intend to be executed
+     * 
+     * At the same time, edit the 4 variables in decision class: tentTarget, tenttargetColumnIndex, tentSide, tentCurrentStrategy
+     */
+    private void initialMatching(STPattern p1){
+        //check p1 for the most tentative strategy
+        ArrayList<Integer> centralFuzzyColValues = new ArrayList<Integer>();
+        int columnNum = p1.getPattern()[0][0].length;
+        int leftCentral=-1;
+        int rightCentral=-1;
+        //odd number of columns
+        if(midIndex_odd<0){
+            leftCentral=midIndex;
+            rightCentral=midIndex;
+            int count = 1;
+            if(columnNum==3){
+                leftCentral=0;
+                rightCentral=2;// if 3 columns, then all 3 are considered
+            }else{
+                int totalCentralColNum = (int)Math.ceil(columnNum/2);
+                if(totalCentralColNum/2 ==0){
+                    totalCentralColNum= (int)Math.floor(columnNum/2);
+                }
+                while(count+2<= totalCentralColNum){
+                    leftCentral--;
+                    rightCentral++; //set the left and right index for the central checking area
+                    count+=2;
+                }
+            }
+        }
+        //even number of columns
+        else{
+            leftCentral=midIndex_odd;
+            rightCentral=midIndex;
+            int count = 2;
+            int totalCentralColNum = columnNum/2;
+            if(totalCentralColNum%2!=0){
+                totalCentralColNum+=1;
+            }
+            
+            while(count+2<=totalCentralColNum){
+                leftCentral--;
+                rightCentral++;
+                count+=2;
+            }
+        }
+        for(int i = leftCentral; i<=rightCentral; i++){
+            centralFuzzyColValues.add(fuzzyColumnValue(p1, i)); //so from left to right, the column values are in the list with index of 0 onwards
+        }
         
-        if(wm.getVision().getObsesAgents_ForReaction().isEmpty()){
-            if(wm.ps_discrete!= motionPlanners.pbm.WorkingMemory.PreferredSpeed_Discrete.SLOW){
-                double fit=0; //used to measure the fit value of mathcing, 0 not matched at all, 1 perfect match
-                int bestFitPattern = -1;
-
-                //[0].Matched frame number for AVOID [1]: count for OVERTAKE  [2]: count for MOVE
-                int[] numMatchedFrames =new int[3];
-
-                //the 3 prototypical patterns for the experiences are in the order of 0. AVOID 1.OVERTAKE 2.MOVE
-                for(int i=0; i<wm.getExperience().getAllExpInstances().size(); i++){
-                    //here, it is different from RPD, where the best fit is used rather than the first meet the thrshold
-                    //this is because we do not know which threshold value is good according to the matching function defined yet
-                    //but later can be changed to be aligned with RPD easily by giving threshold values properly
-
-                    //get the fit value of the 2 stps from the Matching function
-                    //here, the numMatchedFrames need to be specifically allocate for each comparing steering strategy
-                    double match = stpMatching(numMatchedFrames, wm, wm.getVision().getSpacepattern(), wm.getVision().getSpacepattern_agt(), wm.getExperience().getAllExpInstances().get(i).getPrototypicalSTP());
-                    if(match == 1.0){
-                        fit = match;
-                        bestFitPattern = i;
-                        break;
-                    }
-                    if(fit < match){
-                        fit = match;
-                        bestFitPattern = i;
-                    } 
-                }//end of for, choose the best matched empirical instance
-
-              //inside Matching(wm, p1,p2), should set target, instructedTime , left
-
-               if(bestFitPattern>=0){
-                  //set the current strategy according to the matched experience instance 
-                    setCurrentStrategy(wm.getExperience().getAllExpInstances().get(bestFitPattern).getEmpiricalStg());
-
-    //           else{
-    //               //almost cant happen
-    //               System.out.println("FOLLOW is selected");
-    //               setCurrentStrategy(STRATEGY.FOLLOW);
-    //           }
-    //           if(this.currentStrategy!=STRATEGY.MOVE) 
-                    wm.getVision().setStrategySelected(true);
-    //           else wm.getVision().setStrategySelected(false);
-
-                    findTarget(currentStrategy, numMatchedFrames);
-               }
-            }//end of preferredSpeed>1 (FAST)
-            else{
-                setCurrentStrategy(STRATEGY.MOVE);
-                wm.getVision().setStrategySelected(false);
+        //==============================Start to Search the Fuzzy Column Value Array for Possible Patterns-=============================================
+        int currentColValue; //initial value for the start of the search, for odd number of columns, it it the value of the middle column, for even, it is assigned according to the following mechanism
+        //if both 00, no use, if at least -1, then this value is set to -1, otherwise (11, 01, 10), then set to 1
+        
+        if(midIndex_odd>=0){
+            if(centralFuzzyColValues.get(midIndex-leftCentral)==0 && centralFuzzyColValues.get(midIndex_odd-leftCentral)==0){
+                tentCurrentStategy = null; //non-strategic
+//                currentStrategy = null;
+                return;
+            }else if(centralFuzzyColValues.get(midIndex-leftCentral)+ centralFuzzyColValues.get(midIndex_odd-leftCentral)>=1){
+                currentColValue=1;
+            }else{
+                currentColValue=-1;
             }
         }else{
-            setCurrentStrategy(STRATEGY.INSTINCTIVERACTION);
+            currentColValue = centralFuzzyColValues.get(midIndex-leftCentral);
+            if(currentColValue==0){
+                tentCurrentStategy = null; //non-strategic
+//                currentStrategy = null;
+                return;
+            }
         }
-    }
+        
+        if(currentColValue==1){
+            initialMatch_CenterOne(centralFuzzyColValues, p1, leftCentral); //initial "previousvalue" =1
+        } 
+        else{ 
+            initialMatch_CenterNegativeOne(centralFuzzyColValues, p1, leftCentral); //initial "previousvalue"=-1
+        }
+    }//end of function initialMatch
     
-        /*
-     * Hierarchical STPattern Matching process, returns a final matching value between[0,1]
-     * given wm (the agent) and two comparing STPs
-     * return the matching fit value (0-1), 0 not matched, 1 perfect match
-     * At the same time, edit the 4 variables in wm: target, targetColumnIndex, left, instructedTime
-     */
-    private double stpMatching(int[] count, WorkingMemory wm, STPattern p1, STPattern p1_id, STPattern p2){
-        //matching value for each prototypical value
+    //when my middle is a fuzzy 1, which trying to match for overtake, if overtake is not feasible, follow
+    private void initialMatch_CenterOne(ArrayList<Integer> centralFuzzyColValues, STPattern p1, int leftCentral){
+        int midAgtId;
+        int midAgtId_odd;
         
-        //everytime, clean the count of numMatchedFrames first
-//        count = 0;
-        motionPlanners.pbm.WorkingMemory.strategymatchingCommitment commit = me.getCommitementLevel();
+        boolean relativeFaster=false;
         
-        double match=0.0;
-            //TODO: get a score for the match  between p1 and p2
-            //TODO: according to the commitmentlevel of the agent, process the match and result a final match score 
-            //Theoretically, should apply a general matching mechanism between p1 and p2,however, we manually to check some constituents 
-            //that are in prototypical STP for different steering strategys now, which means we do not use p2 now
-
-            //If Prototypical STP is for MOVE
-        if(p2.getValue(0, 0, 5)==0){
-            int requiredMatch =0;
-            int maxMatch = (int) (Math.ceil((3.6/wm.getMyAgent().getPrefVelocity().length())/PropertySet.TIMESTEP));
-            switch(commit){
-                case HIGHCOMMITMENT:
-                    requiredMatch= (int) Math.round(0.2 * maxMatch); // 3.6/(1.3*1.2-1) / TIMESTEP = 7*20 = 140  increase around 1.2 times of speed during catch up
-                    break;
-                case MIDCOMMITMENT:
-                    requiredMatch= (int)Math.round(0.1 * maxMatch); //  3.6/(1.3*1.5-1) 
-                    break;
-                case LOWCOMMITMENT:
-                    requiredMatch= 1;  // once see the chance now, just start
-                    break;
-                default: 
-                    break;              
-            }
-        
-            for(int i=0; i< maxMatch; i++){
-                if(p1.getValue(i, 0, 5)==0){
-                    //the current frame has most impact (requiredMatch), the last frame has less (0)
-                    count[2]++; 
-                }else{
-                    break;
-                }
-            }
-            // count = (requiredMatch + 0.5 requiredMatch + 0.25 requiredMarch + ....)
-//            double totalMatch = 1-Math.pow(0.5, requiredMatch);
-            match = (double)count[2] / requiredMatch; //match with MOVE
-            if(match>1.0) match = 1.0;
-        }
-        //for prototypical STP of SIde-AVOID
-        else if(p2.getValue(0, 0, 5)==-1){
-            int requiredMatch =0;
-            int maxMatch = (int) (Math.ceil((1.8/wm.getMyAgent().getPrefVelocity().length())/PropertySet.TIMESTEP));
-            switch(commit){
-                case HIGHCOMMITMENT:
-                    requiredMatch= (int) Math.round(0.2 * maxMatch); 
-                    break;
-                case MIDCOMMITMENT:
-                    requiredMatch= (int) Math.round(0.1 * maxMatch); 
-                    break;
-                case LOWCOMMITMENT:
-                    requiredMatch= 1;  // once see the chance now, just start
-                    break;
-                default: 
-                    break;              
-            }
-            for(int i=0; i<maxMatch; i++){  //for side-avoid, two parties walking towards each other
-                if(p1.getValue(i, 0, 5)== -1 || 
-                   (p1.getValue(i, 0, 5)==0 && p1.getValue(i, 1, 5)==-1)){
-                    count[0]++;
-                }else{
-                    break;
-                }
-            }
-            match = (double)count[0] / requiredMatch; //match with AVOID
-            if(match>1) match =1;
-        }
-        //for OVERTAKE or FOLLOW
-        else{     
-//            int count = 0;
-            overtakeFlag=true;
-//            match++; //once enter this, has to enable the count to be >=0 for follow and overtake
-            int requiredMatch =0;
-            double deltaSpeed = wm.getMyAgent().getSpeed();
-           
-            if(wm.getVision().getSpacepattern().getValue(0, 0, 5) != 1){
-                count[1]=0;
-                match = 0;
-                return match;
+            
+        if(midIndex_odd<0){
+            midAgtId = p1.getValue(0, 0, midIndex)==1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, midIndex): wm.getVision().getSpacepattern_agt().getValue(0, 1, midIndex);
+            RVOAgent midAgt= wm.getAgent(neighbor, midAgtId);
+            Vector2d relativeVelMetoMidAgt = new Vector2d(midAgt.getVelocity());
+            relativeVelMetoMidAgt.sub(wm.getMyAgent().getVelocity()); 
+            if(utility.Geometry.sameDirection(wm.getMyAgent().getVelocity(), relativeVelMetoMidAgt)< Math.cos((Math.PI+wm.getVision().getAngle())/2)
+                    && Math.abs(wm.getMyAgent().getVelocity().x)>Math.abs(midAgt.getVelocity().x)  ){   //the midAgt is relatively moving in towards me
+                relativeFaster=true;
+            } 
+        }else{
+            midAgtId = p1.getValue(0, 0, midIndex)==1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, midIndex): wm.getVision().getSpacepattern_agt().getValue(0, 1, midIndex);
+            midAgtId_odd = p1.getValue(0, 0, midIndex_odd)==1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, midIndex_odd): wm.getVision().getSpacepattern_agt().getValue(0, 1, midIndex_odd);
+            RVOAgent midAgt= wm.getAgent(neighbor, midAgtId);
+            RVOAgent midAgt_odd= wm.getAgent(neighbor, midAgtId_odd);
+            if(midAgt==null){
+                Vector2d relativeVelMetoMidAgt = new Vector2d(midAgt_odd.getVelocity());
+                relativeVelMetoMidAgt.sub(wm.getMyAgent().getVelocity()); 
+                if(utility.Geometry.sameDirection(wm.getMyAgent().getVelocity(), relativeVelMetoMidAgt)< Math.cos((Math.PI+wm.getVision().getAngle())/2)){   //the midAgt is relatively moving in towards me
+                    relativeFaster=true;
+                } 
+            }else if(midAgt_odd==null){
+                Vector2d relativeVelMetoMidAgt = new Vector2d(midAgt.getVelocity());
+                relativeVelMetoMidAgt.sub(wm.getMyAgent().getVelocity()); 
+                if(utility.Geometry.sameDirection(wm.getMyAgent().getVelocity(), relativeVelMetoMidAgt)< Math.cos((Math.PI+wm.getVision().getAngle())/2)){   //the midAgt is relatively moving in towards me
+                    relativeFaster=true;
+                } 
             }else{
-                int tmpAgtID = wm.getVision().getSpacepattern_agt().getValue(0, 0, 5);
-                deltaSpeed = Math.abs(wm.getAgent(neighbor, tmpAgtID).getPreferredSpeed()-deltaSpeed);
-
-                int maxMatch = (int) (wm.getVision().getPf()* 0.5 / deltaSpeed);
-                switch(commit){
-                    case HIGHCOMMITMENT:
-                        requiredMatch= (int) Math.round(0.2 * maxMatch); 
-                        break;
-                    case MIDCOMMITMENT:
-                        requiredMatch= (int) Math.round(0.1 * maxMatch); 
-                        break;
-                    case LOWCOMMITMENT:
-                        requiredMatch= 1;  // once see the chance now, just start
-                        break;
-                    default: 
-                        break;              
-                }
-
-                int leftIndex = -1;
-                int rightIndex = 11;
-
-                //for current frame
-                 for(int i = 5; i>= 2; i--){
-                    if(p1.getValue(0, 0, i)==1 && p1.getValue(0, 0, i-1)==0 
-    //                    && p1.getValue(0, 1, i)== 0
-    //                    && p1.getValue(0, 1, i-1)==0 
-                            ){
-                        leftIndex=i;
-                    }
-                 }
-
-                 for(int i = 5; i<=8; i++){
-                    if(p1.getValue(0, 0, i)==1 && p1.getValue(0, 0, i+1)==0
-    //                    && p1.getValue(0,1,j)==0
-    //                    && p1.getValue(0, 1, j+1)==0 
-                            ){
-                        rightIndex=i;
-                    }
-                 }
-
-                 if(leftIndex<0 && rightIndex >10){
-                     match = 0;
-                     count[1]=0;
-                     System.out.println("Too many people moving in front, has to FOLLOW");
-                     this.setCurrentStrategy(STRATEGY.FOLLOW);
-                     return match;    
-                 }
-                 //from the current frame, find 10
-                 else if(leftIndex<0){
-                     //only verify potential target on the right half
-                     count[1]=checkSpatialAlongTime(rightIndex,p1,p1_id, false, maxMatch);
-                     match = (double)count[1] / requiredMatch; //match with AVOID
-                     if(match>1){ 
-                         match = 1;
-                         left = false;
-                     }
-                     this.targetIndex = rightIndex;
-                     this.targetID = p1_id.getValue(0, 0, rightIndex);
-                 }
-                 //from the current frame, find 01
-                 else if(rightIndex>10){
-                     //only verify potential target on the left half
-                     count[1]=checkSpatialAlongTime(leftIndex,p1,p1_id, true, maxMatch);
-                     match = (double)count[1] / requiredMatch; //match with AVOID
-                     if(match>1){
-                         match = 1;
-                         left = true;
-                     }
-                     this.targetIndex = leftIndex;
-                     this.targetID = p1_id.getValue(0, 0, leftIndex);
-                 }
-                 //from the current frame, find 01 and 10
-                 else{
-                     //verify the spatial pattern around the potential target for the required number of frames
-                     int leftCount = checkSpatialAlongTime(leftIndex,p1,p1_id,true, maxMatch);
-                     int rightCount = checkSpatialAlongTime(rightIndex,p1,p1_id,false, maxMatch);
-                     
-                     double leftMatch = (double)leftCount / requiredMatch;
-                     if(leftMatch>1){
-                         leftMatch =1;
-                     }
-                     double rightMatch = (double)rightCount / requiredMatch;
-                     if(rightMatch>1){
-                         rightMatch =1;
-                     }
-                     
-                    if(leftMatch > rightMatch) {
-                        match = leftMatch;
-                        count[1]=leftCount;
-                        left = true;
-                        this.targetIndex = leftIndex;
-                        this.targetID = p1_id.getValue(0, 0, leftIndex);
-                    }else if (leftMatch < rightMatch){
-                        match = rightMatch;
-                        count[1] = rightCount;
-                        left = false;
-                        this.targetIndex = rightIndex;
-                        this.targetID = p1_id.getValue(0, 0, rightIndex);
-                    }else{
-                        //when left, right both meet the spatial temporal conditions of overtaking, deviation effort comes into the decision 
-                        if(5-leftIndex<rightIndex-5){
-                            match = leftMatch;
-                            count[1]=leftCount;
-                            left = true;
-                            this.targetIndex = leftIndex;
-                            this.targetID = p1_id.getValue(0, 0, leftIndex);
-                        }
-                        else if(5-leftIndex>rightIndex-5){
-                             match = rightMatch;
-                             count[1] = rightCount;
-                             left = false;
-                             this.targetIndex = rightIndex;
-                             this.targetID = p1_id.getValue(0, 0, rightIndex);
-                        }else{
-                            if(leftCount>=rightCount){
-                                 match = leftMatch;
-                                 count[1] = leftCount;
-                                 left = true;
-                                 this.targetIndex = leftIndex;
-                                 this.targetID = p1_id.getValue(0, 0, leftIndex);
-                            }else{
-                                 match = rightMatch;
-                                 count[1] = rightCount;
-                                 left = false;
-                                 this.targetIndex = rightIndex;
-                                 this.targetID = p1_id.getValue(0, 0, rightIndex);
-                            }
-                        }
-                    }
-                }
-            }    
+                Vector2d relativeVelMetoMidAgt = new Vector2d(midAgt.getVelocity());
+                Vector2d relativeVelMetoMidAgt_odd = new Vector2d(midAgt_odd.getVelocity());
+                
+                relativeVelMetoMidAgt.sub(wm.getMyAgent().getVelocity());
+                relativeVelMetoMidAgt_odd.sub(wm.getMyAgent().getVelocity());
+                
+                if(utility.Geometry.sameDirection(wm.getMyAgent().getVelocity(), relativeVelMetoMidAgt)< Math.cos((Math.PI+wm.getVision().getAngle())/2)
+                        || utility.Geometry.sameDirection(wm.getMyAgent().getVelocity(), relativeVelMetoMidAgt_odd)< Math.cos((Math.PI+wm.getVision().getAngle())/2)){   //the midAgt is relatively moving in towards me
+                    relativeFaster=true;
+                } 
+            }
         }
-        return match;
+        int leftIndexPointer;
+        int rightIndexPointer;
+        
+        int initialLeft;
+        int initialRight;
+        
+        if(midIndex_odd<0){
+            initialLeft = midIndex-leftCentral;
+            leftIndexPointer = initialLeft;
+            initialRight = midIndex-leftCentral;
+            rightIndexPointer = initialRight;
+        }else{
+            initialLeft = midIndex_odd-leftCentral;
+            leftIndexPointer= initialLeft;
+            initialRight = midIndex-leftCentral;
+            rightIndexPointer= initialRight;
+        }
+        boolean leftOvertakeFound = false;
+        boolean rightOvertakeFound = false;
+
+        //search in left half
+        if(relativeFaster){  //leftindexpointer search for 0 that is nearer to center, only when 0 is found, leftStgyFound will be set to true
+                while(leftIndexPointer>=0){
+                    int currentColValue=centralFuzzyColValues.get(leftIndexPointer);
+                    if(currentColValue==0){
+                        leftOvertakeFound=true;
+                        break;
+                    }else if(currentColValue==1){
+                        leftOvertakeFound=false;
+                        leftIndexPointer--;
+                    }
+                    else{ //include (currentColValue==-1) and other value for static obstacles
+                        leftOvertakeFound=false;
+                        break;
+                    }
+                }
+         //search in right half
+               while(rightIndexPointer<centralFuzzyColValues.size()){
+                    int currentColValue=centralFuzzyColValues.get(rightIndexPointer);
+        //            if(relativeFaster){  //rightindexpointer search for 0 that is nearer to center, only when 0 is found, rightStgyFound will be set to true
+                        if(currentColValue==0){
+                            rightOvertakeFound=true;
+                            break;
+                        }else if(currentColValue==1){
+                            rightIndexPointer++;
+                            rightOvertakeFound=false;
+                        }
+                        else{ //include (currentColValue==-1) and other value for static obstacles
+                            rightOvertakeFound=false;
+                            break;
+                        }
+        //            }
+                }
+//           }
+        //based on the search results of left and right half of the central area of p1
+//        if(relativeFaster){
+            if(leftOvertakeFound){ //found 01 on the left half
+                tentCurrentStategy=STRATEGY.OVERTAKE;
+                if(!rightOvertakeFound){
+                    tentSide.put(1,Side.LEFT);
+                    tentTargetIndex.put(1,leftIndexPointer+1+leftCentral); //return the column index of 1, not 0
+                    tentTargetID.put(1,(p1.getValue(0, 0, leftIndexPointer+1+leftCentral)== 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, leftIndexPointer+1+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, leftIndexPointer+1+leftCentral)));
+                }else{
+                    if(initialLeft-leftIndexPointer < rightIndexPointer-initialRight){
+                        tentSide.put(1,Side.LEFT);
+                        tentTargetIndex.put(1,leftIndexPointer + 1+leftCentral);
+                        tentTargetID.put(1,(p1.getValue(0, 0, leftIndexPointer + 1+leftCentral) == 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, leftIndexPointer + 1+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, leftIndexPointer + 1+leftCentral)));
+                    }
+                    else if (initialLeft - leftIndexPointer > rightIndexPointer - initialRight) {
+                        tentSide.put(1,Side.RIGHT);
+                        tentTargetIndex.put(1,rightIndexPointer-1+leftCentral);
+                        tentTargetID.put(1,(p1.getValue(0, 0, rightIndexPointer-1+leftCentral)== 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, rightIndexPointer-1+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, rightIndexPointer-1+leftCentral)));
+                    }
+                    else{
+                        //01 10 is found at equal distance on both sides
+//                        if(rightIndexPointer-leftIndexPointer==2){
+//                            tentTargetIndex.put(1,leftIndexPointer + 1);
+//                            tentTargetID.put(1,p1.getValue(0, 0, leftIndexPointer + 1) == 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, leftIndexPointer + 1) : wm.getVision().getSpacepattern_agt().getValue(0, 1, leftIndexPointer + 1));
+//                            tentSide.put(1,Side.LEFT);
+//                        }else{
+                            tentTargetIndex.put(1,leftIndexPointer + 1+leftCentral);
+                            tentTargetID.put(1,(p1.getValue(0, 0, leftIndexPointer + 1+leftCentral) == 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, leftIndexPointer + 1+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, leftIndexPointer + 1+leftCentral)));
+                            tentSide.put(1,Side.LEFT);
+                            tentSide.put(2,Side.RIGHT);
+                            tentTargetIndex.put(2,rightIndexPointer-1+leftCentral);
+                            tentTargetID.put(2,(p1.getValue(0, 0, rightIndexPointer-1+leftCentral)== 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, rightIndexPointer-1+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, rightIndexPointer-1+leftCentral)));
+//                        }
+                    }
+                }
+            }else if(rightOvertakeFound){
+                    tentCurrentStategy=STRATEGY.OVERTAKE;
+                    tentSide.put(1, Side.RIGHT);
+                    tentTargetIndex.put(1,rightIndexPointer-1+leftCentral);
+                    tentTargetID.put(1,(p1.getValue(0, 0, rightIndexPointer-1+leftCentral)== 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, rightIndexPointer-1+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, rightIndexPointer-1+leftCentral)));
+            }else{
+                //when no 10 or 01 found on both sides, follow. No side is specified for following 
+                tentCurrentStategy=STRATEGY.FOLLOW;                                       
+                if(initialLeft-leftIndexPointer<rightIndexPointer-initialRight){
+                    tentTargetIndex.put(1,leftIndexPointer+1+leftCentral);
+                    tentTargetID.put(1,(p1.getValue(0, 0, leftIndexPointer+1+leftCentral) == 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, leftIndexPointer+1+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, leftIndexPointer + 1+leftCentral)));
+                }else if(initialLeft-leftIndexPointer>rightIndexPointer-initialRight){
+                    tentTargetIndex.put(1,rightIndexPointer-1+leftCentral);
+                    tentTargetID.put(1,(p1.getValue(0, 0, rightIndexPointer-1+leftCentral)== 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, rightIndexPointer-1+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, rightIndexPointer-1+leftCentral)));
+                }else{
+                    int randomFollowColumn =  
+                            leftIndexPointer+1 +  wm.getMyAgent().getMySpace().getRvoModel().random.nextInt(rightIndexPointer-1-leftIndexPointer-1+1)+leftCentral;
+                    tentTargetIndex.put(1,randomFollowColumn);
+                    tentTargetID.put(1,(p1.getValue(0, 0, randomFollowColumn)==1? wm.getVision().getSpacepattern_agt().getValue(0, 0, randomFollowColumn):wm.getVision().getSpacepattern_agt().getValue(0, 1, randomFollowColumn)));
+                //Bug fixed, when trying to find 10 or 01 for overtake failed, resort to follow and in this case, the leftIndexPointer and rightIndexPointer already going out of the actual cental boundary already
+                }
+            }
+//        }//end of relative faster (which means I intend to overtake)
+        }else{
+            // if I am relatively slow, no strategy is matched if the center is 1
+            tentCurrentStategy=null; //if I am relatively slow, non-strategic
+        }
     }
     
-        /*
-         * function to check the sustainability of the spatial pattern required for overtake over the number of frames as required
-         */
-    private int checkSpatialAlongTime(int ptIndex, STPattern p1, STPattern p1_id, boolean fromLeft, int maxMatch) {
+    private void initialMatch_CenterNegativeOne(ArrayList<Integer> centralFuzzyColValues, STPattern p1, int leftCentral){
+        int leftIndexPointer;
+        int rightIndexPointer;
+        
+        int initialLeftPointer;
+        int initialRightPointer;
+        
+        if(midIndex_odd<0){
+            initialLeftPointer = midIndex-leftCentral;
+            leftIndexPointer= initialLeftPointer;
+            initialRightPointer = midIndex-leftCentral;
+            rightIndexPointer = initialRightPointer;
+        }else{
+            initialLeftPointer = midIndex_odd-leftCentral;
+            leftIndexPointer= initialLeftPointer;
+            initialRightPointer = midIndex-leftCentral; 
+            rightIndexPointer = initialRightPointer;
+        }
+        boolean leftFollowFound = false; //assume follow to avoid is better than direct avoid
+        boolean rightFollowFound = false;
+            
+        //search in left half
+        while(leftIndexPointer>=0){
+            int currentColValue=centralFuzzyColValues.get(leftIndexPointer);
+            if(currentColValue==0){
+                leftFollowFound=false;
+                break;
+            }else if(currentColValue==1){
+                leftFollowFound=true; // _ 1 -1 case, just follow the 1, after approach lane, finish follow, then to make new decision on whether can overtake the 1
+                break;
+            }
+            else{ //include (currentColValue==-1) and other value for static obstacles
+               leftIndexPointer--;
+               leftFollowFound=false;
+            }
+        }
+                 //search in right half
+        while(rightIndexPointer<centralFuzzyColValues.size()){
+            int currentColValue=centralFuzzyColValues.get(rightIndexPointer);
+            if(currentColValue==0){
+                rightFollowFound=false;
+                break;
+            }else if(currentColValue==1){
+                rightFollowFound=true;
+                break;
+            }
+            else{ //include (currentColValue==-1) and other value for static obstacles
+                rightFollowFound=false;
+                rightIndexPointer++;
+            }
+        }
+                
+        if(leftFollowFound){ //found 0-1 on the left half
+            tentCurrentStategy=STRATEGY.FOLLOW;
+            if(!rightFollowFound){
+                tentTargetIndex.put(1,leftIndexPointer+leftCentral); //return the column index of 1, not 0
+                tentTargetID.put(1,(p1.getValue(0, 0, leftIndexPointer+leftCentral)== 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, leftIndexPointer+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, leftIndexPointer+leftCentral)));
+            }else{
+                if(initialLeftPointer-leftIndexPointer < rightIndexPointer-initialRightPointer){
+                    tentTargetIndex.put(1,leftIndexPointer+leftCentral);
+                    tentTargetID.put(1,(p1.getValue(0, 0, leftIndexPointer+leftCentral) == 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, leftIndexPointer+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, leftIndexPointer+leftCentral)));
+                }else if(initialLeftPointer- leftIndexPointer > rightIndexPointer - initialRightPointer){
+                    tentTargetIndex.put(1,rightIndexPointer+leftCentral);
+                    tentTargetID.put(1,(p1.getValue(0, 0, rightIndexPointer+leftCentral)== 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, rightIndexPointer+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, rightIndexPointer+leftCentral)));
+                }
+                else{
+                    //both left, right found group can follow at the same angle deviation to avoid the current -1
+                    //currently set it to random follow one side, but can create a function to calculate the energy consumed for follow either side so that choose the side with less energy consumption to follow
+                    if(wm.getMyAgent().getMySpace().getRvoModel().random.nextBoolean()){
+                        tentTargetIndex.put(1,leftIndexPointer+leftCentral);
+                        tentTargetID.put(1,(p1.getValue(0, 0, leftIndexPointer+leftCentral ) == 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, leftIndexPointer+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, leftIndexPointer+leftCentral)));
+                    }else{
+                        tentTargetIndex.put(1,rightIndexPointer+leftCentral);                      
+                        tentTargetID.put(1,(p1.getValue(0, 0, rightIndexPointer+leftCentral)== 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, rightIndexPointer+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, rightIndexPointer+leftCentral)));
+                    }
+                }
+            }
+        }else if(rightFollowFound){
+            tentCurrentStategy=STRATEGY.FOLLOW;
+            tentTargetIndex.put(1,rightIndexPointer+leftCentral);
+            tentTargetID.put(1,p1.getValue(0, 0, rightIndexPointer+leftCentral)== 1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, rightIndexPointer+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, rightIndexPointer+leftCentral));
+        }else{
+            //center is -1 and there is no 1 to follow at either side
+            tentCurrentStategy=STRATEGY.AVOID;                                       
+            if(initialLeftPointer-leftCentral<rightIndexPointer-initialRightPointer){
+                tentSide.put(1,Side.LEFT);
+                tentTargetIndex.put(1,leftIndexPointer+1+leftCentral);
+                tentTargetID.put(1,(p1.getValue(0, 0, leftIndexPointer+1+leftCentral) == -1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, leftIndexPointer+1+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, leftIndexPointer + 1+leftCentral)));
+            }else if(initialLeftPointer-leftCentral>rightIndexPointer-initialRightPointer){
+                tentSide.put(1,Side.RIGHT);
+                tentTargetIndex.put(1,rightIndexPointer-1+leftCentral);
+                tentTargetID.put(1,(p1.getValue(0, 0, rightIndexPointer-1+leftCentral)== -1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, rightIndexPointer-1+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, rightIndexPointer-1+leftCentral)));
+            }else{
+                if(leftIndexPointer<0 && rightIndexPointer>centralFuzzyColValues.size()-1){
+                    tentCurrentStategy=null; //instinctive reaction, let rvo to handle if all the central is filled with -1
+                }else{
+                    //consider both potential avoid target in tentative strategy information tager
+                        tentSide.put(1,Side.LEFT);
+                        tentTargetIndex.put(1,leftIndexPointer+1+leftCentral);
+                        tentTargetID.put(1,(p1.getValue(0, 0, leftIndexPointer+1+leftCentral) == -1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, leftIndexPointer+1+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, leftIndexPointer+1+leftCentral)));
+
+                        tentSide.put(2,Side.RIGHT);
+                        tentTargetIndex.put(2,rightIndexPointer-1+leftCentral);                      
+                        tentTargetID.put(2,(p1.getValue(0, 0, rightIndexPointer-1+leftCentral)== -1 ? wm.getVision().getSpacepattern_agt().getValue(0, 0, rightIndexPointer-1+leftCentral) : wm.getVision().getSpacepattern_agt().getValue(0, 1, rightIndexPointer-1+leftCentral)));
+                }
+            }
+        }
+    }//end of function        
+
+
+    /*
+     * given a STP (only the current frame is needed), and a column index number, return the fuzzy column value based on the logic value of two rows of that column
+     */
+    private int fuzzyColumnValue(STPattern p1,int colIndex){
+        int value = -9; //arbitratry value first
+        if(p1.getValue(0, 0, colIndex)==0 && p1.getValue(0, 1, colIndex)==0){
+            value=0;
+        }
+        else if(p1.getValue(0, 0, colIndex)==1 || (p1.getValue(0, 0, colIndex)==0 && p1.getValue(0, 1, colIndex)==1)){
+            value = 1;
+        }
+        else if(p1.getValue(0, 0, colIndex)==-1 || (p1.getValue(0, 0, colIndex)==0 && p1.getValue(0, 1, colIndex)==-1)){
+            value = -1;
+        }
+        return value;
+    }
+        
+    
+    
+    /*
+     * when tentCurrentStrategy == O, F or A, then comes into this function
+     * 1. Set verifyVelocity according to tentStrategy, target and side
+     * 2. Set predicted frames of STP
+     * 3. Match STP to find out whether it meets the commitment level of the agent to match certain spatial patterns(similar to check exepctancy at one frame) along temporal dimension 
+     */
+    private void verifyMatching(){
+        boolean matched = false;
+        for(int i=0; i<tentTargetID.size();i++){                                                                                                             //1. set verifyVelocity
+            int potentialTargetId = tentTargetID.pollFirstEntry().getValue();
+            int potentialTargetIndex = tentTargetIndex.pollFirstEntry().getValue();
+            
+            Side potentialSide = null;
+                  
+            Vector2d verifyVelocity = new Vector2d(wm.getMyAgent().getVelocity());
+            double rotateClockwiseAngle = 0.0;
+            if(midIndex_odd<0){
+                rotateClockwiseAngle = (potentialTargetIndex - midIndex) * wm.getVision().getAngle();
+            }else{
+                rotateClockwiseAngle = (potentialTargetIndex - midIndex_odd - 0.5) * wm.getVision().getAngle();
+            }
+            verifyVelocity=utility.Geometry.helpRotate(verifyVelocity, rotateClockwiseAngle);  //this verifyVelocity towards the target with my velocity
+            
+            switch(tentCurrentStategy){
+                case FOLLOW:      //no need to verify the tentative follow strategy, verifyVelocity towards the target
+                    matched = true;
+                    break;
+                case OVERTAKE:    //verify the tentative overtake strategy
+                    //verify velocity is set identical as the target 1, in order to maintain the vision layout in predicted frames
+                    //predicted time for catching up is determined by the relative velocity towards the 0 beside the target
+                    //based on the predicted t, can set the pf in stp accordingly
+                    potentialSide = tentSide.pollFirstEntry().getValue();
+                    if(potentialSide==Side.LEFT){
+                        verifyVelocity=utility.Geometry.helpRotate(verifyVelocity, -1 * wm.getVision().getAngle());
+                    }else{
+                        verifyVelocity=utility.Geometry.helpRotate(verifyVelocity, wm.getVision().getAngle());
+                    }             
+                    RVOAgent potentialTarget = wm.getAgent(neighbor, potentialTargetId);
+                    double alpha = verifyVelocity.angle(potentialTarget.getVelocity());
+                    
+                    double a= 1;
+                    double b= 2 * Math.cos(alpha) * potentialTarget.getVelocity().length();
+                    double c= Math.pow(potentialTarget.getVelocity().length(),2)-Math.pow(verifyVelocity.length(), 2);
+                    double relativeSpeedToSpace = (Math.sqrt(Math.pow(b, 2)- 4*a*c)-b)/(2*a);
+                    
+                    double distanceToPotentialTarget = wm.getMyAgent().getMyPositionAtEye().distance(potentialTarget.getCurrentPosition());
+                    
+                    int T_phase1= (int)Math.ceil(distanceToPotentialTarget / relativeSpeedToSpace / PropertySet.TIMESTEP);
+                    wm.getVision().setSpacePattern(1, Math.min(wm.getVision().getPf(), T_phase1+1), potentialTarget.getVelocity());                 //2. set STP predicted frames  , according to the same velocity as the target  
+                    matched = matchOvertake(potentialTargetIndex,potentialSide, Math.min(wm.getVision().getPf(), T_phase1));                                                                                            //3. match STP for overtake
+                    break;
+                case AVOID:       //no need to verify the tentative avoid strategy 
+                    potentialSide = tentSide.pollFirstEntry().getValue();
+                    matched=true;
+                    break;
+                default: break;
+            }
+            if(matched) {
+                currentStrategy = tentCurrentStategy;
+                targetID = potentialTargetId;
+                if(currentStrategy!=STRATEGY.FOLLOW){
+                    switch(potentialSide){
+                        case LEFT: left = true; break;
+                        case RIGHT: left = false; break;
+                        default: break;
+                    }
+                }
+                return;
+            }
+        }
+    }//end of function verifyMatching
+    
+    private boolean matchOvertake(int tentTargetColumnIndex, Side tentSide, int maxFrameForCatchUp){
+        int matchFrame = 0;
+        int requiredMatch = maxFrameForCatchUp;
+        switch(wm.getMyAgent().getCommitementLevel()){
+            case HIGHCOMMITMENT:
+                requiredMatch *= 0.8; 
+                break;
+            case MIDCOMMITMENT:
+                requiredMatch *= 0.4; 
+                break;
+            case LOWCOMMITMENT:
+                requiredMatch *= 0.1;  // once see the chance now, just start
+                break;
+            default: 
+                break;              
+        }
+        int spaceColumnIndex = tentTargetColumnIndex;
+        if(tentSide==Side.LEFT) spaceColumnIndex--;
+        else if(tentSide == Side.RIGHT) spaceColumnIndex++;
+        
+        for(int i = 1; i<=maxFrameForCatchUp;i++){
+            if(wm.getVision().getSpacepattern().getValue(i, 0, spaceColumnIndex)==0)
+                matchFrame++;
+        }       
+        
+        if(matchFrame>=requiredMatch){
+//            targetID = tentTargetID;
+            instructedTime = matchFrame;
+            return true;
+        }
+        return false;
+    }
+    
+    
+    /*
+     * function to check the sustainability of the spatial pattern required for overtake over the number of frames as required
+     */
+    private int checkForOvertake(int ptIndex, STPattern p1, STPattern p1_id, boolean fromLeft, int maxMatch) {
         int matchedFrames = 0;
         //overtake from left
         int ptId = p1_id.getValue(0, 0, ptIndex);
@@ -407,22 +721,24 @@ public class Decision {
                      break;
                  }
                  if(p1.getValue(j, 0, ptCIndexNew-1)==0 && p1.getValue(j, 0, ptCIndexNew)== 1
-                        && (p1.getValue(j, 1, ptIndex-1)==0 &&  p1.getValue(j, 1, ptIndex)!= -1) 
+                    && p1.getValue(j, 1, ptIndex-1)==0 
+//                    &&  p1.getValue(j, 1, ptIndex)!= -1
                  ){
                         matchedFrames++;
                  }else{
                     break;
                  }
             }                 
-        }else{
+        }else{  
              for(int j=0; j< maxMatch; j++){
-                //look for coditional "01" (the constitute for Overtake STP) in different slices from p1
+                //look for coditional "10" (the constitute for Overtake STP) in different slices from p1
                  int ptCIndexNew = p1_id.returnColumnIndex(ptId, fromLeft, j);   
                  if(ptCIndexNew<0){
                      break;
                  }
                  if(p1.getValue(j, 0, ptCIndexNew+1)==0 && p1.getValue(j, 0, ptCIndexNew)== 1
-                        && (p1.getValue(j, 1, ptIndex+1)==0 &&  p1.getValue(j, 1, ptIndex)!= -1) 
+                        && p1.getValue(j, 1, ptIndex+1)==0 
+//                         &&  p1.getValue(j, 1, ptIndex)!= -1
                  ){
                         matchedFrames++;
                  }else{
@@ -432,8 +748,6 @@ public class Decision {
         }
         return matchedFrames;
     }
-
-   
     
     /*
      * Based on the current selected strategy to specify target and left
@@ -443,17 +757,17 @@ public class Decision {
     private void findTarget(STRATEGY currentStrategy, int[] matchedFrames) {        
         if(currentStrategy==STRATEGY.AVOID){
            int leftEdgeIndex = -1;
-           int rightEdgeIndex = 11;
+           int rightEdgeIndex = numOfVisualColumns;
             
            //find left edge index of the potential avoiding group
-           for(int i=5; i>=2; i--){
+           for(int i=midIndex; i>1; i--){
                if(wm.getVision().getSpacepattern().getValue(0, 0, i)== -1
                || (wm.getVision().getSpacepattern().getValue(0, 0, i)==0 && wm.getVision().getSpacepattern().getValue(0, 1, i)== -1)){
                     leftEdgeIndex = i;
                }
            }
             //find the right potential edge of the avoiding group
-           for(int j=5;j<=8;j++){
+           for(int j=midIndex;j<numOfVisualColumns-2;j++){
                if(wm.getVision().getSpacepattern().getValue(0, 0, j)== -1
                || (wm.getVision().getSpacepattern().getValue(0, 0, j)==0 && wm.getVision().getSpacepattern().getValue(0, 1, j)== -1)){
                     rightEdgeIndex = j;
@@ -463,11 +777,11 @@ public class Decision {
            int edgeIndex = leftEdgeIndex;
            left = true;
 
-           if(rightEdgeIndex-5<5-leftEdgeIndex){
+           if(rightEdgeIndex-midIndex<midIndex-leftEdgeIndex){
                edgeIndex= rightEdgeIndex;
                left = false;
            }
-           else if(rightEdgeIndex-5==5-leftEdgeIndex){
+           else if(rightEdgeIndex-midIndex==midIndex-leftEdgeIndex){
                if((wm.getVision().getSpacepattern().getValue(0, 0, leftEdgeIndex)== -1 && wm.getVision().getSpacepattern().getValue(0, 0, leftEdgeIndex-1)== 0) ||
                   (wm.getVision().getSpacepattern().getValue(0, 0, leftEdgeIndex)== 0 && wm.getVision().getSpacepattern().getValue(0, 1, leftEdgeIndex)== -1 && wm.getVision().getSpacepattern().getValue(0, 1, leftEdgeIndex-1)== 0) ){
                    edgeIndex=leftEdgeIndex;
@@ -479,12 +793,12 @@ public class Decision {
                }else{
                    int densityLeft = 0;
                    int densityRight = 0;
-                   for(int k=leftEdgeIndex; k>=leftEdgeIndex-2; k--)
+                   for(int k=leftEdgeIndex; k>= Math.max(leftEdgeIndex-2,0); k--)
                        for(int l = 1; l<=2;l++){
                            //for 1 at row 1 has more attention impact  than a 1 in row 2, the significance can is scaled by abs(1.7-j)
                            densityLeft += Math.abs(wm.getVision().getSpacepattern().getValue(0, l, k))* Math.abs(l-1.7);
                    }
-                   for(int m=rightEdgeIndex; m<=rightEdgeIndex+2; m++)
+                   for(int m=rightEdgeIndex; m<=Math.min(rightEdgeIndex+2,numOfVisualColumns-1); m++)
                        for(int n = 1; n<=2; n++){
                            densityRight += Math.abs(wm.getVision().getSpacepattern().getValue(0, n, m)) * Math.abs(n-1.7);
                    }
@@ -495,7 +809,7 @@ public class Decision {
                    }
                } 
            }
-           if(edgeIndex>=0 && edgeIndex<=10){
+           if(edgeIndex>=0 && edgeIndex<=numOfVisualColumns-1){
                if(wm.getVision().getSpacepattern().getValue(0, 0, edgeIndex)==-1){
                     targetID = wm.getVision().getSpacepattern_agt().getValue(0, 0, edgeIndex);
                }else{
@@ -506,12 +820,12 @@ public class Decision {
            else System.out.println("Error: steering strategy AVOID was selected but without valid target to avoid");
            return;
         } //end of SIDE-AVOID
-        else if(currentStrategy==STRATEGY.MOVE){        
-            targetID=-1;
-            targetIndex=-1;
-            instructedTime=matchedFrames[2];
-            return;
-        }
+//        else if(currentStrategy==STRATEGY.MOVE){        
+//            targetID=-1;
+//            targetIndex=-1;
+//            instructedTime=matchedFrames[2];
+//            return;
+//        }
         else if(currentStrategy==STRATEGY.OVERTAKE){
             //when the match of "OVERTAKE" does not meet the number of frames as required by commitment
             instructedTime = matchedFrames[1];
@@ -522,9 +836,11 @@ public class Decision {
             double distanceToTarget = myPos.distance(targetPos);
             
             //if using the max speed of the agent still cannot reach where the target is (estimate the distance for cathing up)
-            if((wm.getMyAgent().getMaxSpeed()- targetAgent.getVelocity().length()) * instructedTime * PropertySet.TIMESTEP < distanceToTarget - 0.5){
+            if((wm.getMyAgent().getMaxSpeed()- targetAgent.getVelocity().length()) * instructedTime * PropertySet.TIMESTEP < 
+                    distanceToTarget - (2+wm.getMyAgent().getPersonalSpaceFactor())* RVOAgent.RADIUS){
                 currentStrategy= STRATEGY.FOLLOW;
                 System.out.println("The perceived spatial pattern for OVERTAKE does not exist long enough for me to overtake, FOLLOW instead");
+                findTarget(currentStrategy, matchedFrames); //call this function again for follow
             }else{
                 System.out.println("SELECT to OVERTAKE");
                 return;
@@ -548,20 +864,20 @@ public class Decision {
             //has to follow from the beginning (frame 0 even cannot allow OVERTAKE)
             else{
                 //simply set to follow the agent in the middle
-               targetID = p1_agt.getValue(0, 0, 5);
+               targetID = p1_agt.getValue(0, 0, midIndex);
                 //side to follow based on the heuristic of signifiedDensity value
                double valueSignificance;
 
                for(int i=0; i<p1.getPattern()[0].length; i++)
                     for(int j=1; j<3;j++){
-                        for(int k=3;k<5;k++){
+                        for(int k=Math.max(0,midIndex-2);k<midIndex;k++){
                             //a -1 gives a significance of 1.5 of that of a 1
                             //a -1 or 1 at row 1 gives a significance of 2.0 that of at row 2
                             valueSignificance = 1.0;
                             if(p1.getValue(i, j, k)==-1) valueSignificance = 1.5;
                             signifiedDensity_left += Math.abs(p1.getValue(i, j, k))* valueSignificance * (3-j);
                         }
-                        for(int l=6;l<8;l++){
+                        for(int l=midIndex;l<Math.min(midIndex+2,numOfVisualColumns-1);l++){
                             //a -1 gives a significance of 1.5 of that of a 1
                             //a -1 or 1 at row 1 gives a significance of 2.0 that of at row 2
                             valueSignificance = 1.0;
@@ -575,4 +891,5 @@ public class Decision {
             }
         }
     }
+    
 }

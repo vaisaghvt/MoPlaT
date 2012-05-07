@@ -10,7 +10,7 @@ import utility.Geometry;
 
 /*
  * Define realistic data
- * First Attention range = 3.6m
+ * First Attention range = 3m in sparse crowd
  * Body size = 44cm (diameter)
  * Average speed = 0.4m/s
  * Frame = 300ms (according each frame is one step)
@@ -18,12 +18,6 @@ import utility.Geometry;
 public class Action {
     private RVOAgent target;
     WorkingMemory wm;
-    /*
-     * may not be necessary any more
-     */
-//    private PbmVelocity selectedVelocity;
-//    
-//    private PbmVelocity preferredVelocity; //
     
     private Vector2d selectedVelocity;
     
@@ -40,14 +34,14 @@ public class Action {
     public int frameFromLastDecision;
     
     /**
-     * true when expectancies violated
+     * true when expectancies violated             //shifted to wm
      */
-    public boolean violateExpectation;
+//    public boolean violateExpectation;
     
     /**
      * true when strategy is completed
      */
-    public boolean finishCurrentStrategy;
+//    public boolean finishCurrentStrategy;
     
     /**
      * For this mechanism we set a maximum speed of 4 m/s
@@ -65,9 +59,11 @@ public class Action {
         target = null;
         this.wm = wm;      
         selectedVelocity = new Vector2d(wm.getMyAgent().getVelocity());
+//        System.out.println("action constructor, myAgent velocity: "+selectedVelocity); //correct
+        
         frameFromLastDecision = 0;
-        violateExpectation = false;
-        finishCurrentStrategy = false;
+//        violateExpectation = false;
+//        finishCurrentStrategy = false;
         initPreferredGaps();
     }
 
@@ -85,46 +81,53 @@ public class Action {
      * follow a particular agent
      * approaching the agent from the left or right side of the target depends on the current relative position of the two agents
      */
-    public void follow(RVOAgent agt, boolean left) {
+    public void follow(RVOAgent agt) {
         target = agt;
-        String fromLeft = "right";
-        if (left) {
-            fromLeft = "left";
-        }
-        System.out.println("agent" + this.wm.getMyAgent().getId() + " is following " + "agent " + target.getId() + " from its " + fromLeft);
+//        String fromLeft = "right";
+//        if(left) {
+//            fromLeft = "left";
+//        }
+        System.out.println("agent" + this.wm.getMyAgent().getId() + " is following " + "agent " + target.getId());
 
         //position and velocity determines whether successfully followed
         if (target.getCurrentPosition().distance(this.wm.myAgent.getCurrentPosition()) <= preferGap
                 && (Math.abs(target.getVelocity().length() - this.wm.myAgent.getVelocity().length()) / Math.max(agt.getVelocity().length(), this.wm.myAgent.getVelocity().length()) ) <= velocityDiff
                 && target.getVelocity().length() >= this.wm.myAgent.getVelocity().length()) {
-            finishCurrentStrategy = true;
+            wm.setFinishCurrentStrategy(true);
             return;
         }
+        //check expectancy violation
+//        if( ){
+//            wm.setViolateExpectancy(true);
+//            return;
+//        }
+        
+        
         //set preferred velocity for me to follow the target
-        Vector2d destinationToMove = approachlane(target, left); //change direction of velocity (returns position to move to)
+        Vector2d destinationToMove = approachlane(target); //change direction of velocity (returns position to move to)
         adjustSpeedFollow(target, destinationToMove);//change magnitude of velocity
     }
 
     //used in follow()
-    private Vector2d approachlane(RVOAgent agt, boolean left) {
+    private Vector2d approachlane(RVOAgent agt) {
         double randomAngle = 0; //in radian
         //use the updated information of agt all the way during following
         Vector2d locationToMove = new Vector2d(agt.getVelocity());
         locationToMove.normalize();
         locationToMove.negate();
-        locationToMove.scale(preferGap);
+        locationToMove.scale(preferGap * 0.8);
 //        locationToMove.add(agt.getCurrentPosition());
         
-        MersenneTwisterFast random = wm.getMyAgent().getMySpace().getRvoModel().random;
-        if (left) {
-            randomAngle = random.nextDouble() * (Math.PI / 4);
-        } else {
-            randomAngle = random.nextDouble() * (Math.PI / 4) * (-1);
-        }
+//        MersenneTwisterFast random = wm.getMyAgent().getMySpace().getRvoModel().random;
+//        if (left) {
+//            randomAngle = random.nextDouble() * (Math.PI / 4);
+//        } else {
+//            randomAngle = random.nextDouble() * (Math.PI / 4) * (-1);
+//        }
 
 //        rotate2d(locationToMove, randomAngle);
         //rotate the vector around (0,0) clokcwise by randomAngle
-        rotate2d(locationToMove, randomAngle);
+//        rotate2d(locationToMove, randomAngle);
         locationToMove.add(agt.getCurrentPosition());
         return locationToMove;
     }
@@ -194,26 +197,27 @@ public class Action {
 
         Vector2d directionToTarget = new Vector2d(agt.getCurrentPosition());
         directionToTarget.sub(wm.getMyAgent().getCurrentPosition());
-//        double ahead = utility.Geometry.sameDirection(directionToTarget, startVel);
-        double ahead = utility.Geometry.sameDirection(directionToTarget, agt.getVelocity());
-        
-        if (ahead >= 0) {//this agent is behind the target and trying to catch up
-            if (frameFromLastDecision >= T) {
-                violateExpectation = true;
-                return;
-            }
+        double ahead = utility.Geometry.sameDirection(directionToTarget, startVel);
+//        double ahead = utility.Geometry.sameDirection(directionToTarget, agt.getVelocity());
+//        
+        if (ahead >= 0) {
             //execute catching up behavior in phase 1 of overtaking
             CatchUp(agt, left, T);
 
-        } else if (ahead > -0.8) {
+        }else if (ahead > -0.2) {
             Vector2d passAheadVel = new Vector2d(startVel);
-            passAheadVel.scale(wm.getMyAgent().getPreferredSpeed()*1.1);
-            selectedVelocity.set(passAheadVel);
+            passAheadVel.scale(1.05);
+            selectedVelocity = new Vector2d(passAheadVel);
         }
         else{
 //           do not implement resume original course, such behavior can emerge through the rough preferredVelocity setting
-            finishCurrentStrategy = true;
+            wm.setFinishCurrentStrategy(true);
         }
+        
+        //check expectancy from the current situation, actually along the velocity in front of me, whether got collisions with other agents
+        
+        
+        
     }
 
     /**
@@ -228,31 +232,32 @@ public class Action {
         if (!left) {
             angle *= -1;
         }
-        Vector2d locationToMove = new Vector2d(agt.getVelocity());
+        Vector2d locationToMove_overtake = new Vector2d(agt.getVelocity());
+//        Vector2d locationToMove_avoid = new Vector2d(startVel);
         //if this method is called in "Catchup during overtaking"
         if (wm.getDecision().getCurrentStrategy() == STRATEGY.OVERTAKE) {
-            locationToMove.negate();
+            locationToMove_overtake.negate();
         }
         //if this method is called in "approachToTarget during Side-Avoiding"
-        locationToMove.normalize();
+        locationToMove_overtake.normalize();
 //        locationToMove.add(agt.getCurrentPosition());
 //        rotate2dAroundaPoint(locationToMove, agt.getCurrentPosition(), angle);
-        rotate2d(locationToMove,angle);
+        rotate2d(locationToMove_overtake,angle);
         
         if (wm.getDecision().getCurrentStrategy() == STRATEGY.OVERTAKE) {
-            locationToMove.scale(this.wm.getMyAgent().getRadius() * (1+this.wm.getMyAgent().getPersonalSpaceFactor())+ agt.getRadius() * (1+agt.getPersonalSpaceFactor())
-                    + 1  * this.wm.getMyAgent().getRadius()
-//                    (this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() + 1)
+            locationToMove_overtake.scale(RVOAgent.RADIUS * 2* (1+this.wm.getMyAgent().getPersonalSpaceFactor()) + 
+                    1.5 * (1+wm.getMyAgent().getPersonalSpaceFactor())* RVOAgent.RADIUS
                     );
         } else if (wm.getDecision().getCurrentStrategy() == STRATEGY.AVOID) {
-            locationToMove.scale(0.5*this.wm.getMyAgent().getRadius() * (1+this.wm.getMyAgent().getPersonalSpaceFactor())
-                    + 0.5 * agt.getRadius() * (1+agt.getPersonalSpaceFactor()) 
-                    + 1 * this.wm.getMyAgent().getRadius()
-//                    (this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() + 1) * 
+            locationToMove_overtake.scale(RVOAgent.RADIUS * 2* (1+this.wm.getMyAgent().getPersonalSpaceFactor()) 
+                    + 1 *(1+wm.getMyAgent().getPersonalSpaceFactor())* RVOAgent.RADIUS
+//                    + 0.5 * agt.getRadius() * (1+agt.getPersonalSpaceFactor()) 
+//                    + this.wm.getMyAgent().getRadius()* (1+this.wm.getMyAgent().getPersonalSpaceFactor())
+//                    (this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble()) * RVOAgent.RADIUS
                     );
         }
-        locationToMove.add(agt.getCurrentPosition());
-        return locationToMove;
+        locationToMove_overtake.add(agt.getCurrentPosition());
+        return locationToMove_overtake;
     }
 
     /**
@@ -273,13 +278,13 @@ public class Action {
             //if we're ahead of schedule then ok, or slightly increase the catching up speed
             catchUpVelocity.normalize();
             catchUpVelocity.scale(wm.getMyAgent().getSpeed() 
-            + 0.2 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
+            + 0.01 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
            
         } else {
             // speed up
             catchUpVelocity.normalize();
             catchUpVelocity.scale(wm.getMyAgent().getSpeed() 
-            + 1 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
+            + 0.1 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
         }
         selectedVelocity = new Vector2d(catchUpVelocity);
     }
@@ -351,7 +356,7 @@ public class Action {
      * the whole process is similar to overtaking strategy, however, different mainly in:
      * 1)
      */
-    public void avoid(RVOAgent agt, boolean left, int T, final Vector2d startVel, final Point2d startPos) {
+    public void avoid(RVOAgent agt, boolean left, final Vector2d startVel, final Point2d startPos) {
         String leftSide = "left side";
         String rightSide = "right side";
         if (left) {
@@ -371,7 +376,74 @@ public class Action {
 //                violateExpectation = true;
 //                return;
 //            }
+          //To check FininishCurrentStrategy:
           //here, the finishCurrentStrategy condition can be more restricted as once there is enuf for space already moving towards its goal, no need to further deviate
+           
+           //1. to check the distance of my new Position to the line from target current position towards his goal, whether collide 
+//           Point2d targetGoalPos = agt.getGoal();
+//           Point2d myGoal = wm.getMyAgent().getGoal();
+//           
+//           Point2d targetCurrentPos = agt.getCurrentPosition();
+//           Point2d myCurrentPos = wm.getMyAgent().getCurrentPosition();
+//                      
+//           Vector2d myToGoal = new Vector2d(myGoal);
+//           myToGoal.sub(myCurrentPos);
+//           
+//           Vector2d targetToGoal = new Vector2d(targetGoalPos);
+//           targetToGoal.sub(targetCurrentPos);
+//           
+//           double distanceToLine = 0;
+//           double myDistToTargetLine = 0;
+//           double targetDistToMyLine = 0;
+//           
+//           double slopeMyLine = (targetCurrentPos.x-myCurrentPos.x)*(myGoal.x-myCurrentPos.x) + (targetCurrentPos.y-myCurrentPos.y)*(myGoal.y-myCurrentPos.y);
+//           slopeMyLine = slopeMyLine / Math.pow(myToGoal.length(), 2);
+//           
+//           double crossOnMyLine_X = myCurrentPos.x + slopeMyLine * (myGoal.x-myCurrentPos.x);
+//           double crossOnMyLine_Y = myCurrentPos.y + slopeMyLine * (myGoal.y-myCurrentPos.y);
+//           
+//           targetDistToMyLine = Math.pow((crossOnMyLine_X-targetCurrentPos.x), 2) + Math.pow((crossOnMyLine_Y-targetCurrentPos.y), 2);
+//           targetDistToMyLine = Math.sqrt(targetDistToMyLine);
+//           
+//           
+//           double slopeTargetLine = (myCurrentPos.x-targetCurrentPos.x)*(targetGoalPos.x-targetCurrentPos.x) + (myCurrentPos.y-targetCurrentPos.y)*(targetGoalPos.y-targetCurrentPos.y);
+//           slopeTargetLine = slopeTargetLine / Math.pow(targetToGoal.length(), 2);
+//           
+//           double crossOnTargetLine_X = targetCurrentPos.x + slopeTargetLine * (targetGoalPos.x-targetCurrentPos.x);
+//           double crossOnTargetLine_Y = targetCurrentPos.y + slopeTargetLine * (targetGoalPos.y-targetCurrentPos.y);
+//           
+//           myDistToTargetLine = Math.pow((crossOnTargetLine_X-myCurrentPos.x), 2) + Math.pow((crossOnTargetLine_Y-myCurrentPos.y), 2);
+//           myDistToTargetLine = Math.sqrt(myDistToTargetLine);
+//           
+////           distanceToLine =  Math.min(targetDistToMyLine, myDistToTargetLine);
+//           distanceToLine = myDistToTargetLine;
+//           double personalSpaceRadius = Math.max(wm.getMyAgent().getRadius() * (1+wm.getMyAgent().getPersonalSpaceFactor()), agt.getRadius()*(1+agt.getPersonalSpaceFactor()));
+//  
+//           //2. check whether my new location moving towards the side of the target set by "left"
+//           
+//           boolean crossedTargetToGoalLine = false;
+//         
+//
+//               Vector2d targetToMyCurrentPos = new Vector2d(myCurrentPos);
+//               targetToMyCurrentPos.sub(targetCurrentPos);
+//               double angleBt = Geometry.angleBetweenWSign(targetToGoal, targetToMyCurrentPos); //-pi to pi, suppose clockwise roration is +
+//               
+//               if(left){
+//                   if(angleBt>0)
+//                       crossedTargetToGoalLine = true;
+//               }else{
+//                   if(angleBt<0)
+//                       crossedTargetToGoalLine = true;
+//               }
+//
+//           
+//           if(distanceToLine > personalSpaceRadius && crossedTargetToGoalLine){
+//               //if finished steering already based on the current position and the line towards the goal, set the selectedVel = prefVel, where prefVel is towards its goal
+//               selectedVelocity = wm.getMyAgent().findPrefVelocity();
+//                finishCurrentStrategy = true;
+//                return;
+//            }      
+            
            Point2d targetGoalPos = agt.getGoal();
            Point2d myGoal = wm.getMyAgent().getGoal();
            
@@ -380,53 +452,27 @@ public class Action {
                       
            Vector2d myToGoal = new Vector2d(myGoal);
            myToGoal.sub(myCurrentPos);
+           myToGoal.normalize();
+           myToGoal.scale(wm.getMyAgent().getSpeed());
            
            Vector2d targetToGoal = new Vector2d(targetGoalPos);
            targetToGoal.sub(targetCurrentPos);
+           targetToGoal.normalize();
+           targetToGoal.scale(agt.getSpeed());
            
-           double distanceToLine = 0;
-           double myDistToTargetLine = 0;
-           double targetDistToMyLine = 0;
-           
-           double slopeMyLine = (targetCurrentPos.x-myCurrentPos.x)*(myGoal.x-myCurrentPos.x) + (targetCurrentPos.y-myCurrentPos.y)*(myGoal.y-myCurrentPos.y);
-           slopeMyLine = slopeMyLine / Math.pow(myToGoal.length(), 2);
-           
-           double crossOnMyLine_X = myCurrentPos.x + slopeMyLine * (myGoal.x-myCurrentPos.x);
-           double crossOnMyLine_Y = myCurrentPos.y + slopeMyLine * (myGoal.y-myCurrentPos.y);
-           
-           targetDistToMyLine = Math.pow((crossOnMyLine_X-targetCurrentPos.x), 2) + Math.pow((crossOnMyLine_Y-targetCurrentPos.y), 2);
-           targetDistToMyLine = Math.sqrt(targetDistToMyLine);
-           
-           
-           double slopeTargetLine = (myCurrentPos.x-targetCurrentPos.x)*(targetGoalPos.x-targetCurrentPos.x) + (myCurrentPos.y-targetCurrentPos.y)*(targetGoalPos.y-targetCurrentPos.y);
-           slopeTargetLine = slopeTargetLine / Math.pow(targetToGoal.length(), 2);
-           
-           double crossOnTargetLine_X = targetCurrentPos.x + slopeTargetLine * (targetGoalPos.x-targetCurrentPos.x);
-           double crossOnTargetLine_Y = targetCurrentPos.y + slopeTargetLine * (targetGoalPos.y-targetCurrentPos.y);
-           
-           myDistToTargetLine = Math.pow((crossOnTargetLine_X-myCurrentPos.x), 2) + Math.pow((crossOnTargetLine_Y-myCurrentPos.y), 2);
-           myDistToTargetLine = Math.sqrt(myDistToTargetLine);
-           
-           distanceToLine =  Math.min(targetDistToMyLine, myDistToTargetLine);
-           double personalSpaceRadius = Math.max(wm.getMyAgent().getRadius() * (1+wm.getMyAgent().getPersonalSpaceFactor()), agt.getRadius()*(1+agt.getPersonalSpaceFactor()));
-  
-           //TODO: still got some minor problems, need to designt the test scenarios well to perform as expected.
-           //This is due to some reasons:
-           //1. in the current design, spatial-temporal patterns doesn't take in to account of those already very near to me (those in obsesAgents_ForReaction in perception)
-           // this is due to the calculation of the perceived angle of another agent is based on its distance to me, so if it is too near, it will occupy almost all my 11 vision columns
-           //and now, those in the very near distance are handled as instinctive reactions by lower level motion mechanisms such as RVO, and not in steering strategy execution
-           //thus, when design the code for each steering strategy execution in Action class, it only deals with one specific target rather than the whole pattern(, which was used in decision-making process to select steering strategy and target, t, etc.)
-           if(distanceToLine>= personalSpaceRadius){
-                finishCurrentStrategy = true;
-                return;
-            }      
+           double ttc = Geometry.calcTTC(myCurrentPos, myToGoal, (wm.getMyAgent().getPersonalSpaceFactor()+1)*RVOAgent.RADIUS, targetCurrentPos, targetToGoal, (agt.getPersonalSpaceFactor()+1)*RVOAgent.RADIUS);
+           if(ttc>999){
+//               selectedVelocity=wm.getMyAgent().setPrefVelocity();
+               wm.setFinishCurrentStrategy(true);
+               return;
+           }
             Vector2d deviatedVel = approachSide(agt, left);
             deviatedVel.sub(wm.getMyAgent().getCurrentPosition());
             deviatedVel.normalize();
-            deviatedVel.scale(wm.getMyAgent().getPreferredSpeed()* 0.95);
+            deviatedVel.scale(wm.getMyAgent().getSpeed());
             selectedVelocity = new Vector2d(deviatedVel);
         } else {
-            finishCurrentStrategy = true;
+            wm.setFinishCurrentStrategy(true);
             return;
         }
     }
@@ -443,70 +489,46 @@ public class Action {
          * to make it through when trying to avoid with an incoming agent
          * since current body is represented by a circle rather than cylinder, this action is not implemented yet
          */
-        this.finishCurrentStrategy = true;
     }
 
     public void execute(STRATEGY selectedStrategy, RVOAgent target, boolean left, int T, Vector2d startVel, Point2d startPos) {
-        this.target = target;
-        if(selectedStrategy == null){
-            System.out.println("No steering strategy is selected, move as usual at its perferred velocity towards its goal");
-            selectedVelocity = wm.getMyAgent().getPrefVelocity();
-        }else{
-            switch (selectedStrategy) {
-                case MOVE:
-                    //follow the rough preferredVel towatds its goal
-                    if(frameFromLastDecision>=T){
-                        finishCurrentStrategy=true;
-                    }else{
-                        selectedVelocity = wm.getMyAgent().getPrefVelocity();
-                        frameFromLastDecision++;
-                        System.out.println("moving");
-                    }
-                    break;
+            this.target = target;
+            this.selectedVelocity = new Vector2d(wm.getMyAgent().getPrefVelocity());
+            switch(selectedStrategy) {
                 case FOLLOW:
-                    System.out.println("executing follow steering strategy now");
-                    follow(this.target, left);
+                    System.out.println("Following");
+                    follow(this.target);
                     frameFromLastDecision++;
                     break;
                 case OVERTAKE:
-                    System.out.println("executing overtake steering strategy now");
+                    System.out.println("Overtaking");
                     overtake(this.target, left, T, startVel, startPos);
                     frameFromLastDecision++;
                     break;
                 case AVOID:
-                    System.out.println("executing avoiding steering strategy now");
-                    avoid(this.target, left, T, startVel, startPos);
+                    System.out.println("SideAvoiding");
+                    avoid(this.target, left, startVel, startPos);
                     frameFromLastDecision++;
                     break;
                 //SUDDENSLOW is one example of instinctive reaction, where is full of obstacles in front and no other strategy can be executed
-                case INSTINCTIVERACTION:
-                    System.out.println("Some people is near me already! motion planned through lower level mechanisms e.g., RVO");
-                    selectedVelocity = new Vector2d(wm.getMyAgent().getVelocity());
-//                    selectedVelocity.scale(0.2); //scale the velocity to 0.2
-                    finishCurrentStrategy = true;              
-                    // or could pass in the obsesAgents_ForReaction and call RVO with this set of near neighbors to calculate the actual velocity that avoid collisions
-                    break;
+//                case INSTINCTIVERACTION:
+//                    System.out.println("Some people is near me already! motion planned through lower level mechanisms e.g., RVO");
+//                    //set the prefVel using the default function to set it towards its goal, then collision avoidance is handled by low level RVO
+//                    selectedVelocity = new Vector2d(wm.getMyAgent().getPrefVelocity());
+////                    selectedVelocity.scale(0.2); //scale the velocity to 0.2
+//                    finishCurrentStrategy  = true;              
+//                    // or could pass in the obsesAgents_ForReaction and call RVO with this set of near neighbors to calculate the actual velocity that avoid collisions
+//                    break;
+                default: break;
             }
-        }
+        
     }
-
-    /*
-    public void updateState() {
-    updateVelocity(); //update velocity for the agent
-    frameFromLastDecision++;
-    //where to update the position of the agent according to their velocity????
-
-    if (wm.getDecision().needNewDicison()) {
-    wm.getDecision().selectNewStrategy();//verify stratey and  execute selected strategy accordingly
-    }
-    //TODO: hunan: I am not sure whether need to call the function again to contiuously execute current strategy if no new decision is needed, or will it automatically execute the current strategy in the next frame
-    //else executeStrategy(currentAction,target,this.decision.left,this.decision.instructedTime);
-    }
-     */
     
     private void initPreferredGaps() {
         //for controlling gaps when follow and overtake is performed
-        preferGap = (wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * 1 + 2) * (1+wm.getMyAgent().getPersonalSpaceFactor()) * wm.getMyAgent().getRadius(); //random represent the other agent's personal space
+        preferGap = (wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * 2 + 4) * (1+wm.getMyAgent().getPersonalSpaceFactor()) * RVOAgent.RADIUS; //random represent the other agent's personal space
+        
+        //future improvement could make this adapt to the surrounding density at run time
     }
 
 }

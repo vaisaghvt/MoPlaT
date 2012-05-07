@@ -11,7 +11,7 @@ import environment.geography.AgentLine;
 import environment.geography.Goals;
 import environment.geography.Obstacle;
 import environment.geography.Position;
-import environment.geography.RoadMapPoint;
+//import environment.geography.RoadMapPoint;
 import environment.geography.SimulationScenario;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -55,9 +55,9 @@ class ModelDetails {
                 this.setLatticeModel(environment.isLatticeModel());
             }
             List<Position> test = new ArrayList<Position>();
-           for(RoadMapPoint roadMapPoint : environment.getRoadMap()){
-               test.add(roadMapPoint.getPosition());
-           }
+//           for(RoadMapPoint roadMapPoint : environment.getRoadMap()){
+//               test.add(roadMapPoint.getPosition());
+//           }
             this.setRoadMap(test);
             this.setObstacles(environment.getObstacles());
             this.setAgents(environment.getCrowd());
@@ -214,10 +214,10 @@ class ModelDetails {
                 roadMapPointPosition.setX((double) roadMap.get(i).getX());
                 roadMapPointPosition.setY((double) roadMap.get(i).getY());
 
-                RoadMapPoint point = new RoadMapPoint();
-                point.setPosition(roadMapPointPosition);
-                point.setNumber(i);
-               environment.getRoadMap().add(point);
+//                RoadMapPoint point = new RoadMapPoint();
+//                point.setPosition(roadMapPointPosition);
+//                point.setNumber(i);
+//               environment.getRoadMap().add(point);
 
             }
         }

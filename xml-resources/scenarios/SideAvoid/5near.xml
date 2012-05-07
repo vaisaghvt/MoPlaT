@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" displayUsed="true" scale="80" Ysize="5" Xsize="12" name="SideAvoid">
+    <crowd>
+        <goal y="2.1" x="11"/>
+        <position y="2.1" x="2.6"/>
+        <id>1</id>
+        <preferedSpeed>1.1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+    </crowd>
+    <crowd>
+        <goal y="1.65" x="1.0125"/>
+        <position y="1.65" x="6"/>
+        <id>2</id>  
+        <preferedSpeed>1.1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+    </crowd>
+    <crowd>
+        <goal y="2.1" x="0.9625"/>
+        <position y="2.1" x="6"/>
+        <id>3</id>
+        <preferedSpeed>1.1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+    </crowd>
+    <crowd>
+        <goal y="2.55" x="1.025"/>
+        <position y="2.55" x="6"/>
+        <id>4</id>
+        <preferedSpeed>1.1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+    </crowd>
+    <crowd>
+        <goal y="3" x="1.0625"/>
+        <position y="3" x="6"/>
+        <id>5</id>
+        <preferedSpeed>1.1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+    </crowd>
+    <crowd>
+        <goal y="1.2" x="1.0875"/>
+        <position y="1.2" x="6"/>
+        <id>6</id>
+        <preferedSpeed>1.1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+    </crowd>
+</SimulationScenario>

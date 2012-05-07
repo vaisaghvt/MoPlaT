@@ -97,8 +97,7 @@ public class AgentGenerator implements Steppable {
             }
 
             //   agent.setGoal(new Point2d(6.0, 0.0));
- 
-            agent.setVelocity(agent.findPrefVelocity());
+            agent.setPrefVelocity();
 
             model.addNewAgent(agent);
 
