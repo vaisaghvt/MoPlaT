@@ -2,6 +2,7 @@ package motionPlanners.socialforce;
 
 import agent.RVOAgent;
 import app.PropertySet;
+import app.RVOModel;
 import environment.geography.Obstacle;
 import environment.geography.Position;
 import javax.vecmath.Vector2d;
@@ -46,10 +47,10 @@ public class SocialForce implements VelocityCalculator {
         double var = 1.5;
 
         if (x > var) {
-            x = Math.random();
+            x = RVOModel.publicInstance.random.nextDouble();
             //x = var;
         } else if (x < -var) {
-            x = -(Math.random());
+            x = -(RVOModel.publicInstance.random.nextDouble());
             //x = -var;
         }
 
@@ -449,13 +450,16 @@ public class SocialForce implements VelocityCalculator {
             Vxwall = (fiwx) / Mi;
             Vywall = (fiwy) / Mi;
         }
-
+assert !Double.isNaN(Vxint);
+assert !Double.isNaN(Vxwall);
+assert !Double.isNaN(preferredVelocity.x);
         // #################################################################
         // SUM AND BOUND TOTAL FORCE
         // #################################################################
         double Vx = forceBound(preferredVelocity.x + Vxint + Vxwall);
         double Vy = forceBound(preferredVelocity.y + Vyint + Vywall);
 
+        assert !Double.isNaN(Vx);
         return new Vector2d(Vx, Vy);
     }
 }

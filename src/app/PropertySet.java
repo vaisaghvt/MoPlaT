@@ -27,8 +27,8 @@ import utility.Geometry;
  */
 public class PropertySet {
 
-    private static final String PROPERTIES_FILENAME = "CrowdProperties" + File.separatorChar
-            + "PBMTesting.xml";
+    public static String PROPERTIES_FILENAME = "CrowdProperties" + File.separatorChar
+            + "LatticeTestSettings_6.xml";
 
     public static enum Model {
 
@@ -100,8 +100,12 @@ public class PropertySet {
         writer.close();
     }
 
-    static void initializeProperties() {
-        PROPERTIES_FILEPATH = XML_SOURCE_FOLDER + PROPERTIES_FILENAME;
+    static void initializeProperties(String filePath) {
+        if (filePath.isEmpty()) {
+            PROPERTIES_FILEPATH = XML_SOURCE_FOLDER + PROPERTIES_FILENAME;
+        } else {
+            PROPERTIES_FILEPATH = filePath;
+        }
         XML_SOURCE_FOLDER = XML_SOURCE_FOLDER + "scenarios" + File.separatorChar;
         try {
             XMLScenarioManager settings = XMLScenarioManager.instance("app.params");
@@ -132,7 +136,7 @@ public class PropertySet {
             AgentPortrayal.SHOW_VELOCITY = params.isShowVelocity();
             AgentPortrayal.SHOW_TRAILS = params.isTrails();
             
-            AgentPortrayal.SHOW_PERCEPTION = params.isShowPerception();
+//            AgentPortrayal.SHOW_PERCEPTION = params.isShowPerception();
             AgentPortrayal.SHOW_STP = false; //default false
 
             //AGENT PARAMETERS
@@ -149,10 +153,10 @@ public class PropertySet {
 
             MODEL = Model.valueOf(params.getModel());
 
-            if(MODEL == Model.SocialForce) {
-            LATTICEMODEL = false;
-        }
-            
+            if (MODEL == Model.SocialForce) {
+                LATTICEMODEL = false;
+            }
+
             if (LATTICEMODEL) {
                 LatticeSpace.DRIFT = params.getDrift();
             }

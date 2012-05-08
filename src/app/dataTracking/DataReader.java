@@ -51,22 +51,23 @@ public class DataReader {
                     writer = new PrintWriter(new BufferedWriter(new FileWriter(outputFile)));
                     int numberOfTimeSteps = reader.readInt();
                     System.out.println("time Steps =" + numberOfTimeSteps);
-                    int latticeWidth = reader.readInt();
-                    System.out.println("width =" + latticeWidth);
-                    int latticeHeight = reader.readInt();
-                    System.out.println("length =" + latticeHeight);
+//                    int latticeWidth = reader.readInt();
+//                    System.out.println("width =" + latticeWidth);
+//                    int latticeHeight = reader.readInt();
+//                    System.out.println("length =" + latticeHeight);
                     for (int x = 0; x < numberOfTimeSteps; x++) {
-                        for (int y = 0; y < latticeHeight; y++) {
-                            for (int z = 0; z < latticeWidth; z++) {
+                        int numberOfAgents = reader.readByte();
+                        writer.println(numberOfAgents);
+                        for (int z = 0; z < numberOfAgents; z++) {
 //                                System.out.println("Here");
-                                writer.print(reader.readByte());
-                                if (z != latticeWidth - 1) {
-                                    writer.print(",");
-                                }
+                                writer.println(reader.readByte()+","+reader.readByte());
+                                
+                                    
+                                
                             }
-                            writer.println();
-                        }
-                        writer.println();
+//                            writer.println();
+//                        }
+//                        writer.println();
                     }
 
                     writer.close();
@@ -100,17 +101,20 @@ System.out.println(inputFile);
                     
                     int numberOfTimeSteps = reader.readInt();
                     System.out.println("steps="+numberOfTimeSteps);
+                    writer.println(numberOfTimeSteps);
                     int numberOfAgents = reader.readInt();
                     System.out.println("agents"+numberOfAgents);
 
                     for (int x = 0; x < numberOfTimeSteps; x++) {
+                        
                         for (int y = 0; y < numberOfAgents; y++) {
 
                             writer.print(reader.readFloat());
                             if (y != numberOfAgents - 1) {
                                 writer.print(",");
                             }
-
+                            
+                            System.out.println(x+","+y);
                         }
                         writer.println();
                     }

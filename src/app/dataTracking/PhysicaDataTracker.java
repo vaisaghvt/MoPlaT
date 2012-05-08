@@ -13,6 +13,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.TreeSet;
@@ -40,7 +41,7 @@ public class PhysicaDataTracker implements DataTracker {
 //    private final ArrayListMultimap<Integer, Double> energySpentByAgent;
     private final ArrayListMultimap<Integer, Vector2d> velocityListForAgent;
     private final ArrayListMultimap<Integer, Point2d> positionListForAgent;
-    private final HashMap<Integer, int[][]> latticeStateForTimeStep;
+    private final HashMap<Integer, ArrayList<Point2d>> latticeStateForTimeStep;
 
     public PhysicaDataTracker(RVOModel model, Collection<? extends RVOAgent> agents) {
         stepNumber = 0;
@@ -49,7 +50,7 @@ public class PhysicaDataTracker implements DataTracker {
 //        energySpentByAgent = ArrayListMultimap.create();
         velocityListForAgent = ArrayListMultimap.create();
         positionListForAgent = ArrayListMultimap.create();
-        latticeStateForTimeStep = new HashMap<Integer, int[][]>();
+        latticeStateForTimeStep = new HashMap<Integer, ArrayList<Point2d>>();
 
         numberOfAgents = model.getAgentList().size();
     }
@@ -66,8 +67,9 @@ public class PhysicaDataTracker implements DataTracker {
         }
 
         if (PropertySet.LATTICEMODEL) {
-            
-            latticeStateForTimeStep.put(stepNumber, model.getLatticeSpace().getField());
+
+//            latticeStateForTimeStep.put(stepNumber, model.getLatticeSpace().getField());
+            latticeStateForTimeStep.put(stepNumber, model.getLatticeSpace().getAgentLocationList());
 //            for (int k = 0; k < stepNumber; k++) {
 //                for (int i = 0; i < latticeStateForTimeStep.get(k).length; i++) {
 //                    for (int j = 0; j < latticeStateForTimeStep.get(k)[0].length; j++) {
@@ -110,13 +112,13 @@ public class PhysicaDataTracker implements DataTracker {
 
 
         try {
-            writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + PropertySet.SEED + "_"
+            writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + RVOModel.publicInstance.seed() + "_"
                     + "Velocity", velocityListForAgent);
-            writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + PropertySet.SEED + "_"
+            writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + RVOModel.publicInstance.seed() + "_"
                     + "Position", positionListForAgent);
 
             if (PropertySet.LATTICEMODEL) {
-                writeToFileLatticeState(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + PropertySet.SEED + "_"
+                writeToFileLatticeState(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + RVOModel.publicInstance.seed() + "_"
                         + "LatticeState", latticeStateForTimeStep);
             }
         } catch (IOException ex) {
@@ -194,7 +196,7 @@ public class PhysicaDataTracker implements DataTracker {
         writerY.close();
     }
 
-    private static void writeToFileLatticeState(String fileName, HashMap<Integer, int[][]> latticeStateForTimeStep) throws IOException {
+    private static void writeToFileLatticeState(String fileName, HashMap<Integer, ArrayList<Point2d>> latticeStateForTimeStep) throws IOException {
         File file = new File(fileName);
         System.out.println("Creating " + fileName);
 
@@ -224,34 +226,36 @@ public class PhysicaDataTracker implements DataTracker {
 
 
         //write LATTICE SIZE
-        writer.writeInt(latticeStateForTimeStep.get(0).length);
-        writer.writeInt(latticeStateForTimeStep.get(0)[0].length);
+//        writer.writeInt(latticeStateForTimeStep.get(0).length);
+//        writer.writeInt(latticeStateForTimeStep.get(0)[0].length);
 
         for (Integer timeStep : new TreeSet<Integer>(latticeStateForTimeStep.keySet())) {
             if (timeStep % (writeTime) == 0) {
 //                System.out.println(timeStep);
-                int[][] currentState = latticeStateForTimeStep.get(timeStep);
-                for (int i = 0; i < currentState.length; i++) {
-                    for (int j = 0; j < latticeStateForTimeStep.get(timeStep)[0].length; j++) {
-                        writer.writeByte((byte) currentState[i][j]);
-                    
+                ArrayList<Point2d> currentState = latticeStateForTimeStep.get(timeStep);
+                //First write the number of agents
+//                System.out.println(" number of agents:"+(byte) currentState.size());
+                writer.writeByte((byte) currentState.size());
+
+                for (Point2d location : currentState) {
+                    writer.writeByte((byte) location.x);
+                    writer.writeByte((byte) location.y);
+//                    System.out.println((byte) location.x + "," + (byte) location.y);
 //                        writer.writeChar(' ');
 
-                    }
-//                    writer.writeChar('\n');
                 }
-
-
-//                writer.writeChar('\n');
-//                writer.writeChar('\n');
-
-
+//                    writer.writeChar('\n');
             }
-            
+
+
+//                writer.writeChar('\n');
+//                writer.writeChar('\n');
+
+
         }
-        System.out.println("done");
+
+//        System.out.println("done");
 
         writer.close();
-
     }
 }

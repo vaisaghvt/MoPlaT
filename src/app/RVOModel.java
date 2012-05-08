@@ -23,6 +23,7 @@ import ec.util.MersenneTwisterFast;
 import environment.geography.AgentGroup;
 import environment.geography.RoadMapPoint;
 import java.awt.Color;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -68,6 +69,7 @@ public class RVOModel extends SimState {
     private Stoppable generatorStopper;
     private DataTracker dataTracker = null;
     private String name;
+    public static RVOModel publicInstance = null;
 
 //    //the list to keep record of every agent's status in each timestep
 //    //each record contains a list of status for each agent
@@ -80,6 +82,7 @@ public class RVOModel extends SimState {
 
     public RVOModel(long seed) {
         super(seed);
+        publicInstance = this;
         if (PropertySet.INITIALISEFROMXML) {
             try {
                 XMLScenarioManager settings = XMLScenarioManager.instance("environment.geography");
@@ -429,8 +432,14 @@ public class RVOModel extends SimState {
 
     public static void main(String[] args) {
         // Read tutorial 2 of mason to see what this does.. or refer to documentation of this function
-
-        PropertySet.initializeProperties();
+        String filePath="";
+        for(int i=0;i<args.length;i++){
+            if(args[i].equalsIgnoreCase("-fileName")){
+                filePath=args[i+1];
+            }
+        }
+        
+        PropertySet.initializeProperties(filePath);
 
         doLoop(RVOModel.class, args);
 

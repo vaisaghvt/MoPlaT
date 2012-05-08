@@ -78,7 +78,7 @@ public class AgentInspector extends Inspector {
                 }
             }
         });
-
+        
         if (PropertySet.MODEL == Model.RVO2) {
             JButton orcaLineSwitch = new JButton("Toggle Orca Lines");
             viewBox.add(orcaLineSwitch);

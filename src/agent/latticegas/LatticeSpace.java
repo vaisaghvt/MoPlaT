@@ -23,7 +23,7 @@ import sim.util.Int2D;
  */
 public class LatticeSpace {
 
-    public static double DRIFT = -20.0;
+    public static double DRIFT = 2.0;
     public static final double LATTICEGRIDSIZE = 2.0 * RVOAgent.RADIUS;
     protected int numGridX;
     protected int numGridY;
@@ -199,12 +199,25 @@ public class LatticeSpace {
     }
 
     public synchronized int[][] getField() {
-       int[][] result = new int[space.field.length][space.field[0].length];
+        int[][] result = new int[space.field.length][space.field[0].length];
         for (int i = 0; i < space.field.length; i++) {
             System.arraycopy(space.field[i], 0, result[i], 0, space.field[0].length);
         }
         return result;
 //        return this.previousField;
+    }
+    
+    public synchronized ArrayList<Point2d> getAgentLocationList(){
+        ArrayList<Point2d> agentLocationList = new ArrayList<Point2d>();
+         for (int i = 0; i < space.field.length; i++) {
+             for (int j=0; j< space.field[0].length;j++){
+                 if((space.get(i, j))==1){
+                     agentLocationList.add(new Point2d(i,j));
+                 }
+             }
+             
+         }
+         return agentLocationList;
     }
 
     public void setDirection(int direction) {
@@ -237,6 +250,10 @@ public class LatticeSpace {
 
     public boolean isEmpty() {
         return numberOfAgents == 0;
+    }
+
+    public int getNumberOfAgents() {
+        return numberOfAgents;
     }
 
     private static class GoalLines {
@@ -324,7 +341,7 @@ public class LatticeSpace {
                         // Goal reached
                         if (previousField[i][j] == 1) {
                             space.set(i, j, 0);
-                            numberOfAgents--;
+//                            numberOfAgents--;
                         }
 //                        System.out.println(numberOfAgents);
                     } else if (previousField[i][j] == 2) {
@@ -723,6 +740,7 @@ public class LatticeSpace {
                     }
                 }
             }
+            numberOfAgents=0;
             for (int i = 0;
                     i < space.field.length;
                     i++) {
@@ -730,9 +748,14 @@ public class LatticeSpace {
                     if (space.get(i, j) == -1) {
                         space.set(i, j, 0);
                     }
+                    if (space.get(i, j) == 1) {
+//                        System.out.println(i+","+j);
+                        numberOfAgents++;
+                    }
                 }
 //                System.out.println();
             }
+//            System.out.println(numberOfAgents);
         }
     }
 }

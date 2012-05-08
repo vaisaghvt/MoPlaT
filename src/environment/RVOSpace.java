@@ -103,6 +103,8 @@ public class RVOSpace {
 
                 if (i == obstacles.size() - 1) {
                     obstacles.get(i).setNext(obstacles.get(0));
+
+                    
                 } else {
                     obstacles.get(i).setNext(obstacles.get(i + 1));
                 }

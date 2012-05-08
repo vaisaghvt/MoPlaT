@@ -95,34 +95,27 @@ public class Geometry {
 
     }
 
-    public static double calcDistanceToLineSegment(Point2d a, Point2d b, Point2d c) {
+    public static double calcDistanceToLineSegment(Point2d p1, Point2d p2, Point2d p3) {
 
-        Vector2d cMinusA = new Vector2d(c);
-        cMinusA.sub(a);
+        final double xDelta = p2.getX() - p1.getX();
+        final double yDelta = p2.getY() - p1.getY();
 
-
-
-        Vector2d bMinusA = new Vector2d(b);
-        bMinusA.sub(a);
-
-
-        double multipliedDistance = cMinusA.dot(bMinusA);
-
-        double r = multipliedDistance / absSq(bMinusA);
-
-        if (r < 0.0f) {
-            return absSq(cMinusA);
-        } else if (r > 1.0f) {
-            Vector2d cMinusB = new Vector2d(c);
-            cMinusB.sub(b);
-            return absSq(cMinusB);
-        } else {
-            bMinusA.scale(r);
-            bMinusA.add(a);
-            Vector2d finalResult = new Vector2d(c);
-            finalResult.sub(bMinusA);
-            return absSq(finalResult);
+        if ((xDelta == 0) && (yDelta == 0)) {
+            throw new IllegalArgumentException("p1 and p2 cannot be the same point");
         }
+
+        final double u = ((p3.getX() - p1.getX()) * xDelta + (p3.getY() - p1.getY()) * yDelta) / (xDelta * xDelta + yDelta * yDelta);
+
+        final Point2d closestPoint;
+        if (u < 0) {
+            closestPoint = p1;
+        } else if (u > 1) {
+            closestPoint = p2;
+        } else {
+            closestPoint = new Point2d(p1.getX() + u * xDelta, p1.getY() + u * yDelta);
+        }
+
+        return closestPoint.distance(p3);
     }
     
     public static double calcTTC(Point2d p1, Vector2d v1, double r1, Point2d p2, Vector2d v2, double r2){

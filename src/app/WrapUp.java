@@ -27,6 +27,8 @@ class WrapUp implements Steppable {
     public void step(SimState arg0) {
         if (PropertySet.LATTICEMODEL) {
             if (!state.getLatticeSpace().isEmpty()) {
+             
+//                System.out.println(state.getLatticeSpace().getNumberOfAgents());
                 return;
             }
         }
@@ -38,7 +40,7 @@ class WrapUp implements Steppable {
                 return;
             }
         }
-        System.out.println("here");
+//        System.out.println("here");
         state.kill();
     }
 }

@@ -268,7 +268,9 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      */
     public final void setPrefVelocity() {
         if (this.hasRoadMap()) {
+
             prefVelocity = this.determinePrefVelocity();
+            assert !Double.isNaN(prefVelocity.x);
             prefVelocity.scale(preferredSpeed);
         } else {                           
             prefVelocity = new Vector2d(goal);
@@ -491,14 +493,19 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                     /**
                      * Very slight perturbation of velocity to remove deadlock problems of perfect symmetry
                      */
+                    assert !Double.isNaN(prefVelocity.x);
                     prefVelocity.x += mySpace.getRvoModel().random.nextFloat() * 0.000000001;
                     prefVelocity.y += mySpace.getRvoModel().random.nextFloat() * 0.000000001;
+                    assert !Double.isNaN(prefVelocity.x);
+// if(id==0){
+//     System.out.println();
+// }
 
                     Vector2d tempVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
                             prefVelocity, PropertySet.TIMESTEP);
                     if (Double.isNaN(
                             tempVelocity.getX())) {
-                        System.out.println();
+                        assert false;
                     }
                     chosenVelocity = new PrecisePoint(tempVelocity.getX(), tempVelocity.getY());
                 }
@@ -776,6 +783,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             }
             return s;
         }
+
+ 
     }
 
     @Override
@@ -847,17 +856,24 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                 PrecisePoint cleanCurrentGoal = new PrecisePoint(localCurrentGoal.getX(), localCurrentGoal.getY());
                 result = new Vector2d(cleanCurrentGoal.toVector());
                 result.sub(this.getCurrentPosition());
-                result.normalize();
+                if (result.length() != 0) {
+                    result.normalize();
+                }
                 this.setCurrentGoal(localCurrentGoal);
                 break;
+            }
+            if (result != null) {
+                assert !Double.isNaN(result.x);
             }
         }
         if (result == null) {
 //            assert false;
 
             result = tryWeakTest();
+            assert !Double.isNaN(result.x);
         }
 //        System.out.println(result);
+        assert !Double.isNaN(result.x);
         return result;
     }
 

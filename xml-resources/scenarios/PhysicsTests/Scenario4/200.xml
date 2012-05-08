@@ -17,16 +17,16 @@
         <number>3</number>
     </roadMap>
     <obstacles>
-        <vertices x="14.4" y="1.3"/>
-        <vertices x="14.4" y="3.4"/>
+        <vertices x="14.4" y="1.5"/>
+        <vertices x="14.4" y="3.6"/>
         <vertices x="5.1" y="12.9"/>
         <vertices x="2.4" y="12.9"/>
         <vertices x="2.4" y="27.6"/>
         <vertices x="27.6" y="27.6"/>
         <vertices x="27.6" y="12.9"/>
         <vertices x="24.9" y="12.9"/>
-        <vertices x="15.6" y="3.4"/>
-        <vertices x="15.6" y="1.3"/>
+        <vertices x="15.6" y="3.6"/>
+        <vertices x="15.6" y="1.5"/>
         <vertices x="24.9" y="10.8"/>
         <vertices x="29.1" y="10.8"/>
         <vertices x="29.1" y="28.8"/>
@@ -51,8 +51,8 @@
         <startPoint x="5.1" y="12.9"/>
     </environmentGoals>
     <agentGroups>
-        <endPoint x="27.3" y="27.3"/>
-        <startPoint x="2.7" y="13.5"/>
+        <endPoint x="24.9" y="27.3"/>
+        <startPoint x="5.1" y="15"/>
         <size>200</size>
         <minSpeed>0.0</minSpeed>
         <maxSpeed>2.6</maxSpeed>

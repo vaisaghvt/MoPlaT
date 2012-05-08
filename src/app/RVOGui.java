@@ -227,7 +227,7 @@ public class RVOGui extends GUIState {
     }
 
     public static void main(String[] args) {
-        PropertySet.initializeProperties();
+        PropertySet.initializeProperties("");
         new RVOGui().createController();
     }
 }
