@@ -409,7 +409,7 @@ public class SocialForce implements VelocityCalculator {
             //double Mj = tempAgent.getMass();
 
             double Aj = 2000;        //2000;       //Published value = 2000 N
-            double Bj = 0.01;                    //Published value = 0.08 m
+            double Bj = 0.08;                    //Published value = 0.08 m
             double kj = 12000;       //12000;      //Published value = 120000 kg/s^2
             double kappaj = 24000;   //24000;      //Published value = 240000 kg/ms
 

@@ -129,7 +129,7 @@ public class Decision {
                 (this.currentStrategy == STRATEGY.OVERTAKE && wm.getAction().frameFromLastDecision >= wm.getDecision().getInstructedTime() * 1.5)
                 || wm.isFinishCurrentStrategy() 
                 || wm.isViolateExpectancy()
-                || (this.currentStrategy == STRATEGY.FOLLOW) //should be put into expectancyViolation or finishStrategy of following execution
+                || (this.currentStrategy == STRATEGY.FOLLOW && wm.getAction().frameFromLastDecision >=10) //should be put into expectancyViolation or finishStrategy of following execution
                 || this.currentStrategy == null
 //                || this.currentStrategy == STRATEGY.INSTINCTIVERACTION   //no explicity strategy called instinctive reaction, if it is null, it is possibly i.r, need to identify in action and RVOAgent
            ) 
@@ -283,10 +283,13 @@ public class Decision {
                 tentCurrentStategy = null; //non-strategic
 //                currentStrategy = null;
                 return;
-            }else if(centralFuzzyColValues.get(midIndex-leftCentral)+ centralFuzzyColValues.get(midIndex_odd-leftCentral)>=1){
+            }else if(centralFuzzyColValues.get(midIndex-leftCentral)+ centralFuzzyColValues.get(midIndex_odd-leftCentral)>=1){ //if the direct middle of me is 01 11 or 10 then verify for overtake
                 currentColValue=1;
-            }else{
+            }else if(centralFuzzyColValues.get(midIndex-leftCentral)== -1 || centralFuzzyColValues.get(midIndex_odd-leftCentral)==-1){
                 currentColValue=-1;
+            }else{
+                tentCurrentStategy = null;    //the case where fuzzy value == -9, which is initial value representing obstacles
+                return;
             }
         }else{
             currentColValue = centralFuzzyColValues.get(midIndex-leftCentral);
@@ -294,14 +297,15 @@ public class Decision {
                 tentCurrentStategy = null; //non-strategic
 //                currentStrategy = null;
                 return;
+            }else if(currentColValue==1){
+                initialMatch_CenterOne(centralFuzzyColValues, p1, leftCentral); //initial "previousvalue" =1
+            } 
+            else if (currentColValue==-1){ 
+                initialMatch_CenterNegativeOne(centralFuzzyColValues, p1, leftCentral); //initial "previousvalue"=-1
+            }else{
+                tentCurrentStategy = null;     //the case where fuzzy value == -9, which is initial value representing obstacles
+                return;
             }
-        }
-        
-        if(currentColValue==1){
-            initialMatch_CenterOne(centralFuzzyColValues, p1, leftCentral); //initial "previousvalue" =1
-        } 
-        else{ 
-            initialMatch_CenterNegativeOne(centralFuzzyColValues, p1, leftCentral); //initial "previousvalue"=-1
         }
     }//end of function initialMatch
     

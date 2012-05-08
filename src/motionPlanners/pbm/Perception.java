@@ -421,11 +421,10 @@ public class Perception {
 
              PrecisePoint predictPos = new PrecisePoint(velocity_verify.getX(), velocity_verify.getY());
              //assume the velocity_verify is fixed for a period during this stage of strategy
-             //could change it to certain cos function of time and the initial deviating angle later
+             //could change it to certain cost function of time and the initial deviating angle later
              predictPos.scale(i * PropertySet.TIMESTEP);
              predictPos.add(me.getCurrentPosition());
-             Point2d myNextPos = new Point2d(predictPos.toPoint());
-             
+             Point2d myNextPos = new Point2d(predictPos.toPoint());             
              
              Vector2d myNextPosAtEyeAlongVerifyVel = new Vector2d(velocity_verify);
              myNextPosAtEyeAlongVerifyVel.normalize();
@@ -439,24 +438,24 @@ public class Perception {
             //to set STP according to perceived obstacles------------------------------------------------------
             ArrayList<Line2D> obstacleLines = new ArrayList<Line2D>();
             for (Object tempObject : sensedObstacles) {
-                RVO2Obstacle tempObstacle = (RVO2Obstacle)tempObject;
-                if(tempObstacle.getVertices().size()==1){
-                    System.out.println("Specify at least 2 points for obstacles");
-                }else if(tempObstacle.getVertices().size()==2){
-                    obstacleLines.add(new Line2D.Double(tempObstacle.getVertices().get(0).x,tempObstacle.getVertices().get(0).y, tempObstacle.getVertices().get(1).x,tempObstacle.getVertices().get(1).y));
-                }else{
-                    //bug here! tempObstacle 
-                    for(int j=0;j<tempObstacle.getVertices().size();j++){
-                        Point2d tempPoint1 = tempObstacle.getVertices().get(j);
-                        Point2d tempPoint2;
-                        if(j==tempObstacle.getVertices().size()-1){
-                            tempPoint2 = new Point2d(tempObstacle.getVertices().get(0));
-                        }else{
-                            tempPoint2 = new Point2d(tempObstacle.getVertices().get(j+1));
-                        }
+                RVO2Obstacle tempObstacle = (RVO2Obstacle)tempObject; //for rvo2obstacle, it is just a point2d (vertex)
+//                if(tempObstacle.getVertices().size()==1){
+//                    System.out.println("Specify at least 2 points for obstacles");
+//                }else if(tempObstacle.getVertices().size()==2){
+//                    obstacleLines.add(new Line2D.Double(tempObstacle.getVertices().get(0).x,tempObstacle.getVertices().get(0).y, tempObstacle.getVertices().get(1).x,tempObstacle.getVertices().get(1).y));
+//                }else{
+//                    //bug here! tempObstacle 
+//                    for(int j=0;j<tempObstacle.getVertices().size();j++){
+                        Point2d tempPoint1 = tempObstacle.getPoint();
+                        Point2d tempPoint2 = tempObstacle.getNext().getPoint();
+//                        if(j==tempObstacle.getVertices().size()-1){
+//                            tempPoint2 = new Point2d(tempObstacle.getVertices().get(0));
+//                        }else{
+//                            tempPoint2 = new Point2d(tempObstacle.getVertices().get(j+1));
+//                        }
                         obstacleLines.add(new Line2D.Double(tempPoint1.x, tempPoint1.y, tempPoint2.x, tempPoint2.y));
-                     }
-                }
+//                     }
+//                }
             }
             for(int j=0;j<spacepattern.getPattern()[0][0].length;j++)
                 for(int k=1; k>=0;k--){
@@ -469,9 +468,9 @@ public class Perception {
                     for(Object obj: obstacleLines){
                         Line2D obstacleLine = (Line2D)obj;
                         if (Geometry.lineSegmentIntersectionTest(p1, p2, new Point2d(obstacleLine.getX1(),obstacleLine.getY1()), new Point2d(obstacleLine.getX2(),obstacleLine.getY2()))){
-                            if(spacepattern.getValue(pf, k, j) == 0){
-                                spacepattern.setValue(pf, k, j, -2);
-                            } //use -2 to indicate static obstacle at the section in a STP
+                            if(spacepattern.getValue(i, k, j) == 0){
+                                spacepattern.setValue(i, k, j, -9);
+                            } //use -9 to indicate static obstacle at the section in a STP
                             
                         }
                     }

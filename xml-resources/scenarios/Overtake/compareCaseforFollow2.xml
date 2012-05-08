@@ -4,8 +4,8 @@
         <goal y="2" x="14.64"/>
         <position y="2" x="0.5"/>
         <id>1</id>
-        <preferedSpeed>2</preferedSpeed>
-        <commitmentLevel>1.8</commitmentLevel>
+        <preferedSpeed>1.8</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
         <goal y="1.05" x="14.64"/>
@@ -35,21 +35,7 @@
         <preferedSpeed>0.7</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
-    <crowd>
-        <goal y="3" x="14.64"/>
-        <position y="3" x="4.4"/>
-        <id>6</id>
-        <preferedSpeed>0.7</preferedSpeed>
-        <commitmentLevel>2</commitmentLevel>
-    </crowd>
-    <crowd>
-        <goal y="3.5" x="14.64"/>
-        <position y="3.5" x="4.4"/>
-        <id>7</id>
-        <preferedSpeed>0.7</preferedSpeed>
-        <commitmentLevel>2</commitmentLevel>
-    </crowd>
-    
+
     <obstacles>
         <vertices y="0.8" x="0.4"/>
                 <vertices y="0.8" x="2"/>
@@ -87,5 +73,8 @@
                                                 <vertices y="4.5" x="2"/>
                                                         <vertices y="4.5" x="0.4"/>                 
     </obstacles>
- 
+    
+    
+    
+    
 </SimulationScenario>

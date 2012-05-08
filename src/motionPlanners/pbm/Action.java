@@ -178,7 +178,7 @@ public class Action {
         //new Speed is proportional to relative speed difference
         //assume target is slower than this agent, otherwise follow doesn't make sense
 
-        double approachSpeed = wm.getMyAgent().getVelocity().length() + 0.5 * (agt.getVelocity().length() - wm.getMyAgent().getVelocity().length());
+        double approachSpeed = wm.getMyAgent().getVelocity().length() + 0.6 * (agt.getVelocity().length() - wm.getMyAgent().getVelocity().length());
         pointToMove.scale(approachSpeed);
         selectedVelocity = new Vector2d(pointToMove);
     }
@@ -526,7 +526,7 @@ public class Action {
     
     private void initPreferredGaps() {
         //for controlling gaps when follow and overtake is performed
-        preferGap = (wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * 2 + 4) * (1+wm.getMyAgent().getPersonalSpaceFactor()) * RVOAgent.RADIUS; //random represent the other agent's personal space
+        preferGap = (wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * 2 + 2) * (1+wm.getMyAgent().getPersonalSpaceFactor()) * RVOAgent.RADIUS; //random represent the other agent's personal space
         
         //future improvement could make this adapt to the surrounding density at run time
     }
