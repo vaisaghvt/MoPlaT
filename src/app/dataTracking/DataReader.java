@@ -56,14 +56,11 @@ public class DataReader {
 //                    int latticeHeight = reader.readInt();
 //                    System.out.println("length =" + latticeHeight);
                     for (int x = 0; x < numberOfTimeSteps; x++) {
-                        int numberOfAgents = reader.readByte();
+                        int numberOfAgents = reader.readInt();
                         writer.println(numberOfAgents);
                         for (int z = 0; z < numberOfAgents; z++) {
 //                                System.out.println("Here");
-                                writer.println(reader.readByte()+","+reader.readByte());
-                                
-                                    
-                                
+                                writer.println(reader.readInt()+","+reader.readInt());
                             }
 //                            writer.println();
 //                        }

@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 import javax.vecmath.Point2d;
 import javax.vecmath.Tuple2d;
 import javax.vecmath.Vector2d;
+import motionPlanners.pbm.WorkingMemory;
 import org.jfree.chart.JFreeChart;
 import sim.engine.SimState;
 
@@ -63,7 +64,7 @@ public class PhysicaDataTracker implements DataTracker {
             velocityListForAgent.put(stepNumber, agent.getVelocity());
 
             positionListForAgent.put(stepNumber, agent.getCurrentPosition());
-
+            
         }
 
         if (PropertySet.LATTICEMODEL) {
@@ -235,11 +236,11 @@ public class PhysicaDataTracker implements DataTracker {
                 ArrayList<Point2d> currentState = latticeStateForTimeStep.get(timeStep);
                 //First write the number of agents
 //                System.out.println(" number of agents:"+(byte) currentState.size());
-                writer.writeByte((byte) currentState.size());
+                writer.writeInt((int) currentState.size());
 
                 for (Point2d location : currentState) {
-                    writer.writeByte((byte) location.x);
-                    writer.writeByte((byte) location.y);
+                    writer.writeInt((int) location.x);
+                    writer.writeInt((int) location.y);
 //                    System.out.println((byte) location.x + "," + (byte) location.y);
 //                        writer.writeChar(' ');
 
