@@ -28,7 +28,7 @@ import utility.Geometry;
 public class PropertySet {
 
     public static String PROPERTIES_FILENAME = "CrowdProperties" + File.separatorChar
-            + "LatticeTestSettings_6.xml";
+            + "PBMTesting.xml";
 
     public static enum Model {
 
@@ -53,6 +53,7 @@ public class PropertySet {
     public static int CHECK_SIZE_Y;
     public static boolean CHECKBOARD;
     public static boolean TRACK_DATA;
+    public static int PBMSCENARIO;
 
     public static void writePropertiesToFile(String fileName) {
         File file = new File(fileName);
@@ -97,6 +98,7 @@ public class PropertySet {
         if (LATTICEMODEL) {
             writer.println("Drift =" + LatticeSpace.DRIFT);
         }
+        writer.print("PBM Scenario ="+PBMSCENARIO);
         writer.close();
     }
 
@@ -163,8 +165,8 @@ public class PropertySet {
 
 //            if (MODEL == PropertySet.Model.RVO2) {
                 
-                RVO_2_1.TIME_HORIZON = params.getTimeHorizon();
-                RVO_2_1.TIME_HORIZON_OBSTACLE = params.getTimeHorizonObst();
+//                RVO_2_1.TIME_HORIZON = params.getTimeHorizon();
+//                RVO_2_1.TIME_HORIZON_OBSTACLE = params.getTimeHorizonObst();
 //            }
             
             if(params.isUseClustering()){
@@ -174,7 +176,11 @@ public class PropertySet {
 
             RVO_2_1.TIME_HORIZON = params.getTimeHorizon();
             RVO_2_1.TIME_HORIZON_OBSTACLE = params.getTimeHorizonObst();
-
+            if(MODEL == Model.PatternBasedMotion){
+                PBMSCENARIO = 1;//default to direction based only
+                if(params.getPbmScenario()!= null)
+                    PBMSCENARIO = params.getPbmScenario();
+            }
 
         } catch (JAXBException ex) {
             Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);

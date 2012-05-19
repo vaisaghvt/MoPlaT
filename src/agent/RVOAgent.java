@@ -73,6 +73,9 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     /**
      * Current velocity of the agent
      */
+    
+    private Vector2d initialDirection;
+    
     protected PrecisePoint velocity;
     private PrecisePoint chosenVelocity;
     /**
@@ -108,6 +111,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     private Point2d currentGoalPoint;
     private boolean dead = false;
     private HashMultimap<Integer, Point2d> roadMap;
+    
+
 
     public RVOAgent(RVOSpace mySpace) {
         super(); //for portraying the trails on the agentportrayal layer
@@ -138,7 +143,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         }
         id = agentCount++;
     }
-
+    
+    
     /*
      * Default constructor to create agents from XML file
      */
@@ -182,6 +188,15 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         id = otherAgent.getId();
         agentCount--;
     }
+    
+    public void setInitialDirection(Vector2d initialDirection){
+        this.initialDirection = initialDirection;
+        initialDirection.normalize();
+    }
+    
+    public Vector2d getInitialDirection(){
+        return initialDirection;
+    }
 
     public Point2d getGoal() {
         if (this.roadMap == null) {
@@ -196,6 +211,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         this.goal = goal;
         //  findPrefVelocity();
         //  velocity = new Vector2d(this.prefVelocity);
+    }
+    
+    public VelocityCalculator getVelocityCalculator(){
+        return velocityCalc;
     }
 
     private boolean reachedGoal() {
@@ -277,14 +296,21 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             prefVelocity.sub(currentPosition.toPoint());
             prefVelocity.normalize();
             prefVelocity.scale(preferredSpeed); //@hunan:added the scale for perferredSpeed
-             //assumes the bi-directional scenario, where preferred velocity is determined by the direction only. Rather than a precise waypoint
+             
+            //assumes the bi-directional scenario, where preferred velocity is determined by the direction only. Rather than a precise waypoint
             if(PropertySet.MODEL==PropertySet.Model.PatternBasedMotion){
-
-                if(prefVelocity.x>=0){
-                   prefVelocity = new Vector2d(preferredSpeed,0);
-               }else{
-                   prefVelocity = new Vector2d(-preferredSpeed,0);
-               }
+                 //this is only for horizontal directional move!
+                if(PropertySet.PBMSCENARIO == 1){
+                    if(prefVelocity.x>=0){
+                       prefVelocity = new Vector2d(preferredSpeed,0);
+                   }else{
+                       prefVelocity = new Vector2d(-preferredSpeed,0);
+                   }  
+                }
+                //for crossing scenario
+                else if(PropertySet.PBMSCENARIO ==2){
+                        
+                }
             }
         }
 //        return prefVelocity;
@@ -351,10 +377,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     @Override
     public String toString() {
         return "Agent" + id;
-    }
-
-    public VelocityCalculator getVelocityCalculator() {
-        return velocityCalc;
     }
 
     public strategymatchingCommitment getCommitementLevel() {

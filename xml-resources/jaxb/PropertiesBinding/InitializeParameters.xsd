@@ -45,7 +45,8 @@
             <xs:attribute name="TimeHorizon" type="xs:double"/>
             <xs:attribute name="TimeHorizonObst" type="xs:double"/>
             <xs:attribute name="RVOEpsilon" type="xs:float"/>
-
+            <xs:attribute name="PbmScenario" type="xs:int"/>
+            
         </xs:complexType>
     </xs:element>
 

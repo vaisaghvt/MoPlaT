@@ -50,7 +50,9 @@
             <xs:element name="minSpeed" type="xs:double"/>
             <xs:element name="maxSpeed" type="xs:double"/>
             <xs:element name="meanSpeed" type="xs:double"/>
-            <xs:element name="sDevSpeed" type="xs:double"/>                        
+            <xs:element name="sDevSpeed" type="xs:double"/>         
+            <xs:element name="groupDirection_x" type="xs:int"/>
+            <xs:element name="groupDirection_y" type="xs:int"/>
         </xs:sequence>
     </xs:complexType>
 

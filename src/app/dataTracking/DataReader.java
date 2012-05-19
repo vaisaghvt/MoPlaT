@@ -91,7 +91,7 @@ public class DataReader {
 
                     File outputFile = new File(args[i] + ".txt");
 
-System.out.println(inputFile);
+                    System.out.println(inputFile);
                     writer = new PrintWriter(new BufferedWriter(new FileWriter(outputFile)));
                     
                     System.out.println(reader.available());

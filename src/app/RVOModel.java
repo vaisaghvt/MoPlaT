@@ -18,7 +18,7 @@ import agent.latticegas.LatticeSpace;
 import app.PropertySet.Model;
 import app.dataTracking.DataTracker;
 import app.dataTracking.PhysicaDataTracker;
-import app.dataTracking.dataTrackPBM;
+import app.dataTracking.dataTrackPBM_binary;
 import com.google.common.collect.HashMultimap;
 import ec.util.MersenneTwisterFast;
 import environment.geography.AgentGroup;
@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.vecmath.Point2d;
+import javax.vecmath.Vector2d;
 import javax.xml.bind.JAXBException;
 import motionPlanners.socialforce.SocialForce;
 import sim.engine.RandomSequence;
@@ -71,6 +72,16 @@ public class RVOModel extends SimState {
     private DataTracker dataTracker = null;
     private String name;
     public static RVOModel publicInstance = null;
+    
+//    //for different pbm scenarios to set initial preferredVelocity
+//    private int pbmScenario = 0;
+//    
+//    public void setPbmSecenario(int pbmTestCase){
+//        pbmScenario = pbmTestCase;
+//    }
+//    public int getPbmScenario(){
+//        return pbmScenario;
+//    }
 
 //    //the list to keep record of every agent's status in each timestep
 //    //each record contains a list of status for each agent
@@ -116,7 +127,11 @@ public class RVOModel extends SimState {
         }
         if (PropertySet.TRACK_DATA) {
 //            dataTracker = new CWDataCollector(this, agentList);
-          dataTracker =  new dataTrackPBM(this,agentList);
+          if(PropertySet.MODEL==Model.PatternBasedMotion){
+             dataTracker =  new dataTrackPBM_binary(this,agentList);
+          }else{
+             dataTracker = new PhysicaDataTracker(this, agentList); 
+          }
 //            dataTracker = new PhysicaDataTracker(this, agentList);
             schedule.scheduleRepeating(dataTracker, 4, 1.0);
         }
@@ -272,7 +287,6 @@ public class RVOModel extends SimState {
 //                            new Color(Color.HSBtoRGB((float) i / (float) xmlAgentList.size(),1.0f, 0.68f)),
                             Color.BLACK,
                             tempAgent.getPreferedSpeed(), tempAgent.getCommitmentLevel());
-                    
                     addNewAgent(tempRVOAgent);
                 } else {
                     RVOAgent tempRVOAgent = new RVOAgent(
@@ -325,7 +339,7 @@ public class RVOModel extends SimState {
 //                rvoSpace.addRoadMap(actualRoadMap);
             }
 
-
+            //this is used to generate a set of agents in a line
             List<AgentLine> xmlAgentLineList = scenario.getGenerationLines();
             for (int i = 0; i < xmlAgentLineList.size(); i++) {
                 Point2d start = new Point2d(xmlAgentLineList.get(i).getStartPoint().getX(), xmlAgentLineList.get(i).getStartPoint().getY());
@@ -336,9 +350,6 @@ public class RVOModel extends SimState {
 
             List<AgentGroup> xmlAgentGroupList = scenario.getAgentGroups();
             for (AgentGroup tempAgentGroup : xmlAgentGroupList) {
-
-
-
                 final double maxSpeed = tempAgentGroup.getMaxSpeed();
                 final double minSpeed = tempAgentGroup.getMinSpeed();
                 final double meanSpeed = tempAgentGroup.getMeanSpeed();
@@ -346,14 +357,15 @@ public class RVOModel extends SimState {
                 final double sdevSpeed = tempAgentGroup.getSDevSpeed();
                 int[][] spaces = initializeLattice(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY(),
                         tempAgentGroup.getEndPoint().getX(), tempAgentGroup.getEndPoint().getY());
+                
+                Vector2d groupDirection = new Vector2d(tempAgentGroup.getGroupDirectionX(),tempAgentGroup.getGroupDirectionY());//normalized vector to specify the group direction
+                groupDirection.normalize();
+                
                 for (int i = 0; i < tempAgentGroup.getSize(); i++) {
-
-
                     RVOAgent agent = new RVOAgent(this.getRvoSpace());
                     Point2d position = this.getAgentPosition(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY(),
                             spaces);
                     agent.setCurrentPosition(position.x, position.y);
-
 
                     double initialSpeed = random.nextGaussian() * sdevSpeed + meanSpeed;
                     if (initialSpeed < minSpeed) {
@@ -362,15 +374,17 @@ public class RVOModel extends SimState {
                         initialSpeed = maxSpeed;
                     }
 
-
                     agent.setPreferredSpeed(initialSpeed);
                     agent.setMaximumSpeed(maxSpeed);
-
+                    
+//                    agent.set  //to modify to include a group of agents with preferred direction!@@@@@@@@@
                     this.addNewAgent(agent);
                     if (actualRoadMap != null) {
                         agent.addRoadMap(actualRoadMap);
                     }
-                    //          agent.setVelocity(agent.findPrefVelocity());
+//                    agent.setPrefVelocity(); //set prefVel according to prefDirection
+                    groupDirection.scale(initialSpeed);
+                    agent.setVelocity(groupDirection);
                 }
             }
             if (PropertySet.LATTICEMODEL) {
@@ -397,10 +411,6 @@ public class RVOModel extends SimState {
 
     private Point2d getAgentPosition(double mnx, double mny, int[][] spaces) {
         // determine the mass of the agent;
-
-
-
-
         int x = 0, y = 0;
  
         while (true) {

@@ -284,7 +284,7 @@ public class Action {
             // speed up
             catchUpVelocity.normalize();
             catchUpVelocity.scale(wm.getMyAgent().getSpeed() 
-            + 0.1 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
+            + 0.01 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
         }
         selectedVelocity = new Vector2d(catchUpVelocity);
     }

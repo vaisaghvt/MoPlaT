@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="50" Ysize="5" Xsize="30" name="bidiectionalCrossing">
+    <obstacles>
+        <vertices y="0.48" x="0.5"/>
+        <vertices y="0.44" x="29.56"/>
+        <vertices y="0.2" x="29.56"/>
+        <vertices y="0.12" x="0.52"/>
+    </obstacles>
+    <obstacles>
+        <vertices y="4.52" x="0.56"/>
+        <vertices y="4.48" x="29.56"/>
+        <vertices y="4.64" x="29.56"/>
+        <vertices y="4.62" x="0.54"/>
+    </obstacles>
+    <environmentGoals>
+        <endPoint y="2.3" x="26.94"/>
+        <startPoint y="2.3" x="8.6"/>
+    </environmentGoals>
+    <environmentGoals>
+        <endPoint y="2.4" x="17.2"/>
+        <startPoint y="2.4" x="3.92"/>
+    </environmentGoals>
+    <agentGroups>
+        <endPoint y="3.06" x="8.61"/>
+        <startPoint y="1.56" x="6.199999999999999"/>
+        <size>30</size>
+        <minSpeed>1.3</minSpeed>
+        <maxSpeed>1.8</maxSpeed>
+        <meanSpeed>1.55</meanSpeed>
+        <sDevSpeed>0.05</sDevSpeed>
+    </agentGroups>
+    <agentGroups>
+        <endPoint y="2.98" x="19.799999999999997"/>
+        <startPoint y="1.6" x="17.24"/>
+        <size>30</size>
+        <minSpeed>1.3</minSpeed>
+        <maxSpeed>1.8</maxSpeed>
+        <meanSpeed>1.55</meanSpeed>
+        <sDevSpeed>0.05</sDevSpeed>
+    </agentGroups>
+</SimulationScenario>
