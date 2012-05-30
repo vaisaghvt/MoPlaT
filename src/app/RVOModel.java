@@ -243,7 +243,7 @@ public class RVOModel extends SimState {
         agentList.add(a);
         rvoSpace.updatePositionOnMap(a, a.getX(), a.getY());
         if (PropertySet.LATTICEMODEL) {
-            latticeSpace.addAgentAt(a.getX(), a.getY());
+            latticeSpace.addAgentAt(a.getX(), a.getY(), a.getId());
         }
     }
 
@@ -358,9 +358,9 @@ public class RVOModel extends SimState {
                 int[][] spaces = initializeLattice(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY(),
                         tempAgentGroup.getEndPoint().getX(), tempAgentGroup.getEndPoint().getY());
                 
-                Vector2d groupDirection = new Vector2d(tempAgentGroup.getGroupDirectionX(),tempAgentGroup.getGroupDirectionY());//normalized vector to specify the group direction
-                groupDirection.normalize();
-                
+//                Vector2d groupDirection = new Vector2d(tempAgentGroup.getGroupDirectionX(),tempAgentGroup.getGroupDirectionY());//normalized vector to specify the group direction
+//                groupDirection.normalize();
+//                
                 for (int i = 0; i < tempAgentGroup.getSize(); i++) {
                     RVOAgent agent = new RVOAgent(this.getRvoSpace());
                     Point2d position = this.getAgentPosition(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY(),
@@ -382,9 +382,9 @@ public class RVOModel extends SimState {
                     if (actualRoadMap != null) {
                         agent.addRoadMap(actualRoadMap);
                     }
-//                    agent.setPrefVelocity(); //set prefVel according to prefDirection
-                    groupDirection.scale(initialSpeed);
-                    agent.setVelocity(groupDirection);
+                    agent.setPrefVelocity(); //set prefVel according to prefDirection
+//                    groupDirection.scale(initialSpeed);
+//                    agent.setVelocity(groupDirection);
                 }
             }
             if (PropertySet.LATTICEMODEL) {

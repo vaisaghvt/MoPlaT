@@ -109,7 +109,7 @@ public class RVOGui extends GUIState {
         if (PropertySet.LATTICEMODEL) {
             latticeGasPortrayal.setField(model.getLatticeSpace().getSpace());
             latticeGasPortrayal.setMap(new sim.util.gui.SimpleColorMap(
-                    new Color[]{new Color(0, 0, 0, 0), new Color(0, 0, 255, 150), Color.red}));
+                    new Color[]{new Color(0, 0, 255, 140), new Color(0, 0, 255, 150), Color.red}));
         }
 
         if (PropertySet.USECLUSTERING) {

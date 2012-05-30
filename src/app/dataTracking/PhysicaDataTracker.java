@@ -42,7 +42,8 @@ public class PhysicaDataTracker implements DataTracker {
 //    private final ArrayListMultimap<Integer, Double> energySpentByAgent;
     private final ArrayListMultimap<Integer, Vector2d> velocityListForAgent;
     private final ArrayListMultimap<Integer, Point2d> positionListForAgent;
-    private final HashMap<Integer, ArrayList<Point2d>> latticeStateForTimeStep;
+//    private final HashMap<Integer, ArrayList<Point2d>> latticeStateForTimeStep;
+    private final ArrayListMultimap<Integer, Point2d> latticeStateForTimeStep;
 
     public PhysicaDataTracker(RVOModel model, Collection<? extends RVOAgent> agents) {
         stepNumber = 0;
@@ -51,26 +52,34 @@ public class PhysicaDataTracker implements DataTracker {
 //        energySpentByAgent = ArrayListMultimap.create();
         velocityListForAgent = ArrayListMultimap.create();
         positionListForAgent = ArrayListMultimap.create();
-        latticeStateForTimeStep = new HashMap<Integer, ArrayList<Point2d>>();
+//        latticeStateForTimeStep = new HashMap<Integer, ArrayList<Point2d>>();
+        latticeStateForTimeStep = ArrayListMultimap.create();
 
         numberOfAgents = model.getAgentList().size();
     }
 
     @Override
     public void step(SimState ss) {
+        HashMap<Integer, Point2d> locationMapForLattice = null;
+        if (PropertySet.LATTICEMODEL) {
+            locationMapForLattice = model.getLatticeSpace().getAgentLocationMap();
+        }
 
         for (RVOAgent agent : model.getAgentList()) {
 
             velocityListForAgent.put(stepNumber, agent.getVelocity());
 
             positionListForAgent.put(stepNumber, agent.getCurrentPosition());
-            
+
+            if (PropertySet.LATTICEMODEL && locationMapForLattice != null) {
+                latticeStateForTimeStep.put(stepNumber, locationMapForLattice.get(agent.getId()));
+            }
         }
 
-        if (PropertySet.LATTICEMODEL) {
+//        if (PropertySet.LATTICEMODEL) {
 
 //            latticeStateForTimeStep.put(stepNumber, model.getLatticeSpace().getField());
-            latticeStateForTimeStep.put(stepNumber, model.getLatticeSpace().getAgentLocationList());
+//            latticeStateForTimeStep.put(stepNumber, model.getLatticeSpace().getAgentLocationList());
 //            for (int k = 0; k < stepNumber; k++) {
 //                for (int i = 0; i < latticeStateForTimeStep.get(k).length; i++) {
 //                    for (int j = 0; j < latticeStateForTimeStep.get(k)[0].length; j++) {
@@ -83,7 +92,7 @@ public class PhysicaDataTracker implements DataTracker {
 //                }
 //                System.out.println();
 //            }
-        }
+//        }
 
         stepNumber++;
     }
@@ -119,7 +128,7 @@ public class PhysicaDataTracker implements DataTracker {
                     + "Position", positionListForAgent);
 
             if (PropertySet.LATTICEMODEL) {
-                writeToFileLatticeState(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + RVOModel.publicInstance.seed() + "_"
+                writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + RVOModel.publicInstance.seed() + "_"
                         + "LatticeState", latticeStateForTimeStep);
             }
         } catch (IOException ex) {
@@ -180,9 +189,13 @@ public class PhysicaDataTracker implements DataTracker {
 
 
                 for (E element : dataForAgent.get(timeStep)) {
-                    writerX.writeFloat((float) element.getX());
-                    writerY.writeFloat((float) element.getY());
-
+                    if (element != null) {
+                        writerX.writeFloat((float) element.getX());
+                        writerY.writeFloat((float) element.getY());
+                    } else {
+                        writerX.writeFloat(0);
+                        writerY.writeFloat(0);
+                    }
 //                    writerX.writeChar('\t');
 //                    writerY.writeChar('\t');
                 }

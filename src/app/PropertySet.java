@@ -28,7 +28,7 @@ import utility.Geometry;
 public class PropertySet {
 
     public static String PROPERTIES_FILENAME = "CrowdProperties" + File.separatorChar
-            + "PBMTesting.xml";
+            + "LatticeTestSettings.xml";
 
     public static enum Model {
 
