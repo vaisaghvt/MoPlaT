@@ -13,7 +13,8 @@ esac
 
 latticefiles=`find $1 \( ! -name "*.txt" \) -and \( ! -name "*.svn-base" \) -type f|grep -i lattice`
 
-java -cp dist/CrowdSimulation.jar app.dataTracking.DataReader lattice $latticefiles
+# java -cp dist/CrowdSimulation.jar app.dataTracking.DataReader lattice $latticefiles
+java -cp dist/CrowdSimulation.jar app.dataTracking.DataReader float $latticefiles
 
 nonlatticefiles=`find $1 \( ! -name "*.txt" \) -and \( ! -name "*.svn-base" \) -type f|egrep '(Position)|(Velocity)'`
 
