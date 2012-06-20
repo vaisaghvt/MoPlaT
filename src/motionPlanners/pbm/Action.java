@@ -2,6 +2,7 @@ package motionPlanners.pbm;
 
 import agent.RVOAgent;
 import app.PropertySet;
+import app.RVOModel;
 import ec.util.MersenneTwisterFast;
 import javax.vecmath.Vector2d;
 import javax.vecmath.Point2d;
@@ -88,48 +89,67 @@ public class Action {
 //            fromLeft = "left";
 //        }
         System.out.println("agent" + this.wm.getMyAgent().getId() + " is following " + "agent " + target.getId());
-
-        //position and velocity determines whether successfully followed
-        if (target.getCurrentPosition().distance(this.wm.myAgent.getCurrentPosition()) <= preferGap
-                && (Math.abs(target.getVelocity().length() - this.wm.myAgent.getVelocity().length()) / Math.max(agt.getVelocity().length(), this.wm.myAgent.getVelocity().length()) ) <= velocityDiff
-                && target.getVelocity().length() >= this.wm.myAgent.getVelocity().length()) {
-            wm.setFinishCurrentStrategy(true);
+        
+        
+        //check violation when the agent has direct pass to its destination in the following process
+        Vector2d meToGoal;
+        if(wm.getMyAgent().getGoal()==null){
+            meToGoal = new Vector2d(wm.getMyAgent().getPrefDirection());
+        }else{
+            meToGoal=new Vector2d(wm.getMyAgent().getGoal());
+            meToGoal.sub(wm.getMyAgent().getMyPositionAtEye());
+        }
+        if(wm.getMyAgent().getVelocity().angle(meToGoal)> 45/180 * Math.PI){
+            wm.violateExpectancy = true;
             return;
         }
-        //check expectancy violation
-//        if( ){
-//            wm.setViolateExpectancy(true);
-//            return;
-//        }
         
         
-        //set preferred velocity for me to follow the target
-        Vector2d destinationToMove = approachlane(target); //change direction of velocity (returns position to move to)
-        adjustSpeedFollow(target, destinationToMove);//change magnitude of velocity
+        //position and velocity determines whether successfully followed
+        if (target.getCurrentPosition().distance(this.wm.myAgent.getCurrentPosition()) <= preferGap) {
+            if((Math.abs(target.getVelocity().length() - this.wm.myAgent.getVelocity().length()) / Math.max(agt.getVelocity().length(), this.wm.myAgent.getVelocity().length()) ) <= velocityDiff
+                    && Math.cos(target.getVelocity().angle(wm.getMyAgent().getVelocity()))>= Math.cos(5/180 * Math.PI)
+             ){
+                    wm.setFinishCurrentStrategy(true);
+                    return;
+            }else{
+                 matchVelocityFollow(target); //just reduce speed
+            }
+        }else{
+            Point2d destinationToMove = posBehindFollowTarget(target); //change direction of velocity (returns position to move to)
+            adjustSpeedFollow(target, destinationToMove);//change magnitude of velocity
+        }
+    }
+    
+    /*
+     * Called during follow when positions are already close but need to adjust velocity to be consistent with the target
+     */
+    private void matchVelocityFollow(RVOAgent agt){
+        Vector2d targetVelocity = agt.getVelocity();
+        Vector2d myVelocity = wm.getMyAgent().getVelocity();
+        selectedVelocity = new Vector2d(myVelocity.x + 0.5*(targetVelocity.x-myVelocity.x), myVelocity.y + 0.5*(targetVelocity.y-myVelocity.y));
     }
 
     //used in follow()
-    private Vector2d approachlane(RVOAgent agt) {
+    private Point2d posBehindFollowTarget(RVOAgent agt) {
         double randomAngle = 0; //in radian
         //use the updated information of agt all the way during following
-        Vector2d locationToMove = new Vector2d(agt.getVelocity());
+        Vector2d locationToMove = new Vector2d(agt.getCurrentPosition());
+        locationToMove.sub(wm.getMyAgent().getMyPositionAtEye());
         locationToMove.normalize();
         locationToMove.negate();
-        locationToMove.scale(preferGap * 0.8);
+        locationToMove.scale(preferGap * 1);
 //        locationToMove.add(agt.getCurrentPosition());
         
-//        MersenneTwisterFast random = wm.getMyAgent().getMySpace().getRvoModel().random;
-//        if (left) {
-//            randomAngle = random.nextDouble() * (Math.PI / 4);
-//        } else {
-//            randomAngle = random.nextDouble() * (Math.PI / 4) * (-1);
-//        }
+        MersenneTwisterFast random = wm.getMyAgent().getMySpace().getRvoModel().random;
+        randomAngle = (-0.125 + random.nextDouble()/4) * Math.PI;
 
 //        rotate2d(locationToMove, randomAngle);
+        
         //rotate the vector around (0,0) clokcwise by randomAngle
 //        rotate2d(locationToMove, randomAngle);
         locationToMove.add(agt.getCurrentPosition());
-        return locationToMove;
+        return new Point2d(locationToMove.x,locationToMove.y);
     }
 
     /**
@@ -170,17 +190,18 @@ public class Action {
      * @param agt: target agent
      * @param pointToMove
      */
-    private void adjustSpeedFollow(RVOAgent agt, Vector2d pointToMove) {
+    private void adjustSpeedFollow(RVOAgent agt, Point2d pointToMove) {
         //to set the moving direction
-        pointToMove.sub(this.wm.getMyAgent().getCurrentPosition());
-        pointToMove.normalize();
+        Vector2d followVel = new Vector2d(pointToMove);
+        followVel.sub(this.wm.getMyAgent().getMyPositionAtEye());
+        followVel.normalize();
 
         //new Speed is proportional to relative speed difference
         //assume target is slower than this agent, otherwise follow doesn't make sense
 
-        double approachSpeed = wm.getMyAgent().getVelocity().length() + 0.6 * (agt.getVelocity().length() - wm.getMyAgent().getVelocity().length());
-        pointToMove.scale(approachSpeed);
-        selectedVelocity = new Vector2d(pointToMove);
+        double approachSpeed = wm.getMyAgent().getVelocity().length() + 0.5 * (agt.getVelocity().length() - wm.getMyAgent().getVelocity().length());
+        followVel.scale(approachSpeed);
+        selectedVelocity = new Vector2d(followVel);
     }
 
     /*
@@ -202,12 +223,24 @@ public class Action {
 //        
         if (ahead >= 0) {
             //execute catching up behavior in phase 1 of overtaking
-            CatchUp(agt, left, T);
+            CatchUp(agt, left, T, startVel);
+            
+                    //for violation check, to reduce the osillation according to new calculation of each step
+//            if(frameFromLastDecision>0){
+//                double alpha1 = Geometry.angleBetweenWSign(startVel, selectedVelocity);
+//                double alpha2 = Geometry.angleBetweenWSign(startVel, wm.getMyAgent().getVelocity());
+//                if(alpha1 * alpha2 >0 && Math.abs(alpha1-alpha2)< (5/180 * Math.PI)) {
+//                    selectedVelocity = new Vector2d(wm.getMyAgent().getVelocity());
+//                }
+//            }
 
-        }else if (ahead > -0.2) {
+        }else if (ahead > -0.3) {
             Vector2d passAheadVel = new Vector2d(startVel);
-            passAheadVel.scale(1.05);
-            selectedVelocity = new Vector2d(passAheadVel);
+            passAheadVel.normalize();
+            passAheadVel.scale(1.1 *(1+wm.getMyAgent().getPreferredSpeed()));
+            
+            selectedVelocity = new Vector2d(wm.getMyAgent().getVelocity().x + 0.5*(passAheadVel.x-wm.getMyAgent().getVelocity().x),
+            wm.getMyAgent().getVelocity().y + 0.5*(passAheadVel.y-wm.getMyAgent().getVelocity().y));
         }
         else{
 //           do not implement resume original course, such behavior can emerge through the rough preferredVelocity setting
@@ -215,9 +248,6 @@ public class Action {
         }
         
         //check expectancy from the current situation, actually along the velocity in front of me, whether got collisions with other agents
-        
-        
-        
     }
 
     /**
@@ -227,16 +257,18 @@ public class Action {
      * @param agt
      * @return
      */
-    private Vector2d approachSide(RVOAgent agt, boolean left) {
+    private Point2d approachSide(RVOAgent agt, boolean left, Vector2d startV) {
         double angle = Math.PI / 2;
-        if (!left) {
+        if (left) {
             angle *= -1;
         }
-        Vector2d locationToMove_overtake = new Vector2d(agt.getVelocity());
-//        Vector2d locationToMove_avoid = new Vector2d(startVel);
-        //if this method is called in "Catchup during overtaking"
-        if (wm.getDecision().getCurrentStrategy() == STRATEGY.OVERTAKE) {
+//        Vector2d locationToMove_overtake = new Vector2d(agt.getVelocity());   //old one, calculate based on target velocity, now change to my velocity on target position
+        Vector2d locationToMove_overtake = new Vector2d(startV);
+
+        //if this method is called in "Catchup during avoid"
+        if (wm.getDecision().getCurrentStrategy() == STRATEGY.AVOID) {
             locationToMove_overtake.negate();
+            angle *=-1;
         }
         //if this method is called in "approachToTarget during Side-Avoiding"
         locationToMove_overtake.normalize();
@@ -245,19 +277,19 @@ public class Action {
         rotate2d(locationToMove_overtake,angle);
         
         if (wm.getDecision().getCurrentStrategy() == STRATEGY.OVERTAKE) {
-            locationToMove_overtake.scale(RVOAgent.RADIUS * 2* (1+this.wm.getMyAgent().getPersonalSpaceFactor()) + 
-                    1.5 * (1+wm.getMyAgent().getPersonalSpaceFactor())* RVOAgent.RADIUS
+            locationToMove_overtake.scale(RVOAgent.RADIUS * 3 * (1+this.wm.getMyAgent().getPersonalSpaceFactor()) 
+//                    + (4*this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble()) * (1+wm.getMyAgent().getPersonalSpaceFactor())* RVOAgent.RADIUS
                     );
         } else if (wm.getDecision().getCurrentStrategy() == STRATEGY.AVOID) {
-            locationToMove_overtake.scale(RVOAgent.RADIUS * 2* (1+this.wm.getMyAgent().getPersonalSpaceFactor()) 
-                    + 1 *(1+wm.getMyAgent().getPersonalSpaceFactor())* RVOAgent.RADIUS
+            locationToMove_overtake.scale(RVOAgent.RADIUS * 3 * (1+this.wm.getMyAgent().getPersonalSpaceFactor()) 
+//                    + (4*this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble()) *(1+wm.getMyAgent().getPersonalSpaceFactor())* RVOAgent.RADIUS
 //                    + 0.5 * agt.getRadius() * (1+agt.getPersonalSpaceFactor()) 
 //                    + this.wm.getMyAgent().getRadius()* (1+this.wm.getMyAgent().getPersonalSpaceFactor())
 //                    (this.wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble()) * RVOAgent.RADIUS
                     );
         }
         locationToMove_overtake.add(agt.getCurrentPosition());
-        return locationToMove_overtake;
+        return new Point2d(locationToMove_overtake.x,locationToMove_overtake.y);
     }
 
     /**
@@ -268,9 +300,10 @@ public class Action {
      * @param fromLeft
      * @param T
      */
-    private void CatchUp(RVOAgent agt, boolean fromLeft, int T) {
-        Vector2d catchUpVelocity = approachSide(agt, fromLeft);
-        catchUpVelocity.sub(wm.getMyAgent().getCurrentPosition());
+    private void CatchUp(RVOAgent agt, boolean fromLeft, int T, Vector2d startV) {
+        Point2d catchUpPoint = approachSide(agt, fromLeft, startV);
+        Vector2d catchUpVelocity = new Vector2d(catchUpPoint.x,catchUpPoint.y);
+        catchUpVelocity.sub(wm.getMyAgent().getMyPositionAtEye());
         catchUpVelocity.normalize();
         catchUpVelocity.scale(wm.getMyAgent().getSpeed());
         
@@ -278,13 +311,13 @@ public class Action {
             //if we're ahead of schedule then ok, or slightly increase the catching up speed
             catchUpVelocity.normalize();
             catchUpVelocity.scale(wm.getMyAgent().getSpeed() 
-            + 0.01 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
+            + 0.5 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
            
         } else {
             // speed up
             catchUpVelocity.normalize();
             catchUpVelocity.scale(wm.getMyAgent().getSpeed() 
-            + 0.01 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
+            + 0.8 * wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * (wm.getMyAgent().getMaxSpeed()-wm.getMyAgent().getSpeed()));
         }
         selectedVelocity = new Vector2d(catchUpVelocity);
     }
@@ -446,28 +479,39 @@ public class Action {
             
            Point2d targetGoalPos = agt.getGoal();
            Point2d myGoal = wm.getMyAgent().getGoal();
-           
            Point2d targetCurrentPos = agt.getCurrentPosition();
            Point2d myCurrentPos = wm.getMyAgent().getCurrentPosition();
-                      
-           Vector2d myToGoal = new Vector2d(myGoal);
-           myToGoal.sub(myCurrentPos);
-           myToGoal.normalize();
-           myToGoal.scale(wm.getMyAgent().getSpeed());
+           double ttc = 0;
            
-           Vector2d targetToGoal = new Vector2d(targetGoalPos);
-           targetToGoal.sub(targetCurrentPos);
-           targetToGoal.normalize();
-           targetToGoal.scale(agt.getSpeed());
+           Vector2d myToGoal;
+           Vector2d targetToGoal;
            
-           double ttc = Geometry.calcTTC(myCurrentPos, myToGoal, (wm.getMyAgent().getPersonalSpaceFactor()+1)*RVOAgent.RADIUS, targetCurrentPos, targetToGoal, (agt.getPersonalSpaceFactor()+1)*RVOAgent.RADIUS);
+           if(targetGoalPos !=null && myGoal!=null){
+               myToGoal= new Vector2d(myGoal);
+               myToGoal.sub(myCurrentPos);
+              
+               targetToGoal= new Vector2d(targetGoalPos);
+               targetToGoal.sub(targetCurrentPos);     
+           }
+           else{
+               myToGoal = new Vector2d(wm.getMyAgent().getPrefDirection());
+               targetToGoal = new Vector2d(agt.getPrefDirection());
+           }
+            myToGoal.normalize();
+            myToGoal.scale(wm.getMyAgent().getSpeed());
+            targetToGoal.normalize();
+            targetToGoal.scale(agt.getSpeed());
+            
+            ttc= Geometry.calcTTC(myCurrentPos, myToGoal, (wm.getMyAgent().getPersonalSpaceFactor()*3 +1)*RVOAgent.RADIUS, targetCurrentPos, targetToGoal, (agt.getPersonalSpaceFactor()+1)*RVOAgent.RADIUS);
+           
            if(ttc>999){
 //               selectedVelocity=wm.getMyAgent().setPrefVelocity();
                wm.setFinishCurrentStrategy(true);
                return;
            }
-            Vector2d deviatedVel = approachSide(agt, left);
-            deviatedVel.sub(wm.getMyAgent().getCurrentPosition());
+            Point2d deviatePoint = approachSide(agt, left, startVel);
+            Vector2d deviatedVel = new Vector2d(deviatePoint.x,deviatePoint.y);
+            deviatedVel.sub(wm.getMyAgent().getMyPositionAtEye());
             deviatedVel.normalize();
             deviatedVel.scale(wm.getMyAgent().getSpeed());
             selectedVelocity = new Vector2d(deviatedVel);
@@ -524,9 +568,9 @@ public class Action {
         
     }
     
-    private void initPreferredGaps() {
+    final public void initPreferredGaps() {
         //for controlling gaps when follow and overtake is performed
-        preferGap = (wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * 2 + 2) * (1+wm.getMyAgent().getPersonalSpaceFactor()) * RVOAgent.RADIUS; //random represent the other agent's personal space
+        preferGap = (wm.getMyAgent().getMySpace().getRvoModel().random.nextDouble() * 2 + 2.5) * (1+wm.getMyAgent().getPersonalSpaceFactor()) * RVOAgent.RADIUS; //random represent the other agent's personal space
         
         //future improvement could make this adapt to the surrounding density at run time
     }

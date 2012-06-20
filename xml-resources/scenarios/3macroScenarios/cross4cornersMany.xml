@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="30" Ysize="20" Xsize="20" name="Default">
+<!-- grp1, 4 agents from left upper corner -->
+    <crowd>
+        <goal y="18" x="18"/>
+        <position y="2" x="2"/>
+        <id>1</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+        <agentColor>1</agentColor>
+    </crowd>    
+    <crowd>
+        <goal y="18" x="17"/>
+        <position y="2" x="1"/>
+        <id>2</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+        <agentColor>1</agentColor>
+    </crowd>
+    <crowd>
+        <goal y="17" x="17"/>
+        <position y="1" x="1"/>
+        <id>3</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+                <agentColor>1</agentColor>
+    </crowd>
+        <crowd>
+        <goal y="17" x="18"/>
+        <position y="1" x="2"/>
+        <id>4</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+                <agentColor>1</agentColor>
+    </crowd>
+<!--group 2, 4 agents from right upper corner  -->
+    <crowd>
+        <goal y="18" x="1"/>
+        <position y="2" x="17"/>
+        <id>5</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+                <agentColor>2</agentColor>
+    </crowd>
+    <crowd>
+        <goal y="17" x="1"/>
+        <position y="1" x="17"/>
+        <id>6</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+                        <agentColor>2</agentColor>
+
+    </crowd>
+        <crowd>
+        <goal y="17" x="2"/>
+        <position y="1" x="18"/>
+        <id>7</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+                        <agentColor>2</agentColor>
+
+    </crowd>
+    <crowd>
+        <goal y="18" x="2"/>
+        <position y="2" x="18"/>
+        <id>8</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+                        <agentColor>2</agentColor>
+
+    </crowd>
+
+    
+ <!--group 3, 4 agents from right lower corner  -->   
+    <crowd>
+        <goal y="2" x="2"/>
+        <position y="18" x="18"/>
+        <id>9</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+                        <agentColor>3</agentColor>
+
+    </crowd>
+    <crowd>
+        <position y="18" x="17"/>
+        <goal y="2" x="1"/>
+        <id>10</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+                                <agentColor>3</agentColor>
+    </crowd>
+    <crowd>
+        <position y="17" x="17"/>
+        <goal y="1" x="1"/>
+        <id>11</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+                                <agentColor>3</agentColor>
+    </crowd>
+        <crowd>
+        <position y="17" x="18"/>
+        <goal y="1" x="2"/>
+        <id>12</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+                                <agentColor>3</agentColor>
+    </crowd>
+    
+<!--group 4, 4 agents from left lower corner  -->
+    <crowd>
+        <goal y="2" x="18"/>
+        <position y="18" x="2"/>
+        <id>13</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+                                <agentColor>4</agentColor>
+    </crowd>
+    <crowd>
+        <position y="18" x="1"/>
+        <goal y="2" x="17"/>
+        <id>14</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+                                        <agentColor>4</agentColor>
+    </crowd>
+    <crowd>
+        <position y="17" x="1"/>
+        <goal y="1" x="17"/>
+        <id>15</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+                                        <agentColor>4</agentColor>
+    </crowd>
+        <crowd>
+        <position y="17" x="2"/>
+        <goal y="1" x="18"/>
+        <id>16</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+                                        <agentColor>4</agentColor>
+    </crowd>
+</SimulationScenario>

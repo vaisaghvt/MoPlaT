@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import utility.Geometry;
+import ec.util.MersenneTwisterFast;
 
 /**
  *
@@ -54,7 +55,7 @@ public class PropertySet {
     public static boolean CHECKBOARD;
     public static boolean TRACK_DATA;
     public static int PBMSCENARIO;
-
+    
     public static void writePropertiesToFile(String fileName) {
         File file = new File(fileName);
 
@@ -147,7 +148,9 @@ public class PropertySet {
             RVOAgent.DEFAULT_PREFERRED_SPEED = params.getPreferredSpeed();
             RVOAgent.SENSOR_RANGE = params.getSensorRange();
 
-            Geometry.EPSILON = params.getRVOEpsilon();
+            Geometry.EPSILON = params.getRVOEpsilon();  //@hunan: in this case, can avoid symmetric deadlock in 1to1 case, but cannot avoid crossing4corner cases
+            
+            
             if (USECLUSTERING) {
                 ClusteredSpace.ALPHA = params.getAlpha();
                 ClusteredSpace.NUMBER_OF_CLUSTERING_SPACES = params.getNumberOfClusteringSpaces();
@@ -177,9 +180,9 @@ public class PropertySet {
             RVO_2_1.TIME_HORIZON = params.getTimeHorizon();
             RVO_2_1.TIME_HORIZON_OBSTACLE = params.getTimeHorizonObst();
             if(MODEL == Model.PatternBasedMotion){
-                PBMSCENARIO = 1;//default to direction based only
-                if(params.getPbmScenario()!= null)
-                    PBMSCENARIO = params.getPbmScenario();
+                PBMSCENARIO = 1;//if this one set to 1, then will display color according to different strategies
+                if(params.getPBMScenario()!= null)
+                    PBMSCENARIO = params.getPBMScenario();
             }
 
         } catch (JAXBException ex) {

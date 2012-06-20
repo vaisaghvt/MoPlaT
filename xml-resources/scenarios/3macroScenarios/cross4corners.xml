@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="30" Ysize="20" Xsize="20" name="Default">
+    <crowd>
+        <goal y="18" x="18"/>
+        <position y="2" x="2"/>
+        <id>1</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+    </crowd>
+    <crowd>
+        <goal y="18" x="2"/>
+        <position y="2" x="18"/>
+        <id>2</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+    </crowd>
+    <crowd>
+        <goal y="2" x="2"/>
+        <position y="18" x="18"/>
+        <id>3</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+    </crowd>
+    <crowd>
+        <goal y="2" x="18"/>
+        <position y="18" x="2"/>
+        <id>4</id>
+        <preferedSpeed>1</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+    </crowd>
+</SimulationScenario>

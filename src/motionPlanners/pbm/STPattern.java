@@ -49,7 +49,7 @@ class STPattern {
         for(int i=0;i<pattern.length;i++){
             if(i== pf){
                 for(int j=0; j<3; j++) //row = 3
-                    System.arraycopy(slice[j], 0, pattern[i][j], 0, 11);
+                    System.arraycopy(slice[j], 0, pattern[i][j], 0, slice.length);
             }
         }
     }

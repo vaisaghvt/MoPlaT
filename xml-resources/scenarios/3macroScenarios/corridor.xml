@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="50" Ysize="10" Xsize="30" name="Default">
+     <obstacles>
+        <vertices y="0.1" x="0.4"/>
+        <vertices y="0.5" x="0.4"/>
+        <vertices y="0.5" x="8"/>
+        <vertices y="0.5" x="16"/>
+        <vertices y="0.5" x="24"/>
+        <vertices y="0.5" x="30"/>
+        <vertices y="0.1" x="30"/>
+    </obstacles>
+    
+    <obstacles>
+       <vertices y="6" x="0.4"/>
+        <vertices y="6.5" x="0.4"/>
+        <vertices y="6.5" x="2"/>
+        <vertices y="6.5" x="8"/>
+        <vertices y="6.5" x="16"/>
+        <vertices y="6.5" x="24"/>
+        <vertices y="6.5" x="30"/>
+        <vertices y="6" x="30"/>         
+    </obstacles>
+
+    <agentGroups>
+        <endPoint y="5" x="10.075"/>
+        <startPoint y="2.5" x="1.075"/>
+        <size>18</size>
+        <minSpeed>1</minSpeed>
+        <maxSpeed>2</maxSpeed>
+        <meanSpeed>1.4</meanSpeed>
+        <sDevSpeed>0.2</sDevSpeed>
+        <groupDirection_x>1</groupDirection_x>
+        <groupDirection_y>0</groupDirection_y>
+        <maxDensityFactor>0.6</maxDensityFactor>
+    </agentGroups>
+    <agentGroups>
+        <endPoint y="5.005" x="29.5125"/>
+        <startPoint y="2.505" x="20.5125"/>
+        <size>18</size>
+        <minSpeed>1</minSpeed>
+        <maxSpeed>2</maxSpeed>
+        <meanSpeed>1.4</meanSpeed>
+        <sDevSpeed>0.2</sDevSpeed>
+        <groupDirection_x>-1</groupDirection_x>
+        <groupDirection_y>0</groupDirection_y>
+        <maxDensityFactor>0.6</maxDensityFactor>
+    </agentGroups>
+</SimulationScenario>

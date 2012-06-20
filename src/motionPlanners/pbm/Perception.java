@@ -124,7 +124,7 @@ public class Perception {
 
     public static enum AttenuationLevel {
         NEAR, MIDDIUM, OUTBOUND
-//        FAR
+        ,FAR
     }
     
     
@@ -190,10 +190,10 @@ public class Perception {
      */
     public Perception(WorkingMemory wm){
         //initalization
-        attention_multi = new double[2];
-        attention_multi[0]=3.6; //default value
+        attention_multi = new double[3];
+        attention_multi[0]= RVOModel.publicInstance.random.nextGaussian()+3.6 ; //default value varies for different agents
         attention_multi[1]=attention_multi[0]*2;
-//        attention_multi[2]=attention_multi[0]*4;
+        attention_multi[2]=attention_multi[0]*4;
         this.wm = wm;
         pf = 0;
         visionRange = 180;
@@ -217,7 +217,7 @@ public class Perception {
         return visionRange;
     }
     
-    public double getAttention_multi_Level1(){
+    public double getAttention_multi_Level0(){
         return attention_multi[0];
     }
     
@@ -458,7 +458,7 @@ public class Perception {
 //                }
             }
             for(int j=0;j<spacepattern.getPattern()[0][0].length;j++)
-                for(int k=1; k>=0;k--){
+                for(int k=2; k>=0;k--){
                     Vector2d radial=Geometry.helpRotate(verify_Left, angle*j); //rotate the vector clockwise by a specific degree and return this vector
                     radial.normalize();
                     radial.scale(attention_multi[k]);
@@ -492,10 +492,11 @@ public class Perception {
                         
                 if (agent != me) {
                    //To get 1 or -1
-                    boolean samedirection = false;
-                    if (sameDirection(agent.getVelocity(), velocity_verify)){
-                        samedirection = true; //in future may change if acceleration !=0 any more
-                    }
+//                    boolean sameDirection = false;
+                    double cosTheta = utility.Geometry.sameDirection(agent.getVelocity(), velocity_verify);
+//                    if (cosTheta >= Math.cos(Math.PI/3)){
+//                        sameDirection = true; //in future may change if acceleration !=0 any more
+//                    }
                     
                     //To get row index
                     AttenuationLevel att_level;
@@ -504,9 +505,9 @@ public class Perception {
                     } else if (eyeToCenter_dist <= attention_multi[1]) {
                         att_level = AttenuationLevel.MIDDIUM;
                     } 
-//                    else if (eyeToCenter_dist <= attention_multi[2]) {
-//                        att_level = AttenuationLevel.FAR;
-//                    } 
+                    else if (eyeToCenter_dist <= attention_multi[2]) {
+                        att_level = AttenuationLevel.FAR;
+                    } 
                     else {
                         att_level = AttenuationLevel.OUTBOUND;
                     }
@@ -523,9 +524,9 @@ public class Perception {
                             case MIDDIUM:
                                 rowIndex = 1;
                                 break;
-//                            case FAR:
-//                                rowIndex = 2;
-//                                break;
+                            case FAR:
+                                rowIndex = 2;
+                                break;
                             case OUTBOUND:
                                 break;
                         }
@@ -534,13 +535,20 @@ public class Perception {
                             //this is to address the more importance of -1 in the visiual attention during decision making
                             for(int k=0; k<columnIndices.size(); k++){
                                 int column=columnIndices.get(k);
-                                if (samedirection && spacepattern.getValue(i, rowIndex, column)==0) {
+                                if (cosTheta >= Math.cos(Math.PI/2) && spacepattern.getValue(i, rowIndex, column)==0) {
                                     spacepattern.setValue(i, rowIndex, column, 1);
                                     spacepattern_agtID.setValue(i, rowIndex, column, agent.getId());
-                                } else if(!samedirection && spacepattern.getValue(i, rowIndex, column)==0){
+                                }else if(cosTheta < Math.cos(Math.PI/2) && spacepattern.getValue(i, rowIndex, column)==0){
                                     spacepattern.setValue(i, rowIndex, column, -1);
                                     spacepattern_agtID.setValue(i, rowIndex, column, agent.getId()); 
-                                }//end of else if
+                                } else if(spacepattern.getValue(i, rowIndex, column)==0){
+                                    if(utility.Geometry.angleBetweenWSign(velocity_verify, agent.getVelocity())<0){
+                                        spacepattern.setValue(i, rowIndex, column, -2); //-2 means moving towards left regarding me
+                                    }else{
+                                        spacepattern.setValue(i, rowIndex, column, 2); //-2 means moving towards left regarding me
+                                    }
+                                    spacepattern_agtID.setValue(i, rowIndex, column, agent.getId());
+                                }
                             }//end of for
                         }//end of if(rowIndex>=0)
                     }//end of  if(!columnIndex.isEmpty())
@@ -579,7 +587,7 @@ public class Perception {
                     meToAgent.sub(this.wm.getMyAgent().getMyPositionAtEye()); //bug fixed with my position at eye instead of myPosition
                     distanceToMe = meToAgent.length() - (1+wm.getMyAgent().getPersonalSpaceFactor())* RVOAgent.RADIUS;  //this distance is from my eye to the edge of personal space of the agent
                     //if the neighbour is around 0.33 meters away, then can plan steering strategy based on patterns (only 3 columns are formed in this case)
-                    if(distanceToMe > 0){  
+                    if(distanceToMe >0){  
                         //only consider the ones in front of me according to my prefVelocity
                         if(meToAgent.angle(wm.getMyAgent().getVelocity())< Math.PI / 2){
                             obsesAgents_ForSteering.put((Double) distanceToMe, tempAgent); //inside the steering bag is the absolute distance
@@ -624,24 +632,25 @@ public class Perception {
                 
 //                System.out.println("nearest neighbour distance is: "+nearestAgtDist);
                 
-                if(nearestAgtDist>3.6-(1+wm.getMyAgent().getPersonalSpaceFactor())*RVOAgent.RADIUS){
-                    nearestAgtDist = 3.6-(1+wm.getMyAgent().getPersonalSpaceFactor())*RVOAgent.RADIUS; //default the first attention range to be 2.5m in a sparse crowd
+                if(nearestAgtDist>attention_multi[0]-(1+wm.getMyAgent().getPersonalSpaceFactor())*RVOAgent.RADIUS){
+                    nearestAgtDist = attention_multi[0]-(1+wm.getMyAgent().getPersonalSpaceFactor())*RVOAgent.RADIUS; //default the first attention range to be 2.5m in a sparse crowd
                 }else if(nearestAgtDist < (1+wm.getMyAgent().getPersonalSpaceFactor())*RVOAgent.RADIUS){
                     nearestAgtDist = (1+wm.getMyAgent().getPersonalSpaceFactor())* RVOAgent.RADIUS; //to ensure minimal three columns are there
                 }
                 attention_multi[0]=nearestAgtDist+(1+wm.getMyAgent().getPersonalSpaceFactor())*RVOAgent.RADIUS;
                 attention_multi[1]=attention_multi[0]*2;
-//                attention_multi[2]=nearestAgtDist*4;
+                attention_multi[2]=attention_multi[0]*4;
                 
                 angle = calAngle(RVOAgent.RADIUS *(1+wm.getMyAgent().getPersonalSpaceFactor()),attention_multi[0]);
-                if(angle<Math.asin((1+wm.getMyAgent().getPersonalSpaceFactor())*RVOAgent.RADIUS / 3.6)* 360/Math.PI){
-                    angle = Math.asin((1+wm.getMyAgent().getPersonalSpaceFactor())*RVOAgent.RADIUS / 3.6) * 360/Math.PI;
-                }else if(angle > 60){
+//                if(angle<Math.asin((1+wm.getMyAgent().getPersonalSpaceFactor())*RVOAgent.RADIUS / 3)* 360/Math.PI){
+//                    angle = Math.asin((1+wm.getMyAgent().getPersonalSpaceFactor())*RVOAgent.RADIUS / 3) * 360/Math.PI;
+//                }else 
+                if(angle > 60){
                     angle = 60;
                 }
                 //thus to decide the numbre of columns in the STP       
-                spacepattern = new STPattern(pf,2,(int)Math.floor(visionRange/angle));
-                spacepattern_agtID = new STPattern(pf,2,(int)Math.floor(visionRange/angle));
+                spacepattern = new STPattern(pf,3,(int)Math.floor(visionRange/angle));
+                spacepattern_agtID = new STPattern(pf,3,(int)Math.floor(visionRange/angle));
                 resetSTP();
                 this.setSpacePattern(0,0, new Vector2d(vec_C)); //execute pattern recognition system
         }else{
@@ -663,6 +672,7 @@ public class Perception {
     /*
      * helper function to determine whether 2 vectors are with angles(undirectional) that are smaller than 90 degrees
      * also can be found under util.Geometry class, where should idealy locate all such helper functions
+     * return: cos(theta), theta is the angle between v1 and v2
      */
     private boolean sameDirection(Vector2d v1, Vector2d v2) {
         return (v1.dot(v2) / (v1.length() * v2.length()) > 0);

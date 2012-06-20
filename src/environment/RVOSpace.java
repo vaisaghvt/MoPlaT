@@ -70,7 +70,19 @@ public class RVOSpace {
     public RVOModel getRvoModel() {
         return rvoModel;
     }
+    
+    public double getXRealSize(){
+        return xRealSize;
+    }
 
+    public double getYRealSize(){
+        return yRealSize;
+    }
+    
+    public double getGridDimension(){
+        return gridDimension;
+    }
+    
     /**
      * Analogous to obstacle space
      * @return obstacleSpace

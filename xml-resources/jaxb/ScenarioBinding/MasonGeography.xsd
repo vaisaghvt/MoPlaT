@@ -22,6 +22,9 @@
             <xs:element name="id" type="xs:int"/>
             <xs:element name="preferedSpeed" type="xs:double"/>
             <xs:element name="commitmentLevel" type="xs:int"/>
+            <xs:element name="prefDirection_x" type="xs:double"/>
+            <xs:element name="prefDirection_y" type="xs:double"/>
+            <xs:element name="agentColor" type="xs:int"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -53,6 +56,8 @@
             <xs:element name="sDevSpeed" type="xs:double"/>         
             <xs:element name="groupDirection_x" type="xs:int"/>
             <xs:element name="groupDirection_y" type="xs:int"/>
+            <xs:element name="maxDensityFactor" type="xs:double"/>
+            <xs:element name="groupColor" type="xs:int"/>
         </xs:sequence>
     </xs:complexType>
 

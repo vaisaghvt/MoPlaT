@@ -125,9 +125,9 @@ public class WorkingMemory implements VelocityCalculator {
         myAgent = ag; //which constructor to call
         action = new Action(this);   
         
-        if (myAgent.getPreferredSpeed() <= 0.8) {
+        if (myAgent.getPreferredSpeed() <= 1.2) {
             setPs_discrete(WorkingMemory.PreferredSpeed_Discrete.SLOW);
-        } else if (myAgent.getPreferredSpeed() >= 1.3) {
+        } else if (myAgent.getPreferredSpeed() >= 1.8) {
             setPs_discrete(WorkingMemory.PreferredSpeed_Discrete.FAST);
         } else {
             setPs_discrete(WorkingMemory.PreferredSpeed_Discrete.MID);
@@ -229,7 +229,7 @@ public class WorkingMemory implements VelocityCalculator {
         //if no steering strategy 
         if(decision.getCurrentStrategy()== null){
             System.out.println("No steering strategy is selected");
-             return this.getMyAgent().getPrefVelocity(); //non-strategic move or strategic but with no strategy matched, both will return the default prefVel towards goal and pass to locomotion control (rvo)
+            return this.getMyAgent().getPrefVelocity(); //non-strategic move or strategic but with no strategy matched, both will return the default prefVel towards goal and pass to locomotion control (rvo)
         }else{
             RVOAgent targetAgent = getAgent(neighbors, decision.getTargetAgentID());
             action.execute(decision.getCurrentStrategy(), targetAgent, decision.isLeft(), decision.getInstructedTime(), new Vector2d(decision.getStartVelocity()), new Point2d(decision.getStartPosition()));       

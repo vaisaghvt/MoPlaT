@@ -8,9 +8,11 @@ import agent.clustering.ClusteredAgent;
 import app.PropertySet;
 import app.PropertySet.Model;
 import app.RVOGui;
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import javax.vecmath.Point2d;
@@ -71,6 +73,11 @@ public class AgentPortrayal extends SimplePortrayal2D {
 //    private boolean showPerceivedSTP;
 //    private boolean showPrototypicalSTP;
 
+    
+    float alpha = 0.0f; //for fade-in fade-out effect
+    
+    
+    
     //TODO: when are each of these portrayals used.. why do i have two with entirely different parameters??
     public AgentPortrayal() {
         radius = RVOAgent.RADIUS;
@@ -86,12 +93,11 @@ public class AgentPortrayal extends SimplePortrayal2D {
 
     public void setColor(Color col) {
         agentColor = col;
-        trailColor = new Color(col.getRed(), col.getGreen(), col.getBlue(), (int) ((255 - col.getTransparency()) * 0.4));
-
+//        trailColor = new Color(col.getRed(), col.getGreen(), col.getBlue(), (int) ((255-col.getTransparency())*1));
+        trailColor = col;
     }
 
     public void addPoint(Double2D pt) {
-
         points.add(pt);
 
     }
@@ -127,20 +133,33 @@ public class AgentPortrayal extends SimplePortrayal2D {
         }
         
         //draw trail
-        graphics.setPaint(trailColor);
 
+        //for the scenario to test dense crowd with directional move
+//        if(PropertySet.PBMSCENARIO == 1){
+//            if(me.getPrefDirection().x>0)    
+//                this.setColor(Color.BLACK);
+//            else if(me.getPrefDirection().x<0)
+//                this.setColor(Color.green);
+//        }  
+        
         double startx = -1;
         double starty = -1;
         double endx = 0, endy = 0;
-        if (trails && points.size() > 1) { // if trails need to be drawn...
+        int countNumOfStepDraw=40;   //used to display trail only for the last 50 steps
+        
+        if (trails && points.size() >= countNumOfStepDraw) { // if trails need to be drawn...
             final BasicStroke stroke;
             if(PropertySet.MODEL == Model.PatternBasedMotion){
-                stroke = new BasicStroke((float)(me.getSpeed() * trailLineWidth / 1.3));
+                stroke = new BasicStroke((float)(me.getSpeed() * trailLineWidth / 1));
             }else{
                 stroke = new BasicStroke(this.trailLineWidth);
             }
             graphics.setStroke(stroke);
-            for (Double2D pt : points) {
+            
+            for(int i=0;i<countNumOfStepDraw;i++){
+                graphics.setPaint(new Color(trailColor.getRed(),trailColor.getGreen(), trailColor.getBlue(), (int)( 255 *(i+1) /countNumOfStepDraw)));
+        
+                Double2D pt=points.get(points.size()- (countNumOfStepDraw-i));
                 if (startx == -1) {
                     startx = pt.x;
                     starty = pt.y;
@@ -155,8 +174,8 @@ public class AgentPortrayal extends SimplePortrayal2D {
 
                 startx = endx;
                 starty = endy;
-
             }
+            
             final BasicStroke stroke2 = new BasicStroke(agentLineWidth);
             graphics.setStroke(stroke2);
         }
@@ -188,8 +207,9 @@ public class AgentPortrayal extends SimplePortrayal2D {
         
         //draw agents
         
-        if(PropertySet.MODEL == Model.PatternBasedMotion){
+        if(PropertySet.MODEL == Model.PatternBasedMotion && PropertySet.PBMSCENARIO==1){
             if(((WorkingMemory) ((RVOAgent) this).getVelocityCalculator()).getCurrentStrategy()== null){
+//                graphics.setColor(Color.black);
                 graphics.setColor(Color.black);
             }else{
                 switch(((WorkingMemory) ((RVOAgent) this).getVelocityCalculator()).getCurrentStrategy()){
@@ -245,8 +265,8 @@ public class AgentPortrayal extends SimplePortrayal2D {
             //left boundary visual radial
             Vector2d boundaryLeft = new Vector2d(wm.getVision().getVec_L());
             boundaryLeft.normalize();
-            if(wm.getVision().getAttention_multi_Level1()!= 0.0){
-                boundaryLeft.scale(wm.getVision().getAttention_multi_Level1());
+            if(wm.getVision().getAttention_multi_Level0()!= 0.0){
+                boundaryLeft.scale(wm.getVision().getAttention_multi_Level0()*4);
             }
             boundaryLeft = utility.Geometry.helpRotate(boundaryLeft, restAngle);
             
@@ -254,18 +274,20 @@ public class AgentPortrayal extends SimplePortrayal2D {
 //            System.out.println("Posistion: "+me.getMyPositionAtEye().x + " "+me.getMyPositionAtEye().y);
 //            System.out.println("boundary length: "+boundaryLeft.length());
             
-            Point2d leftUpperCorner_level2 = new Point2d(me.getMyPositionAtEye().x - wm.getVision().getAttention_multi_Level1()*2, me.getMyPositionAtEye().y-wm.getVision().getAttention_multi_Level1()*2);
+            Point2d leftUpperCorner_level1 = new Point2d(me.getMyPositionAtEye().x - wm.getVision().getAttention_multi_Level0()*2, me.getMyPositionAtEye().y-wm.getVision().getAttention_multi_Level0()*2);
 //            System.out.println("left upper corner " + leftUpperCorner.x + " "+leftUpperCorner.y );
-            Point2d leftUpperCorner_level1 = new Point2d(me.getMyPositionAtEye().x - wm.getVision().getAttention_multi_Level1(), me.getMyPositionAtEye().y-wm.getVision().getAttention_multi_Level1());
+            Point2d leftUpperCorner_level0 = new Point2d(me.getMyPositionAtEye().x - wm.getVision().getAttention_multi_Level0(), me.getMyPositionAtEye().y-wm.getVision().getAttention_multi_Level0());
             
+            Point2d leftUpperCorner_level2 = new Point2d(me.getMyPositionAtEye().x - wm.getVision().getAttention_multi_Level0()*4, me.getMyPositionAtEye().y-wm.getVision().getAttention_multi_Level0()*4);
+
                    
            
             
             //right boundary visual radial
             Vector2d boundaryRight = new Vector2d(wm.getVision().getVec_R());
             boundaryRight.normalize();
-            if(wm.getVision().getAttention_multi_Level1()!= 0.0){
-                boundaryRight.scale(wm.getVision().getAttention_multi_Level1());
+            if(wm.getVision().getAttention_multi_Level0()!= 0.0){
+                boundaryRight.scale(wm.getVision().getAttention_multi_Level0()*4);
             }
             
             
@@ -304,7 +326,7 @@ public class AgentPortrayal extends SimplePortrayal2D {
             for(int i = 1; i<(int)Math.floor(wm.getVision().getVisualRange()/wm.getVision().getAngle());i++){
                 visualRadial.normalize();
                 Vector2d visualRadial_i = Geometry.helpRotate(visualRadial, i*wm.getVision().getAngle());
-                visualRadial_i.scale(wm.getVision().getAttention_multi_Level1()*2); //to show the first attention range currently
+                visualRadial_i.scale(wm.getVision().getAttention_multi_Level0()*4); //to show the first attention range currently
                 visualRadial_i.add(me.getMyPositionAtEye());
                 
                 graphics.drawLine((int)Math.round(me.getMyPositionAtEye().x * scale), (int)Math.round(me.getMyPositionAtEye().y * scale),
@@ -313,12 +335,16 @@ public class AgentPortrayal extends SimplePortrayal2D {
             }
             
             
-            graphics.drawArc((int)Math.round(leftUpperCorner_level1.x * scale), (int)Math.round(leftUpperCorner_level1.y * scale),
-                    (int)Math.round(wm.getVision().getAttention_multi_Level1()  * scale * 2), (int)Math.round(wm.getVision().getAttention_multi_Level1() * scale * 2), 
+            graphics.drawArc((int)Math.round(leftUpperCorner_level0.x * scale), (int)Math.round(leftUpperCorner_level0.y * scale),
+                    (int)Math.round(wm.getVision().getAttention_multi_Level0()  * scale * 2), (int)Math.round(wm.getVision().getAttention_multi_Level0() * scale * 2), 
                     (int)Math.round(boundaryRightToX),(int)(180-restAngle*2)); //draw the vision angle of 176 degree
             
+            graphics.drawArc((int)Math.round(leftUpperCorner_level1.x * scale), (int)Math.round(leftUpperCorner_level1.y * scale),
+                    (int)Math.round(wm.getVision().getAttention_multi_Level0()  * scale * 4), (int)Math.round(wm.getVision().getAttention_multi_Level0() * scale * 4), 
+                    (int)Math.round(boundaryRightToX),(int)(180-restAngle*2));
+            
             graphics.drawArc((int)Math.round(leftUpperCorner_level2.x * scale), (int)Math.round(leftUpperCorner_level2.y * scale),
-                    (int)Math.round(wm.getVision().getAttention_multi_Level1()  * scale * 4), (int)Math.round(wm.getVision().getAttention_multi_Level1() * scale * 4), 
+                    (int)Math.round(wm.getVision().getAttention_multi_Level0()  * scale * 8), (int)Math.round(wm.getVision().getAttention_multi_Level0() * scale * 8), 
                     (int)Math.round(boundaryRightToX),(int)(180-restAngle*2));
             
             
