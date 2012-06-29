@@ -172,7 +172,7 @@ public class RVOSpace {
 //            }
 //        }
 //        while(neighbours.size()>10){
-//            sensorRange *= 0.9;
+//            sensorRange *= 0.8;
 //            neighbours= findNeighbours(me.getCurrentPosition(), sensorRange * me.getRadius());
 //        }
         return neighbours;

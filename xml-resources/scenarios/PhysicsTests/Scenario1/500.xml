@@ -29,21 +29,21 @@
         <vertices x="14.7" y="2.7"/>
     </obstacles>
     <environmentGoals>
-        <endPoint x="29.7" y="0"/>
-        <startPoint x="0.3" y="0"/>
+        <endPoint x="15.9" y="0"/>
+        <startPoint x="15.0" y="0"/>
     </environmentGoals>
     <environmentGoals>
         <endPoint x="15.9" y="2.7"/>
-        <startPoint x="14.7" y="2.7"/>
+        <startPoint x="15.0" y="2.7"/>
     </environmentGoals>
     <environmentGoals>
         <endPoint x="15.9" y="3.6"/>
-        <startPoint x="14.7" y="3.6"/>
+        <startPoint x="15.0" y="3.6"/>
     </environmentGoals>
    
     
     <agentGroups>
-        <endPoint x="28.8" y="27.6"/>
+        <endPoint x="29.1" y="27.6"/>
         <startPoint x="1.8" y="8.4"/>
         <size>500</size>
         <minSpeed>0.0</minSpeed>

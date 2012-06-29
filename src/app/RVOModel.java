@@ -38,7 +38,6 @@ import sim.engine.Schedule;
 import sim.engine.Sequence;
 import sim.engine.SimState;
 import sim.engine.Stoppable;
-import sim.util.Bag;
 
 /**
  * RVOModel
@@ -281,35 +280,23 @@ public class RVOModel extends SimState {
 
                 //@hunan: added in a new RVOAgent constructor to set the necessary parameters for PBM use only
                 if (PropertySet.MODEL == Model.PatternBasedMotion) {
-                    Vector2d prefDir =  new Vector2d(tempAgent.getPrefDirectionX(),tempAgent.getPrefDirectionY());
-                    if(prefDir!=null)
-                        prefDir.normalize();
-                    int agentColor = 0;
-                    if(tempAgent.getAgentColor()>0){
-                        agentColor = tempAgent.getAgentColor();
-//                        System.out.println("color of agent: "+agentColor);
-                    }//if not specified in xml, then default as 0, which results in black
-                    
-                    
-                    RVOAgent tempRVOAgent = new RVOAgent(
-                            new Point2d(tempAgent.getPosition().getX(), tempAgent.getPosition().getY()),
-                            new Point2d(tempAgent.getGoal().getX(), tempAgent.getGoal().getY()),
-                            prefDir,
-                            rvoSpace, 
-//                            new Color((float)((float)agentColor / 4),(float)((float)agentColor/4),(float)((float)agentColor/4)),    //has problem here, need to change
-                             new Color(Color.HSBtoRGB((float) agentColor / (float)4, 1.0f, 0.68f)),
+//                    RVOAgent tempRVOAgent = new RVOAgent(
+//                            new Point2d(tempAgent.getPosition().getX(), tempAgent.getPosition().getY()),
+//                            new Point2d(tempAgent.getGoal().getX(), tempAgent.getGoal().getY()),
+//                            rvoSpace, 
+////                            new Color(Color.HSBtoRGB((float) i / (float) xmlAgentList.size(),1.0f, 0.68f)),
 //                            Color.BLACK,
-                            tempAgent.getPreferedSpeed(), tempAgent.getCommitmentLevel());
-                    addNewAgent(tempRVOAgent);
+//                            tempAgent.getPreferedSpeed(), tempAgent.getCommitmentLevel());
+//                    addNewAgent(tempRVOAgent);
                 } else {
                     RVOAgent tempRVOAgent = new RVOAgent(
                             new Point2d(tempAgent.getPosition().getX(), tempAgent.getPosition().getY()),
                             new Point2d(tempAgent.getGoal().getX(), tempAgent.getGoal().getY()),
                             rvoSpace,
-                            Color.black);
-//                    if (tempRVOAgent.getId() == 0) {
-//                        tempRVOAgent.setColor(Color.BLACK);
-//                    }
+                            Color.red);
+                    if (tempRVOAgent.getId() == 0) {
+                        tempRVOAgent.setColor(Color.BLACK);
+                    }
 
                     tempRVOAgent.setPreferredSpeed(tempAgent.getPreferedSpeed());
                     tempRVOAgent.setMaximumSpeed(tempAgent.getPreferedSpeed() * 2.0);
@@ -361,87 +348,20 @@ public class RVOModel extends SimState {
                 addNewAgentLine(tempAgentLine, scenario.getGenerationLines().get(i).getFrequency());
             }
 
-            //group is useful in large crowd scenarios
             List<AgentGroup> xmlAgentGroupList = scenario.getAgentGroups();
-            int counter = 0; //for error tracking purpose only
             for (AgentGroup tempAgentGroup : xmlAgentGroupList) {
-                counter ++;
-                Color initialGrpColor = new Color(Color.HSBtoRGB((float) counter / (float) xmlAgentGroupList.size(),1.0f, 0.68f));
-                
-                
                 final double maxSpeed = tempAgentGroup.getMaxSpeed();
                 final double minSpeed = tempAgentGroup.getMinSpeed();
                 final double meanSpeed = tempAgentGroup.getMeanSpeed();
                 averageSpeed += meanSpeed;
                 final double sdevSpeed = tempAgentGroup.getSDevSpeed();
-//                int[][] spaces = initializeLattice(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY(),
-//                        tempAgentGroup.getEndPoint().getX(), tempAgentGroup.getEndPoint().getY());
+                int[][] spaces = initializeLattice(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY(),
+                        tempAgentGroup.getEndPoint().getX(), tempAgentGroup.getEndPoint().getY());
                 
-                Vector2d groupDirection = new Vector2d(tempAgentGroup.getGroupDirectionX(),tempAgentGroup.getGroupDirectionY());//normalized vector to specify the group direction
-                groupDirection.normalize();
+//                Vector2d groupDirection = new Vector2d(tempAgentGroup.getGroupDirectionX(),tempAgentGroup.getGroupDirectionY());//normalized vector to specify the group direction
+//                groupDirection.normalize();
 //                
-                Point2d grpleftUpperX = new Point2d(tempAgentGroup.getStartPoint().getX(),tempAgentGroup.getStartPoint().getY());
-                Point2d grpRightLowerX = new Point2d(tempAgentGroup.getEndPoint().getX(),tempAgentGroup.getEndPoint().getY());
-                double xLength = grpRightLowerX.x - grpleftUpperX.x;
-                double yLength = grpRightLowerX.y - grpleftUpperX.y;
-                
-                int numSlotsOnX = (int)Math.floor(xLength / (2* RVOAgent.RADIUS * (1+ tempAgentGroup.getMaxDensityFactor()* 3))); //maxDensity factor is the global personal space factor, predefined
-                int numSlotsOnY = (int)Math.floor(yLength / (2* RVOAgent.RADIUS * (1+ tempAgentGroup.getMaxDensityFactor()))); 
-                
-                System.out.println("Group "+counter+" can have "+numSlotsOnX*numSlotsOnY+" agents maximum");
-                
-                if(tempAgentGroup.getSize()> numSlotsOnX * numSlotsOnY){
-                    System.err.println("too many agents defined in Group "+ counter);
-                    return;
-                }
                 for (int i = 0; i < tempAgentGroup.getSize(); i++) {
-//                    Point2d position = this.getRandomPosition(rvoSpace, grpleftUpperX, RVOAgent.RADIUS * (1+ tempAgentGroup.getMaxDensityFactor()), numSlotsOnX, numSlotsOnY); //get a random position within the group range, the function will check whether too crowded for the existing range
-                    
-                    Point2d position = new Point2d(grpleftUpperX.x + RVOAgent.RADIUS * (1+ tempAgentGroup.getMaxDensityFactor()) * (1+ 2 * (i/numSlotsOnY)), 
-                            grpleftUpperX.y + RVOAgent.RADIUS * (1+ tempAgentGroup.getMaxDensityFactor()) *(1+ 2*(i- (i/numSlotsOnY)*numSlotsOnY-1)));
-                    
-                    double initialSpeed = random.nextGaussian() * sdevSpeed + meanSpeed;
-                    if (initialSpeed < minSpeed) {
-                        initialSpeed = minSpeed;
-                    } else if (initialSpeed > maxSpeed) {
-                        initialSpeed = maxSpeed;
-                    }
-                    
-                    int initialCommitmentLevel = 1+random.nextInt(3);  //later, during sensitivity analysis, we can make different profile of crowd with different percentage for this parameter
-                    
-                   
-                    
-                    //@hunan: added in a new RVOAgent constructor to set the necessary parameters for PBM use only
-                    if (PropertySet.MODEL == Model.PatternBasedMotion) {
-                        RVOAgent tempRVOAgent = new RVOAgent(
-                                new Point2d(position),
-                                null, //goal
-                                groupDirection,
-                                rvoSpace, 
-    //                            new Color(Color.HSBtoRGB((float) i / (float) xmlAgentList.size(),1.0f, 0.68f)),
-//                                Color.BLACK,
-                                initialGrpColor,
-                                initialSpeed, initialCommitmentLevel);
-                        addNewAgent(tempRVOAgent);
-                    } else {
-                        RVOAgent tempRVOAgent = new RVOAgent(
-                                new Point2d(position),
-                                groupDirection,
-                                rvoSpace,
-//                                Color.black
-                                initialGrpColor
-                                );
-    //                    if (tempRVOAgent.getId() == 0) {
-    //                        tempRVOAgent.setColor(Color.BLACK);
-    //                    }
-
-                        tempRVOAgent.setPreferredSpeed(initialSpeed);
-                        tempRVOAgent.setMaximumSpeed(initialSpeed * 2.0);
-
-                        addNewAgent(tempRVOAgent);
-                    }
-                    
-            /*
                     RVOAgent agent = new RVOAgent(this.getRvoSpace());
                     Point2d position = this.getAgentPosition(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY(),
                             spaces);
@@ -457,17 +377,12 @@ public class RVOModel extends SimState {
                     agent.setPreferredSpeed(initialSpeed);
                     agent.setMaximumSpeed(maxSpeed);
                     
-                   agent.setPrefDirection(groupDirection);  //to set prefDirection of individual agent accoridng to its group prefDirection
-                   agent.setPrefVelocity();
-                   agent.setVelocity(agent.getPrefVelocity());
-                   
+//                    agent.set  //to modify to include a group of agents with preferred direction!@@@@@@@@@
                     this.addNewAgent(agent);
                     if (actualRoadMap != null) {
                         agent.addRoadMap(actualRoadMap);
                     }
-               */
-
-//                    agent.setPrefVelocity(); //set prefVel according to prefDirection
+                    agent.setPrefVelocity(); //set prefVel according to prefDirection
 //                    groupDirection.scale(initialSpeed);
 //                    agent.setVelocity(groupDirection);
                 }
@@ -511,7 +426,6 @@ public class RVOModel extends SimState {
 //                double dx = x - agent.getCurrentPosition().getX();
 //                double dy = y - agent.getCurrentPosition().getY();
 //                double d = Math.hypot(dx, dy);
-
 //
 //                double minDist = (agent.getRadius() * 2 + RVOAgent.RADIUS) / 2.0;
 //
@@ -523,21 +437,10 @@ public class RVOModel extends SimState {
 //            }
         }
 
-
-        return new Point2d(mnx + (x * RVOAgent.RADIUS * 2) + RVOAgent.RADIUS, mny + (y * RVOAgent.RADIUS * 2) + RVOAgent.RADIUS);
-
-    }
-    
-    private Point2d getRandomPosition(RVOSpace rvospace, Point2d leftUpperPoint, double circleSpaceRadius, int xSlots, int ySlots){
-        int randX = random.nextInt(xSlots);
-        int randY = random.nextInt(ySlots);
-        Point2d randPosition = new Point2d(leftUpperPoint.x + circleSpaceRadius * (1+randX),leftUpperPoint.y + circleSpaceRadius*(1+randY));
-        Bag positionAvailability = rvospace.findNeighbours(randPosition,circleSpaceRadius);
         
-        if(positionAvailability.isEmpty()){
-            return randPosition;
-        }
-        return getRandomPosition(rvospace, leftUpperPoint, circleSpaceRadius, xSlots, ySlots);  //recursion here????!!!!!!!!!!!!!!!!!!!
+
+        return new Point2d(mnx+ (x * RVOAgent.RADIUS * 2), mny + (y * RVOAgent.RADIUS * 2));
+
     }
 
     public static void main(String[] args) {

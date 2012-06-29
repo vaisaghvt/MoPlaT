@@ -40,8 +40,8 @@ public class PhysicaDataTracker implements DataTracker {
     public static final String TRACKER_TYPE = "Physica";
     private final static int NUMBER_TO_COLLECT = -1;
 //    private final ArrayListMultimap<Integer, Double> energySpentByAgent;
-    private final ArrayListMultimap<Integer, Vector2d> velocityListForAgent;
-    private final ArrayListMultimap<Integer, Point2d> positionListForAgent;
+    private final ArrayListMultimap<Integer, Vector2d> velocityListForTimeStep;
+    private final ArrayListMultimap<Integer, Point2d> positionListForTimeStep;
 //    private final HashMap<Integer, ArrayList<Point2d>> latticeStateForTimeStep;
     private final ArrayListMultimap<Integer, Point2d> latticeStateForTimeStep;
 
@@ -50,8 +50,8 @@ public class PhysicaDataTracker implements DataTracker {
         this.model = model;
 
 //        energySpentByAgent = ArrayListMultimap.create();
-        velocityListForAgent = ArrayListMultimap.create();
-        positionListForAgent = ArrayListMultimap.create();
+        velocityListForTimeStep = ArrayListMultimap.create();
+        positionListForTimeStep = ArrayListMultimap.create();
 //        latticeStateForTimeStep = new HashMap<Integer, ArrayList<Point2d>>();
         latticeStateForTimeStep = ArrayListMultimap.create();
 
@@ -67,9 +67,9 @@ public class PhysicaDataTracker implements DataTracker {
 
         for (RVOAgent agent : model.getAgentList()) {
 
-            velocityListForAgent.put(stepNumber, agent.getVelocity());
+            velocityListForTimeStep.put(stepNumber, agent.getVelocity());
 
-            positionListForAgent.put(stepNumber, agent.getCurrentPosition());
+            positionListForTimeStep.put(stepNumber, agent.getCurrentPosition());
 
             if (PropertySet.LATTICEMODEL && locationMapForLattice != null) {
                 latticeStateForTimeStep.put(stepNumber, locationMapForLattice.get(agent.getId()));
@@ -123,9 +123,9 @@ public class PhysicaDataTracker implements DataTracker {
 
         try {
             writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + RVOModel.publicInstance.seed() + "_"
-                    + "Velocity", velocityListForAgent);
+                    + "Velocity", velocityListForTimeStep);
             writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + RVOModel.publicInstance.seed() + "_"
-                    + "Position", positionListForAgent);
+                    + "Position", positionListForTimeStep);
 
             if (PropertySet.LATTICEMODEL) {
                 writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + RVOModel.publicInstance.seed() + "_"

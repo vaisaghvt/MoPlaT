@@ -1,52 +1,54 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <SimulationScenario xmlns="http://geography.environment" name="AgentGroupTest" Xsize="12" Ysize="12" scale="50" direction="5" displayUsed="true" latticeModel="true" logUsed="true">
-
+      <roadMap>
+        <position x="5.7" y="3.2"/>
+        <number>0</number>
+    </roadMap>
+    <roadMap>
+        <position x="5.7" y="2.0"/>
+        <number>1</number>
+    </roadMap>
+    <roadMap>
+        <position x="5.7" y="-100.0"/>
+        <number>2</number>
+    </roadMap>
     <obstacles>
-        <vertices x="10.5" y="3.0"/>
+        <vertices x="10" y="3.0"/>
         <vertices x="6.0" y="3.0"/>
-        <vertices x="6.0" y="2.4"/>
-        <vertices x="10.5" y="2.4"/>
+        <vertices x="6.0" y="2.7"/>
+        <vertices x="10" y="2.7"/>
     </obstacles>
     <obstacles>
-        <vertices x="1.5" y="11.1"/>
-        <vertices x="9.9" y="11.1"/>
-        <vertices x="9.9" y="11.7"/>
-        <vertices x="1.5" y="11.7"/>
+        <vertices x="1.4" y="11.1"/>
+        <vertices x="10" y="11.1"/>
+        <vertices x="10" y="11.7"/>
+        <vertices x="1.4" y="11.7"/>
     </obstacles>
     <obstacles>
         <vertices x="5.4" y="3.0"/>
-        <vertices x="0.9" y="3.0"/>
-        <vertices x="0.9" y="2.4"/>
-        <vertices x="5.4" y="2.4"/>
+        <vertices x="1.4" y="3.0"/>
+        <vertices x="1.4" y="2.7"/>
+        <vertices x="5.4" y="2.7"/>
     </obstacles>
     <obstacles>
-        <vertices x="0.9" y="3.0"/>
-        <vertices x="1.5" y="3.0"/>
+        <vertices x="1.4" y="2.4"/>
+        <vertices x="1.5" y="2.4"/>
         <vertices x="1.5" y="11.7"/>
-        <vertices x="0.9" y="11.7"/>
+        <vertices x="1.4" y="11.7"/>
     </obstacles>
     <obstacles>
-        <vertices x="10.5" y="11.7"/>
+        <vertices x="10" y="11.7"/>
         <vertices x="9.9" y="11.7"/>
-        <vertices x="9.9" y="3.0"/>
-        <vertices x="10.5" y="3.0"/>
+        <vertices x="9.9" y="2.4"/>
+        <vertices x="10" y="2.4"/>
     </obstacles>
-    <environmentGoals>
-        <endPoint x="6.0" y="3.0"/>
-        <startPoint x="5.4" y="3.0"/>
-    </environmentGoals>
-    <environmentGoals>
-        <endPoint x="6.0" y="2.4"/>
-        <startPoint x="5.4" y="2.4"/>
-    </environmentGoals>
-    <environmentGoals>
-        <endPoint x="6.0" y="0.0"/>
-        <startPoint x="5.4" y="0.0"/>
-    </environmentGoals>
-    <agentGroups>
-        <endPoint x="9.9" y="10.8"/>
-        <startPoint x="1.8" y="9.0"/>
-        <direction>3</direction>
-        <size>50</size>
+      <agentGroups>
+        <endPoint x="9.6" y="10.6"/>
+        <startPoint x="1.8" y="5.4"/>
+        <size>200</size>
+        <minSpeed>0.0</minSpeed>
+        <maxSpeed>2.6</maxSpeed>
+        <meanSpeed>1.3</meanSpeed>
+        <sDevSpeed>0.0</sDevSpeed>
     </agentGroups>
 </SimulationScenario>

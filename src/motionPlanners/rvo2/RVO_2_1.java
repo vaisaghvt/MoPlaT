@@ -61,9 +61,10 @@ public class RVO_2_1 implements VelocityCalculator {
     public Vector2d calculateVelocity(RVOAgent me,
             Bag neighbors, Bag obstacleBag, Vector2d preferredVelocity, double timeStep) {
 
+
 //        preferredVelocity.normalize();
         orcaLines.clear();
-
+        
 
 
         TreeMap<Double, RVO2Obstacle> obses = new TreeMap<Double, RVO2Obstacle>();
@@ -88,6 +89,7 @@ public class RVO_2_1 implements VelocityCalculator {
         final double invTimeHorizonObst = 1.0f / TIME_HORIZON_OBSTACLE;
 
         /* Create obstacle ORCA lines. */
+        
         for (RVO2Obstacle obstacleFromList : obses.values()) {
 
             RVO2Obstacle obstacle1 = obstacleFromList;
