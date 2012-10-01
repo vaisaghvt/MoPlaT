@@ -448,6 +448,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         return preferredSpeed;
     }
 
+    @Override
     public Object propertiesProxy() {
         return new MyProxy();
     }

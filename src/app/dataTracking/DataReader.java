@@ -4,6 +4,7 @@
  */
 package app.dataTracking;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
@@ -34,15 +35,15 @@ public class DataReader {
         PrintWriter writer;
         if (args[0].equalsIgnoreCase(FILE_TYPE.LATTICE.toString())) {
             for (int i = 1; i < args.length; i++) {
-                File inputFIle = new File(args[i]);
-                if (!inputFIle.exists()) {
-                    System.out.println("Invalid file!" + inputFIle + " \n Usage: DataReader TYPE files");
+                File inputFile = new File(args[i]);
+                if (!inputFile.exists()) {
+                    System.out.println("Invalid file!" + inputFile + " \n Usage: DataReader TYPE files");
                     System.exit(1);
                 }
                 DataInputStream reader = null;
 
                 try {
-                    reader = new DataInputStream(new FileInputStream(inputFIle));
+                    reader = new DataInputStream(new BufferedInputStream(new FileInputStream(inputFile)));
 
 
                     File outputFile = new File(args[i] + ".txt");
@@ -66,7 +67,6 @@ public class DataReader {
 //                        }
 //                        writer.println();
                     }
-
                     writer.close();
                     reader.close();
                 } catch (IOException ex) {

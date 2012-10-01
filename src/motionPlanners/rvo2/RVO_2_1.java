@@ -4,8 +4,12 @@ import utility.Line;
 import environment.Obstacle.RVO2Obstacle;
 import agent.RVOAgent;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 import motionPlanners.VelocityCalculator;
@@ -15,8 +19,7 @@ import utility.Geometry;
 /**
  * TWContextBuilder
  *
- * @author michaellees, vaisagh
- * Created: Dec 1, 2010
+ * @author michaellees, vaisagh Created: Dec 1, 2010
  *
  * Copyright michaellees
  *
@@ -31,7 +34,7 @@ public class RVO_2_1 implements VelocityCalculator {
      */
     List<Line> orcaLines;
     /**
-     * TIME_HORIZON 	float (time) 	The minimal amount of time for which the
+     * TIME_HORIZON float (time) The minimal amount of time for which the
      * agent's velocities that are computed by the simulation are safe with
      * respect to other agents. The larger this number, the sooner this agent
      * will respond to the presence of other agents, but the less freedom the
@@ -39,11 +42,11 @@ public class RVO_2_1 implements VelocityCalculator {
      */
     public static double TIME_HORIZON;
     /**
-     *TIME_HORIZON_OBSTACLE 	float (time) 	The minimal amount of time for which the
-     * agent's velocities that are computed by the simulation are safe with respect
-     * to obstacles. The larger this number, the sooner this agent will respond
-     * to the presence of obstacles, but the less freedom the agent has in choosing
-     * its velocities. Must be positive.
+     * TIME_HORIZON_OBSTACLE float (time) The minimal amount of time for which
+     * the agent's velocities that are computed by the simulation are safe with
+     * respect to obstacles. The larger this number, the sooner this agent will
+     * respond to the presence of obstacles, but the less freedom the agent has
+     * in choosing its velocities. Must be positive.
      */
     public static double TIME_HORIZON_OBSTACLE;
 
@@ -64,33 +67,55 @@ public class RVO_2_1 implements VelocityCalculator {
 
 //        preferredVelocity.normalize();
         orcaLines.clear();
-        
 
 
-        TreeMap<Double, RVO2Obstacle> obses = new TreeMap<Double, RVO2Obstacle>();
+
+
+        final Map<RVO2Obstacle, Double> obstacleDistances = new LinkedHashMap<RVO2Obstacle, Double>();
+        final Point2d agentPosition = new Point2d(me.getCurrentPosition());
+        TreeSet<RVO2Obstacle> obses = new TreeSet<RVO2Obstacle>(new Comparator<RVO2Obstacle>() {
+            //Note that all externally-referenced variables must be final.
+            //This means: obstacleDistances & agent.
+            @Override
+            public int compare(RVO2Obstacle o1, RVO2Obstacle o2) {
+                double o1Distance = getObstacleDistanceToAgent(o1), o2Distance = getObstacleDistanceToAgent(o2);
+                return Double.compare(o1Distance, o2Distance);
+            }
+
+            //Method to compute distance to agent. Caches the value for later use.
+            public double getObstacleDistanceToAgent(RVO2Obstacle obstacle) {
+                if (obstacleDistances.containsKey(obstacle)) {
+                    return obstacleDistances.get(obstacle);
+                }
+
+                double distance =
+                        Geometry.calcDistanceToLineSegment(obstacle.getPoint(),
+                        obstacle.getNext().getPoint(),
+                        agentPosition);
+                obstacleDistances.put(obstacle, distance);
+
+                return distance;
+            }
+        });
+
         for (Object tempObject : obstacleBag) {
             RVO2Obstacle tempObstacle = (RVO2Obstacle) tempObject;
-            double distanceToObstacleLine;
-            if (!obses.containsValue(tempObstacle)) {
-                distanceToObstacleLine = Geometry.calcDistanceToLineSegment(tempObstacle.getPoint(), tempObstacle.getNext().getPoint(), me.getCurrentPosition());
-                obses.put((Double) distanceToObstacleLine, tempObstacle);
-            }
-
-            if (!obses.containsValue(tempObstacle.getPrev())) {
-                distanceToObstacleLine = Geometry.calcDistanceToLineSegment(tempObstacle.getPoint(), tempObstacle.getPrev().getPoint(), me.getCurrentPosition());
-                obses.put((Double) distanceToObstacleLine, tempObstacle.getPrev());
-            }
-
+            obses.add(tempObstacle);
+            obses.add(tempObstacle.getPrev());
 
         }
 
+
+//        obses = sortedObstacles;
+//
+////        List<RVO2Obstacle> obses = new ArrayList<RVO2Obstacle>(obstacleBag);
 
         Vector2d newVelocity = new Vector2d(preferredVelocity);
         final double invTimeHorizonObst = 1.0f / TIME_HORIZON_OBSTACLE;
 
         /* Create obstacle ORCA lines. */
-        
-        for (RVO2Obstacle obstacleFromList : obses.values()) {
+
+        for (RVO2Obstacle obstacleFromList : obses) {
 
             RVO2Obstacle obstacle1 = obstacleFromList;
             RVO2Obstacle obstacle2 = obstacle1.getNext();
@@ -108,10 +133,10 @@ public class RVO_2_1 implements VelocityCalculator {
 //            System.out.println("for agent at "+me.getCurrentPosition()+"Avoiding obstacle from "+ obstacle1.getPoint()+ " to " + obstacle2.getPoint());
 
             Vector2d relativePosition1 = new Vector2d(obstacle1.getPoint());
-            relativePosition1.sub(me.getCurrentPosition());
+            relativePosition1.sub(agentPosition);
 
             Vector2d relativePosition2 = new Vector2d(obstacle2.getPoint());
-            relativePosition2.sub(me.getCurrentPosition());
+            relativePosition2.sub(agentPosition);
 
             Vector2d obstacleVector = new Vector2d(obstacle2.getPoint());
             obstacleVector.sub(obstacle1.getPoint());
@@ -184,10 +209,10 @@ public class RVO_2_1 implements VelocityCalculator {
                     assert !Double.isNaN(
                             line.point.x) && !Double.isInfinite(line.point.x);
 
-                    continue;
+
                 }
 
-
+                continue;
             } else if (s > 1 && distSq2 <= radiusSq) {
                 /* Collision with right vertex. Ignore if non-convex*/
 //                System.out.println("Right Vertex Collision");
@@ -209,10 +234,10 @@ public class RVO_2_1 implements VelocityCalculator {
                     assert !Double.isNaN(
                             line.point.x) && !Double.isInfinite(line.point.x);
 
-                    continue;
+
 
                 }
-
+                continue;
 
             } else if (s >= 0 && s < 1 && distSqLine <= radiusSq) {
                 /* Collision with obstacle segment. */
@@ -235,8 +260,8 @@ public class RVO_2_1 implements VelocityCalculator {
                 continue;
             }
             /*No collision
-            Compute legs. When obliquely viewed, both legs can come from a single
-            vertex. Legs extend cut-off line when nonconvex vertex.
+             Compute legs. When obliquely viewed, both legs can come from a single
+             vertex. Legs extend cut-off line when nonconvex vertex.
              */
 //            System.out.println("No collision");
             if (s < 0 && distSqLine <= radiusSq) {
@@ -355,12 +380,12 @@ public class RVO_2_1 implements VelocityCalculator {
 
             /* Compute cut-off centers. */
             Point2d vectorToObstacle1 = new Point2d(obstacle1.getPoint());
-            vectorToObstacle1.sub(me.getCurrentPosition());
+            vectorToObstacle1.sub(agentPosition);
             vectorToObstacle1.scale(invTimeHorizonObst);
             final Vector2d LEFTCUTOFF = new Vector2d(vectorToObstacle1);
 
             Point2d vectorToObstacle2 = new Point2d(obstacle2.getPoint());
-            vectorToObstacle2.sub(me.getCurrentPosition());
+            vectorToObstacle2.sub(agentPosition);
             vectorToObstacle2.scale(invTimeHorizonObst);
             final Vector2d RIGHTCUTOFF = new Vector2d(vectorToObstacle2);
 
@@ -559,7 +584,7 @@ public class RVO_2_1 implements VelocityCalculator {
             }
 
             Vector2d relativePosition = new Vector2d(otherAgent.getCurrentPosition());
-            relativePosition.sub(me.getCurrentPosition());
+            relativePosition.sub(agentPosition);
 
 
             Vector2d relativeVelocity = new Vector2d(me.getVelocity());
@@ -628,7 +653,7 @@ public class RVO_2_1 implements VelocityCalculator {
 //                System.out.println("Collision!!!");
 
                 final double invTimeStep = 1.0f / timeStep;
-assert relativePosition.length()!=0;
+                assert relativePosition.length() != 0;
                 Vector2d w = new Vector2d(relativePosition);
                 w.scale(invTimeStep);
                 w.sub(relativeVelocity);

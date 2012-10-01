@@ -32,14 +32,14 @@ class WrapUp implements Steppable {
                 return;
             }
         }
-        for (RVOAgent agent : agents) {
-            if (agent.getCurrentPosition().getX() > 0
-                    && agent.getCurrentPosition().getY() > 0
-                    && agent.getCurrentPosition().getX() < state.getWorldXSize()
-                    && agent.getCurrentPosition().getY() < state.getWorldYSize()) {
-                return;
-            }
-        }
+//        for (RVOAgent agent : agents) {
+//            if (agent.getCurrentPosition().getX() > 0
+//                    && agent.getCurrentPosition().getY() > 0
+//                    && agent.getCurrentPosition().getX() < state.getWorldXSize()
+//                    && agent.getCurrentPosition().getY() < state.getWorldYSize()) {
+//                return;
+//            }
+//        }
 //        System.out.println("here");
         state.kill();
     }

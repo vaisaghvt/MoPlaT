@@ -66,10 +66,10 @@ public class PhysicaDataTracker implements DataTracker {
         }
 
         for (RVOAgent agent : model.getAgentList()) {
-
-            velocityListForTimeStep.put(stepNumber, agent.getVelocity());
-
-            positionListForTimeStep.put(stepNumber, agent.getCurrentPosition());
+//
+//            velocityListForTimeStep.put(stepNumber, agent.getVelocity());
+//
+//            positionListForTimeStep.put(stepNumber, agent.getCurrentPosition());
 
             if (PropertySet.LATTICEMODEL && locationMapForLattice != null) {
                 latticeStateForTimeStep.put(stepNumber, locationMapForLattice.get(agent.getId()));
@@ -122,10 +122,10 @@ public class PhysicaDataTracker implements DataTracker {
 
 
         try {
-            writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + RVOModel.publicInstance.seed() + "_"
-                    + "Velocity", velocityListForTimeStep);
-            writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + RVOModel.publicInstance.seed() + "_"
-                    + "Position", positionListForTimeStep);
+//            writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + RVOModel.publicInstance.seed() + "_"  + RVOAgent.RADIUS + "_"
+//                    + "Velocity", velocityListForTimeStep);
+//            writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + RVOModel.publicInstance.seed() + "_" + RVOAgent.RADIUS + "_"
+//                    + "Position", positionListForTimeStep);
 
             if (PropertySet.LATTICEMODEL) {
                 writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + PropertySet.MODEL + "_" + RVOModel.publicInstance.seed() + "_"

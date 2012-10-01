@@ -76,8 +76,8 @@ public class LatticeSpace {
     }
 
     public void addAgentAt(Double x, Double y, int id) {
-        space.set((int) Math.ceil((x - (LATTICEGRIDSIZE / 2)) / LATTICEGRIDSIZE)-1,
-                (int) Math.ceil((y - (LATTICEGRIDSIZE / 2)) / LATTICEGRIDSIZE)-1, id + 10);
+        space.set((int) Math.ceil((x - (LATTICEGRIDSIZE / 2)) / LATTICEGRIDSIZE),
+                (int) Math.ceil((y - (LATTICEGRIDSIZE / 2)) / LATTICEGRIDSIZE), id + 10);
         numberOfAgents++;
     }
 
@@ -92,10 +92,10 @@ public class LatticeSpace {
             Position currentVertex = tempObst.getVertices().get(i);
             Position nextVertex = tempObst.getVertices().get((i + 1) % tempObst.getVertices().size());
 
-            int x1 = (int) Math.floor(currentVertex.getX() / LATTICEGRIDSIZE)-1;
-            int x2 = (int) Math.floor(nextVertex.getX() / LATTICEGRIDSIZE)-1;
-            int y1 = (int) Math.floor(currentVertex.getY() / LATTICEGRIDSIZE)-1;
-            int y2 = (int) Math.floor(nextVertex.getY() / LATTICEGRIDSIZE)-1;
+            int x1 = (int) Math.floor(currentVertex.getX() / LATTICEGRIDSIZE);
+            int x2 = (int) Math.floor(nextVertex.getX() / LATTICEGRIDSIZE);
+            int y1 = (int) Math.floor(currentVertex.getY() / LATTICEGRIDSIZE);
+            int y2 = (int) Math.floor(nextVertex.getY() / LATTICEGRIDSIZE);
 
 //            assert (x1 == x2) || (y1 == y2);
 
