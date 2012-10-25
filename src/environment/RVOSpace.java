@@ -21,15 +21,14 @@ import utility.Geometry;
 /**
  * RVOSpace
  *
- * @author michaellees
- * Created: Nov 24, 2010
+ * @author michaellees Created: Nov 24, 2010
  *
  * Copyright michaellees
  *
  * Description:
  *
  * This class defines the environment. It has two layers : an agent layer with
- * all the agents on it and an obstacleSpace layer with all the obstacles on it. 
+ * all the agents on it and an obstacleSpace layer with all the obstacles on it.
  */
 public class RVOSpace {
 
@@ -70,21 +69,22 @@ public class RVOSpace {
     public RVOModel getRvoModel() {
         return rvoModel;
     }
-    
-    public double getXRealSize(){
+
+    public double getXRealSize() {
         return xRealSize;
     }
 
-    public double getYRealSize(){
+    public double getYRealSize() {
         return yRealSize;
     }
-    
-    public double getGridDimension(){
+
+    public double getGridDimension() {
         return gridDimension;
     }
-    
+
     /**
      * Analogous to obstacle space
+     *
      * @return obstacleSpace
      */
     public Continuous2D getGeographySpace() {
@@ -116,7 +116,7 @@ public class RVOSpace {
                 if (i == obstacles.size() - 1) {
                     obstacles.get(i).setNext(obstacles.get(0));
 
-                    
+
                 } else {
                     obstacles.get(i).setNext(obstacles.get(i + 1));
                 }
@@ -158,23 +158,26 @@ public class RVOSpace {
     public Bag senseNeighbours(RVOAgent me) {
         double sensorRange = RVOAgent.SENSOR_RANGE;
         Bag neighbours = findNeighbours(me.getCurrentPosition(), sensorRange * me.getRadius());
-//        Vector2d unitAgentDirection =  new Vector2d(me.getPrefVelocity());
-//        unitAgentDirection.normalize();
-//        for(int i=0;i<neighbours.size();i++){
-//            RVOAgent agentNeighbour = (RVOAgent) neighbours.get(i);
-//            Vector2d neighbourDirection = new Vector2d(agentNeighbour.getCurrentPosition());
-//            neighbourDirection.sub(me.getCurrentPosition());
-//            neighbourDirection.normalize();
-//            double angleRadians = neighbourDirection.angle(unitAgentDirection);   
-//            if((Double.compare(angleRadians, (Math.PI/2.0))>0
-//                    && Double.compare(angleRadians, (3.0*Math.PI/2.0))<0)){
-//                neighbours.remove(i);
-//            }
-//        }
-//        while(neighbours.size()>10){
-//            sensorRange *= 0.8;
-//            neighbours= findNeighbours(me.getCurrentPosition(), sensorRange * me.getRadius());
-//        }
+
+        do {
+            Vector2d unitAgentDirection = new Vector2d(me.getPrefVelocity());
+            unitAgentDirection.normalize();
+            for (int i = 0; i < neighbours.size(); i++) {
+                RVOAgent agentNeighbour = (RVOAgent) neighbours.get(i);
+                Vector2d neighbourDirection = new Vector2d(agentNeighbour.getCurrentPosition());
+                neighbourDirection.sub(me.getCurrentPosition());
+                neighbourDirection.normalize();
+                double angleRadians = neighbourDirection.angle(unitAgentDirection);
+                if ((Double.compare(angleRadians, (Math.PI / 2.0)) > 0
+                        && Double.compare(angleRadians, (3.0 * Math.PI / 2.0)) < 0)) {
+                    neighbours.remove(i);
+                }
+            }
+            if (neighbours.size() > 10) {
+                sensorRange *= 0.8;
+                neighbours = findNeighbours(me.getCurrentPosition(), sensorRange * me.getRadius());
+            }
+        } while (neighbours.size() > 10);
         return neighbours;
 
     }
@@ -200,7 +203,6 @@ public class RVOSpace {
         return neighbours;
     }
 
-   
     public boolean visibleFrom(Point2d goal, Point2d position) {
         Point2d p1 = new Point2d(position.getX(), position.getY());
         Point2d p2 = new Point2d(goal.getX(), goal.getY());
@@ -212,34 +214,34 @@ public class RVOSpace {
         }
         return true;
     }
-    
+
     /*
      * make the vertices in counter-clock wise order
      */
-    private ArrayList<Point2d> makeRightOrder(ArrayList<Point2d> points){
-        
-        int sum =0;
-        for(int i=0;i< points.size();i++){
+    private ArrayList<Point2d> makeRightOrder(ArrayList<Point2d> points) {
+
+        int sum = 0;
+        for (int i = 0; i < points.size(); i++) {
             Point2d currentPoint = points.get(i);
-            Point2d nextPoint = points.get((i+1)%points.size());
+            Point2d nextPoint = points.get((i + 1) % points.size());
             double x1 = currentPoint.getX();
             double x2 = nextPoint.getX();
             double y1 = currentPoint.getY();
             double y2 = nextPoint.getY();
-            sum+= ( x2-x1) * (y2+y1);
-            
+            sum += (x2 - x1) * (y2 + y1);
+
         }
 //        System.out.println(sum);
-        if(sum<0){
-         
+        if (sum < 0) {
+
             return points;
-        }else {
-         
+        } else {
+
             Collections.reverse(points);
             return points;
-            
+
         }
-        
-        
+
+
     }
 }

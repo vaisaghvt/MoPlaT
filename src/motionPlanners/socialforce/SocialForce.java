@@ -393,6 +393,10 @@ public class SocialForce implements VelocityCalculator {
         // #####################################################################
         // Update everytime step for every neighbour
         // #####################################################################
+        
+        double exjavg = 0;
+        double eyjavg = 0;
+        
         for (int i = 0; i < neighbors.size(); i++) {
 
             RVOAgent tempAgent = (RVOAgent) neighbors.get(i);
@@ -406,6 +410,24 @@ public class SocialForce implements VelocityCalculator {
             double Vxj = tempAgent.getVelocity().getX();
             double Vyj = tempAgent.getVelocity().getY();
             double Rj = tempAgent.getRadius();
+            
+            // If the agent has a neighbour
+            if (neighbors.size()>1) {
+                double normej = Math.sqrt(Vxj*Vxj+Vyj*Vyj);
+                if (normej==0){
+                    double exj = Vxj;
+                    double eyj = Vyj;
+                    exjavg += exj;
+                    eyjavg += eyj;
+                }else{
+                    double exj = Vxj/normej;
+                    double eyj = Vyj/normej;
+                    exjavg += exj;
+                    eyjavg += eyj;
+                }
+                
+                //System.out.println(normej);
+            }
             //double Mj = tempAgent.getMass();
 
             double Aj = 2000;        //2000;       //Published value = 2000 N
@@ -425,7 +447,6 @@ public class SocialForce implements VelocityCalculator {
             double Tijy = Nijx;             // Tangential Y-direction unit vector
             double DeltaVtji = (Vxj - Vxi) * Tijx + (Vyj - Vyi) * Tijy;
 
-
             double fsr = Aj * Math.exp((RD / Bj));  // Social Repulsion force
             double fp = kj * g(RD);                 // Pushing force
             double ff = kappaj * g(RD) * DeltaVtji; // Friction force
@@ -434,6 +455,11 @@ public class SocialForce implements VelocityCalculator {
             fijy += (fsr + fp) * Nijy + ff * Tijy;
         }
 
+        if (neighbors.size()>1) {
+            exjavg = exjavg/neighbors.size();
+            eyjavg = eyjavg/neighbors.size();
+        }
+        
         double Vxint = (fijx) / Mi;
         double Vyint = (fijy) / Mi;
 
@@ -450,14 +476,26 @@ public class SocialForce implements VelocityCalculator {
             Vxwall = (fiwx) / Mi;
             Vywall = (fiwy) / Mi;
         }
-assert !Double.isNaN(Vxint);
-assert !Double.isNaN(Vxwall);
-assert !Double.isNaN(preferredVelocity.x);
+        
+        assert !Double.isNaN(Vxint);
+        assert !Double.isNaN(Vxwall);
+        assert !Double.isNaN(preferredVelocity.x);
+        
         // #################################################################
         // SUM AND BOUND TOTAL FORCE
         // #################################################################
-        double Vx = forceBound(preferredVelocity.x + Vxint + Vxwall);
-        double Vy = forceBound(preferredVelocity.y + Vyint + Vywall);
+
+        double PanicFactor = 0.2;
+        double exi = (1-PanicFactor)*preferredVelocity.x + PanicFactor*exjavg;
+        double eyi = (1-PanicFactor)*preferredVelocity.y + PanicFactor*eyjavg;
+        double normei = Math.sqrt(exi*exi + eyi*eyi);
+        exi = exi/normei;
+        eyi = eyi/normei;
+        
+        double preferredSpeed = preferredVelocity.length();
+        
+        double Vx = forceBound((preferredSpeed*exi-Vxi) + Vxint + Vxwall);
+        double Vy = forceBound((preferredSpeed*eyi-Vyi) + Vyint + Vywall);
 
         assert !Double.isNaN(Vx);
         return new Vector2d(Vx, Vy);
