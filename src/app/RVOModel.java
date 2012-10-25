@@ -33,6 +33,7 @@ import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 import javax.xml.bind.JAXBException;
 import motionPlanners.socialforce.SocialForce;
+import sim.engine.ParallelSequence;
 import sim.engine.RandomSequence;
 import sim.engine.Schedule;
 import sim.engine.Sequence;
@@ -201,8 +202,8 @@ public class RVOModel extends SimState {
 //        senseThinkStoppable = mySpace.getRvoModel().schedule.scheduleRepeating(senseThinkAgent, 2, 1.0);
 //        actStoppable = mySpace.getRvoModel().schedule.scheduleRepeating(actAgent, 3, 1.0);
 //        (new RVOAgent(this.rvoSpace)).scheduleAgent();
-//        schedule.scheduleRepeating(Schedule.EPOCH, 1, new RandomSequence(senseThinkAgents.toArray(new SenseThink[]{})), 1.0);
-//        schedule.scheduleRepeating(Schedule.EPOCH, 2, new Sequence(actAgents.toArray(new Act[]{})), 1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH, 1, new ParallelSequence(senseThinkAgents.toArray(new SenseThink[]{})), 1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH, 2, new ParallelSequence(actAgents.toArray(new Act[]{})), 1.0);
     }
 
     public List<RVOAgent> getAgentList() {
@@ -241,7 +242,7 @@ public class RVOModel extends SimState {
     public void addNewAgent(RVOAgent a) {
         a.createSteppables();
         agentList.add(a);
-//        rvoSpace.updatePositionOnMap(a, a.getX(), a.getY());
+        rvoSpace.updatePositionOnMap(a, a.getX(), a.getY());
         if (PropertySet.LATTICEMODEL) {
             latticeSpace.addAgentAt(a.getX(), a.getY(), a.getId());
         }
