@@ -563,13 +563,11 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                     /**
                      * Very slight perturbation of velocity to remove deadlock problems of perfect symmetry
                      */
-                    assert !Double.isNaN(prefVelocity.x);
-                    prefVelocity.x += mySpace.getRvoModel().random.nextFloat() * utility.Geometry.EPSILON;
-                    prefVelocity.y += mySpace.getRvoModel().random.nextFloat() * utility.Geometry.EPSILON;
-                    assert !Double.isNaN(prefVelocity.x);
+                    
 // if(id==0){
 //     System.out.println();
 // }
+                       assert !Double.isNaN(prefVelocity.x);
                     Vector2d tempVelocity = velocityCalc.calculateVelocity(RVOAgent.this, sensedNeighbours, mySpace.senseObstacles(RVOAgent.this),
                             prefVelocity, PropertySet.TIMESTEP);
                     if (Double.isNaN(
@@ -735,7 +733,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 //                return;
 //            }
 //                velocity = chosenVelocity; //TO VT: this u previously said need to use precise point, why changed back without justification here?
-                  velocity = new PrecisePoint(chosenVelocity.getX(),chosenVelocity.getY());
+                    
+                velocity = new PrecisePoint(chosenVelocity.getX()+ mySpace.getRvoModel().random.nextFloat() * utility.Geometry.EPSILON,chosenVelocity.getY()+ mySpace.getRvoModel().random.nextFloat() * utility.Geometry.EPSILON);
                 
                   double currentPosition_x = (currentPosition.getX()
                         + velocity.getX() * PropertySet.TIMESTEP);
