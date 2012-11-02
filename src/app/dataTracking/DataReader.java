@@ -120,7 +120,7 @@ public class DataReader {
             ex.printStackTrace();
         }
 
-
+        System.out.print("*");
         return true;
     }
 
@@ -157,6 +157,7 @@ public class DataReader {
     }
     
         private static List<File> processFilesInDirectory(File dir, FILE_TYPE type) {
+            System.out.println(dir.getAbsoluteFile());
             List<File> listOfFiles= new ArrayList<File>();
             recurseDirectory(dir, type, listOfFiles);
             return listOfFiles;
@@ -165,7 +166,9 @@ public class DataReader {
 
     private static boolean satisfiesType(File child, FILE_TYPE type) {
         String fileName = child.getName();
-        if (fileName.contains(".")) {
+//        System.out.println(child.getAbsoluteFile());
+        if (fileName.contains(".txt")) {
+           
             return false;
         
         }
@@ -182,6 +185,7 @@ public class DataReader {
             if (child.isFile() && satisfiesType(child, type)) {
                 listOfFiles.add(child);
             } else if (child.isDirectory()) {
+             //   System.out.println("Recursing through"+ child.getAbsolutePath());
                 recurseDirectory(child, type, listOfFiles);
             }
 
@@ -248,8 +252,6 @@ public class DataReader {
                     System.out.println("Conversion Failed");
                     threadPool.shutdown();
                     System.exit(1);
-                }else{
-                    System.out.print("*");
                 }
             }
         } catch (InterruptedException e) {

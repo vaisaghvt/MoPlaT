@@ -43,18 +43,16 @@ public class SocialForce implements VelocityCalculator {
     // /////////////////////////////////////////////////////////////////////////
     // Bound the force so that agent don't "explode" (unit = Newton)
     // /////////////////////////////////////////////////////////////////////////
-    private double forceBound(double x) {
-        double var = 1.5;
+    private Vector2d forceBound(Vector2d v, RVOAgent agent ) {
+     
 
-        if (x > var) {
-            x = RVOModel.publicInstance.random.nextDouble();
+        if ( v.length()> agent.getMaxSpeed()) {
+            v.normalize();
+            v.scale(agent.getMaxSpeed());
             //x = var;
-        } else if (x < -var) {
-            x = -(RVOModel.publicInstance.random.nextDouble());
-            //x = -var;
-        }
+        } 
 
-        return x;
+        return v;
     }
 
     // /////////////////////////////////////////////////////////////////////////
@@ -494,10 +492,12 @@ public class SocialForce implements VelocityCalculator {
         
         double preferredSpeed = preferredVelocity.length();
         
-        double Vx = forceBound((preferredSpeed*exi-Vxi) + Vxint + Vxwall);
-        double Vy = forceBound((preferredSpeed*eyi-Vyi) + Vyint + Vywall);
-
+        double Vx =(preferredSpeed*exi) + Vxint + Vxwall;
+        double Vy = (preferredSpeed*eyi) + Vyint + Vywall;
+        
         assert !Double.isNaN(Vx);
-        return new Vector2d(Vx, Vy);
+        Vector2d calculatedVelocity =  new Vector2d(Vx, Vy);
+        calculatedVelocity = forceBound(calculatedVelocity, me);
+        return calculatedVelocity;
     }
 }

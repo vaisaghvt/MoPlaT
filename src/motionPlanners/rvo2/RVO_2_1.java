@@ -75,11 +75,16 @@ public class RVO_2_1 implements VelocityCalculator {
         final Point2d agentPosition = new Point2d(me.getCurrentPosition());
         TreeSet<RVO2Obstacle> obses = new TreeSet<RVO2Obstacle>(new Comparator<RVO2Obstacle>() {
             //Note that all externally-referenced variables must be final.
-            //This means: obstacleDistances & agent.
+            //This means: obstacleDistances & agent.            
             @Override
             public int compare(RVO2Obstacle o1, RVO2Obstacle o2) {
                 double o1Distance = getObstacleDistanceToAgent(o1), o2Distance = getObstacleDistanceToAgent(o2);
-                return Double.compare(o1Distance, o2Distance);
+                if (Double.compare(o1Distance, o2Distance) == 0) {
+                    return (o1.hashCode() - o2.hashCode());
+                } else {
+                    return Double.compare(o1Distance, o2Distance);
+                }
+
             }
 
             //Method to compute distance to agent. Caches the value for later use.
