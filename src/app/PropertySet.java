@@ -8,17 +8,17 @@ import agent.AgentPortrayal;
 import agent.RVOAgent;
 import agent.clustering.ClusteredSpace;
 import agent.latticegas.LatticeSpace;
+import app.params.SimulationParameters;
 import environment.XMLScenarioManager;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBException;
 import motionPlanners.rvo2.RVO_2_1;
-import app.params.SimulationParameters;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import utility.Geometry;
 
 /**
@@ -31,8 +31,27 @@ public class PropertySet {
             + "LatticeTestSettings.xml";
 
     public static enum Model {
-
-        RVO2, PatternBasedMotion, RVO1Standard, RVO1Acceleration, RuleBasedNew, SocialForce
+        // Add full path of class to be called for the constructor. Also if there are
+        // parameters for the constructor change at the place where it is called. 
+        // (find references to get Associated Class
+        RVO2("motionPlanners.rvo2.RVO_2_1"), 
+        RVO1Standard("motionPlanners.rvo1.RVO_1_Standard"), 
+        RVO1Acceleration("motionPlanners.rvo1.RVO_1_WithAccel"), 
+        RuleBasedNew("motionPlanners.rvo1.RuleBasedNew"), 
+        SocialForce("motionPlanners.socialforce.SocialForce");
+        
+        private String velocityCalculator;
+   
+        Model(String calculator){
+            this.velocityCalculator = calculator;
+        }
+        
+        
+        public String getAssociatedClass(){
+            return this.velocityCalculator;
+        }
+        
+       
     }
     //TODO : Be careful  about this seed... need to change for random simulation
     public static String XML_SOURCE_FOLDER = "xml-resources" + File.separatorChar;
@@ -178,12 +197,7 @@ public class PropertySet {
 
             RVO_2_1.TIME_HORIZON = params.getTimeHorizon();
             RVO_2_1.TIME_HORIZON_OBSTACLE = params.getTimeHorizonObst();
-            if(MODEL == Model.PatternBasedMotion){
-                PBMSCENARIO = 1;//if this one set to 1, then will display color according to different strategies
-                if(params.getPBMScenario()!= null)
-                    PBMSCENARIO = params.getPBMScenario();
-            }
-
+         
         } catch (JAXBException ex) {
             Logger.getLogger(RVOModel.class.getName()).log(Level.SEVERE, null, ex);
         }

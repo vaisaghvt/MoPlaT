@@ -62,7 +62,7 @@ public class RVO_2_1 implements VelocityCalculator {
 
     @Override
     public Vector2d calculateVelocity(RVOAgent me,
-            Bag neighbors, Bag obstacleBag, Vector2d preferredVelocity, double timeStep) {
+            Bag guys, Bag obstacleBag, Vector2d preferredVelocity, double timeStep) {
 
 
 //        preferredVelocity.normalize();
@@ -102,6 +102,30 @@ public class RVO_2_1 implements VelocityCalculator {
                 return distance;
             }
         });
+        
+//        TreeSet<RVOAgent> neighbors = new TreeSet<RVOAgent>(new Comparator<RVOAgent>() {
+//            //Note that all externally-referenced variables must be final.
+//            //This means: obstacleDistances & agent.            
+//            @Override
+//            public int compare(RVOAgent o1, RVOAgent o2) {
+//                double o1Distance = o1.getCurrentPosition().distance(agentPosition), o2Distance = o2.getCurrentPosition().distance(agentPosition);
+//                if (Double.compare(o1Distance, o2Distance) == 0) {
+//                    return (o1.hashCode() - o2.hashCode());
+//                } else {
+//                    return Double.compare(o1Distance, o2Distance);
+//                }
+//
+//            }
+//
+//           
+//        });
+////        System.out.println(neighbors.size());
+////        HashSet<RVOAgentneighbors = new HashSet<RVOAgent>();
+//        for(Object guy: guys){
+//            
+//            neighbors.add((RVOAgent) guy);
+//           
+//        }
 
         for (Object tempObject : obstacleBag) {
             RVO2Obstacle tempObstacle = (RVO2Obstacle) tempObject;
@@ -582,8 +606,8 @@ public class RVO_2_1 implements VelocityCalculator {
         final double invTimeHorizon = 1.0f / TIME_HORIZON;
 
         /* Create agent ORCA lines. */
-        for (int i = 0; i < neighbors.size(); i++) {
-            final RVOAgent otherAgent = (RVOAgent) (neighbors.get(i));
+        for (int i = 0; i < guys.size(); i++) {
+            final RVOAgent otherAgent = (RVOAgent) (guys.get(i));
             if (otherAgent.equals(me)) {
                 continue;
             }

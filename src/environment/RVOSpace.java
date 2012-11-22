@@ -1,6 +1,5 @@
 package environment;
 
-import utility.PrecisePoint;
 import agent.RVOAgent;
 import app.PropertySet;
 import app.PropertySet.Model;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.vecmath.Point2d;
-import javax.vecmath.Vector2d;
 import sim.field.continuous.Continuous2D;
 import sim.util.Bag;
 import sim.util.Double2D;
@@ -93,7 +91,7 @@ public class RVOSpace {
 
     public void addNewObstacle(RVOObstacle obstacle) {
 
-        if (PropertySet.MODEL == Model.RVO2 || PropertySet.MODEL == Model.SocialForce || PropertySet.MODEL == Model.PatternBasedMotion) {
+        if (PropertySet.MODEL == Model.RVO2 || PropertySet.MODEL == Model.SocialForce) {
             //If RVO2 is the model then the RVO2 obstacle requires obstacles to
             //broken down
             ArrayList<RVO2Obstacle> obstacles = new ArrayList<RVO2Obstacle>();
@@ -160,19 +158,19 @@ public class RVOSpace {
         Bag neighbours = findNeighbours(me.getCurrentPosition(), sensorRange * me.getRadius());
 
 //        do {
-////            Vector2d unitAgentDirection = new Vector2d(me.getPrefVelocity());
-////            unitAgentDirection.normalize();
-////            for (int i = 0; i < neighbours.size(); i++) {
-////                RVOAgent agentNeighbour = (RVOAgent) neighbours.get(i);
-////                Vector2d neighbourDirection = new Vector2d(agentNeighbour.getCurrentPosition());
-////                neighbourDirection.sub(me.getCurrentPosition());
-////                neighbourDirection.normalize();
-////                double angleRadians = neighbourDirection.angle(unitAgentDirection);
-////                if ((Double.compare(angleRadians, (Math.PI / 2.0)) > 0
-////                        && Double.compare(angleRadians, (3.0 * Math.PI / 2.0)) < 0)) {
-////                    neighbours.remove(i);
-////                }
-////            }
+//////            Vector2d unitAgentDirection = new Vector2d(me.getPrefVelocity());
+//////            unitAgentDirection.normalize();
+//////            for (int i = 0; i < neighbours.size(); i++) {
+//////                RVOAgent agentNeighbour = (RVOAgent) neighbours.get(i);
+//////                Vector2d neighbourDirection = new Vector2d(agentNeighbour.getCurrentPosition());
+//////                neighbourDirection.sub(me.getCurrentPosition());
+//////                neighbourDirection.normalize();
+//////                double angleRadians = neighbourDirection.angle(unitAgentDirection);
+//////                if ((Double.compare(angleRadians, (Math.PI / 2.0)) > 0
+//////                        && Double.compare(angleRadians, (3.0 * Math.PI / 2.0)) < 0)) {
+//////                    neighbours.remove(i);
+//////                }
+//////            }
 //            if (neighbours.size() > 10) {
 //                sensorRange *= 0.8;
 //               neighbours = findNeighbours(me.getCurrentPosition(), sensorRange * me.getRadius());

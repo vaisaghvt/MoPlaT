@@ -1,40 +1,34 @@
 package app;
 
-import app.dataTracking.CWDataCollector;
 import agent.AgentGenerator;
 import agent.RVOAgent;
 import agent.RVOAgent.Act;
 import agent.RVOAgent.SenseThink;
 import agent.clustering.ClusteredSpace;
-import environment.Obstacle.RVOObstacle;
-import environment.RVOSpace;
-import environment.XMLScenarioManager;
-import environment.geography.Agent;
-import environment.geography.AgentLine;
-import environment.geography.Goals;
-import environment.geography.Obstacle;
-import environment.geography.SimulationScenario;
 import agent.latticegas.LatticeSpace;
 import app.PropertySet.Model;
 import app.dataTracking.DataTracker;
 import app.dataTracking.PhysicaDataTracker;
-import app.dataTracking.dataTrackPBM_binary;
 import com.google.common.collect.HashMultimap;
-import ec.util.MersenneTwisterFast;
+import environment.Obstacle.RVOObstacle;
+import environment.RVOSpace;
+import environment.XMLScenarioManager;
+import environment.geography.Agent;
 import environment.geography.AgentGroup;
+import environment.geography.AgentLine;
+import environment.geography.Goals;
+import environment.geography.Obstacle;
 import environment.geography.RoadMapPoint;
+import environment.geography.SimulationScenario;
 import java.awt.Color;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.vecmath.Point2d;
-import javax.vecmath.Vector2d;
 import javax.xml.bind.JAXBException;
 import motionPlanners.socialforce.SocialForce;
 import sim.engine.ParallelSequence;
-import sim.engine.RandomSequence;
 import sim.engine.Schedule;
 import sim.engine.Sequence;
 import sim.engine.SimState;
@@ -43,16 +37,15 @@ import sim.engine.Stoppable;
 /**
  * RVOModel
  *
- * @author michaellees
- * Created: Nov 24, 2010
+ * @author michaellees Created: Nov 24, 2010
  *
  * Copyright michaellees
  *
  * Description:
  *
- * The RVOModel is the core of the program. It contains the agentList,
- * the obstacleList and the rvoSpace and also the different parameters of the
- * MODEL itself. It also contains the main().
+ * The RVOModel is the core of the program. It contains the agentList, the
+ * obstacleList and the rvoSpace and also the different parameters of the MODEL
+ * itself. It also contains the main().
  *
  */
 public class RVOModel extends SimState {
@@ -63,8 +56,8 @@ public class RVOModel extends SimState {
     private RVOSpace rvoSpace;
     private LatticeSpace latticeSpace;
     /**
-     * Actually initialised to ArrayList as can be seen in second constructor, 
-     * But using List type here so that we can change the implementation later 
+     * Actually initialised to ArrayList as can be seen in second constructor,
+     * But using List type here so that we can change the implementation later
      * if needed
      */
     private List<RVOAgent> agentList;
@@ -73,7 +66,7 @@ public class RVOModel extends SimState {
     private DataTracker dataTracker = null;
     private String name;
     public static RVOModel publicInstance = null;
-    
+
 //    //for different pbm scenarios to set initial preferredVelocity
 //    private int pbmScenario = 0;
 //    
@@ -83,7 +76,6 @@ public class RVOModel extends SimState {
 //    public int getPbmScenario(){
 //        return pbmScenario;
 //    }
-
 //    //the list to keep record of every agent's status in each timestep
 //    //each record contains a list of status for each agent
 //    //for each agent, there is a list to record all the necessary status (e.g., velocity, position etc)
@@ -128,11 +120,8 @@ public class RVOModel extends SimState {
         }
         if (PropertySet.TRACK_DATA) {
 //            dataTracker = new CWDataCollector(this, agentList);
-          if(PropertySet.MODEL==Model.PatternBasedMotion){
-             dataTracker =  new dataTrackPBM_binary(this,agentList);
-          }else{
-             dataTracker = new PhysicaDataTracker(this, agentList); 
-          }
+
+            dataTracker = new PhysicaDataTracker(this, agentList);
 //            dataTracker = new PhysicaDataTracker(this, agentList);
             schedule.scheduleRepeating(dataTracker, 4, 1.0);
         }
@@ -141,7 +130,7 @@ public class RVOModel extends SimState {
     }
 
     /**
-     * Creates the continuous 2D space that will be used for the simulation. 
+     * Creates the continuous 2D space that will be used for the simulation.
      * Creates an appropriate space for Clustering
      */
     private void buildSpace() {
@@ -153,7 +142,7 @@ public class RVOModel extends SimState {
     }
 
     /**
-     * To use RVO without using an xml to initialise layout. Arranges agents in 
+     * To use RVO without using an xml to initialise layout. Arranges agents in
      * a pre decided order
      */
     private void createAgents() {
@@ -280,30 +269,21 @@ public class RVOModel extends SimState {
                 Agent tempAgent = xmlAgentList.get(i);
 
                 //@hunan: added in a new RVOAgent constructor to set the necessary parameters for PBM use only
-                if (PropertySet.MODEL == Model.PatternBasedMotion) {
-//                    RVOAgent tempRVOAgent = new RVOAgent(
-//                            new Point2d(tempAgent.getPosition().getX(), tempAgent.getPosition().getY()),
-//                            new Point2d(tempAgent.getGoal().getX(), tempAgent.getGoal().getY()),
-//                            rvoSpace, 
-////                            new Color(Color.HSBtoRGB((float) i / (float) xmlAgentList.size(),1.0f, 0.68f)),
-//                            Color.BLACK,
-//                            tempAgent.getPreferedSpeed(), tempAgent.getCommitmentLevel());
-//                    addNewAgent(tempRVOAgent);
-                } else {
-                    RVOAgent tempRVOAgent = new RVOAgent(
-                            new Point2d(tempAgent.getPosition().getX(), tempAgent.getPosition().getY()),
-                            new Point2d(tempAgent.getGoal().getX(), tempAgent.getGoal().getY()),
-                            rvoSpace,
-                            Color.red);
-                    if (tempRVOAgent.getId() == 0) {
-                        tempRVOAgent.setColor(Color.BLACK);
-                    }
 
-                    tempRVOAgent.setPreferredSpeed(tempAgent.getPreferedSpeed());
-                    tempRVOAgent.setMaximumSpeed(tempAgent.getPreferedSpeed() * 2.0);
-
-                    addNewAgent(tempRVOAgent);
+                RVOAgent tempRVOAgent = new RVOAgent(
+                        new Point2d(tempAgent.getPosition().getX(), tempAgent.getPosition().getY()),
+                        new Point2d(tempAgent.getGoal().getX(), tempAgent.getGoal().getY()),
+                        rvoSpace,
+                        Color.red);
+                if (tempRVOAgent.getId() == 0) {
+                    tempRVOAgent.setColor(Color.BLACK);
                 }
+
+                tempRVOAgent.setPreferredSpeed(tempAgent.getPreferedSpeed());
+                tempRVOAgent.setMaximumSpeed(tempAgent.getPreferedSpeed() * 2.0);
+
+                addNewAgent(tempRVOAgent);
+
             }
 
             List<Goals> xmlGoalList = scenario.getEnvironmentGoals();
@@ -358,7 +338,7 @@ public class RVOModel extends SimState {
                 final double sdevSpeed = tempAgentGroup.getSDevSpeed();
                 int[][] spaces = initializeLattice(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY(),
                         tempAgentGroup.getEndPoint().getX(), tempAgentGroup.getEndPoint().getY());
-                
+
 //                Vector2d groupDirection = new Vector2d(tempAgentGroup.getGroupDirectionX(),tempAgentGroup.getGroupDirectionY());//normalized vector to specify the group direction
 //                groupDirection.normalize();
 //                
@@ -377,7 +357,7 @@ public class RVOModel extends SimState {
 
                     agent.setPreferredSpeed(initialSpeed);
                     agent.setMaximumSpeed(maxSpeed);
-                    
+
 //                    agent.set  //to modify to include a group of agents with preferred direction!@@@@@@@@@
                     this.addNewAgent(agent);
                     if (actualRoadMap != null) {
@@ -413,7 +393,7 @@ public class RVOModel extends SimState {
     private Point2d getAgentPosition(double mnx, double mny, int[][] spaces) {
         // determine the mass of the agent;
         int x = 0, y = 0;
- 
+
         while (true) {
             x = this.random.nextInt(spaces.length);
             y = this.random.nextInt(spaces[0].length);
@@ -438,21 +418,21 @@ public class RVOModel extends SimState {
 //            }
         }
 
-        
 
-        return new Point2d(mnx+ (x * RVOAgent.RADIUS * 2), mny + (y * RVOAgent.RADIUS * 2));
+
+        return new Point2d(mnx + (x * RVOAgent.RADIUS * 2), mny + (y * RVOAgent.RADIUS * 2));
 
     }
 
     public static void main(String[] args) {
         // Read tutorial 2 of mason to see what this does.. or refer to documentation of this function
-        String filePath="";
-        for(int i=0;i<args.length;i++){
-            if(args[i].equalsIgnoreCase("-fileName")){
-                filePath=args[i+1];
+        String filePath = "";
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equalsIgnoreCase("-fileName")) {
+                filePath = args[i + 1];
             }
         }
-        
+
         PropertySet.initializeProperties(filePath);
 
         doLoop(RVOModel.class, args);

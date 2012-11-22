@@ -145,7 +145,8 @@ public class DataReader {
 
         File dir = new File(args[1]);
         if (!dir.exists()) {
-            System.out.println("Folder doesn't exist!");
+            
+            System.out.println(dir.getAbsolutePath()+" doesn't exist!");
             System.exit(1);
         }
         List<File> listOfFiles = processFilesInDirectory(dir, type);
@@ -218,14 +219,10 @@ public class DataReader {
 
 
         List<Callable<Boolean>> tasks = new ArrayList<Callable<Boolean>>();
-        boolean startingVariable = true;
+
         System.out.print("Submitted:");
         for (File fileName : listOfFiles) {
-            
-            if (startingVariable) { // Ignore the first argument which will be either "LATTICE" or "FLOAT"
-                startingVariable= false;
-                continue;
-            }
+
 //			final CollisionAvoidanceParameters syncParam = createSyncedCollisionAvoidanceParameters(param);
             final File finalFile = fileName;
 //            System.out.println("adding file "+fileName);

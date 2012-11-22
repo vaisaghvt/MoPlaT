@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="40" Ysize="10" Xsize="30" name="corridor-specGoal-wall2">
+
+     <obstacles>
+        <vertices y="1.5" x="0"/>
+        <vertices y="3" x="0"/>
+        <vertices y="3" x="30"/>
+        <vertices y="1.5" x="30"/>
+    </obstacles>
+    
+    <obstacles>
+        <vertices y="9.5" x="0"/>
+        <vertices y="8" x="0"/>
+        <vertices y="8" x="30"/>
+        <vertices y="9.5" x="30"/>
+    </obstacles>
+
+
+
+<crowd>
+    <position y="4" x="1"/>
+    <goal y="4" x="30"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+<crowd>
+    <position y="5" x="1"/>
+    <goal y="5" x="30"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+<crowd>
+    <position y="6" x="1"/>
+    <goal y="6" x="30"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+<crowd>
+    <position y="7" x="1"/>
+    <goal y="7" x="30"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+
+<crowd>
+    <position y="4" x="2"/>
+    <goal y="4" x="31"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+<crowd>
+    <position y="5" x="2"/>
+    <goal y="5" x="31"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+<crowd>
+    <position y="6" x="2"/>
+    <goal y="6" x="31"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+<crowd>
+    <position y="7" x="2"/>
+    <goal y="7" x="31"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+
+<crowd>
+    <position y="4" x="3"/>
+    <goal y="4" x="32"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+<crowd>
+    <position y="5" x="3"/>
+    <goal y="5" x="32"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+<crowd>
+    <position y="6" x="3"/>
+    <goal y="6" x="32"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+<crowd>
+    <position y="7" x="3"/>
+    <goal y="7" x="32"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+
+<crowd>
+    <position y="4" x="4"/>
+    <goal y="4" x="33"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+<crowd>
+    <position y="5" x="4"/>
+    <goal y="5" x="33"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+<crowd>
+    <position y="6" x="4"/>
+    <goal y="6" x="33"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+<crowd>
+    <position y="7" x="4"/>
+    <goal y="7" x="33"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+    <agentColor>1</agentColor>
+</crowd>
+
+
+
+
+<crowd>
+    <goal y="4" x="-3"/>
+    <position y="4" x="26"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+<crowd>
+    <goal y="5" x="-3"/>
+    <position y="5" x="26"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+<crowd>
+    <goal y="6" x="-3"/>
+    <position y="6" x="26"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+<crowd>
+    <goal y="7" x="-3"/>
+    <position y="7" x="26"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+
+<crowd>
+    <goal y="4" x="-2"/>
+    <position y="4" x="27"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+<crowd>
+    <goal y="5" x="-2"/>
+    <position y="5" x="27"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+<crowd>
+    <goal y="6" x="-2"/>
+    <position y="6" x="27"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+<crowd>
+    <goal y="7" x="-2"/>
+    <position y="7" x="27"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+
+<crowd>
+    <goal y="4" x="-1"/>
+    <position y="4" x="28"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+<crowd>
+    <goal y="5" x="-1"/>
+    <position y="5" x="28"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+<crowd>
+    <goal y="6" x="-1"/>
+    <position y="6" x="28"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+<crowd>
+    <goal y="7" x="-1"/>
+    <position y="7" x="28"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+
+<crowd>
+    <goal y="4" x="0"/>
+    <position y="4" x="29"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+<crowd>
+    <goal y="5" x="0"/>
+    <position y="5" x="29"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+<crowd>
+    <goal y="6" x="0"/>
+    <position y="6" x="29"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+<crowd>
+    <goal y="7" x="0"/>
+    <position y="7" x="29"/>
+    <preferedSpeed>1.5</preferedSpeed>
+    <commitmentLevel>1</commitmentLevel>
+   <agentColor>3</agentColor>
+</crowd>
+
+</SimulationScenario>

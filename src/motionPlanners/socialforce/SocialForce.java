@@ -102,7 +102,7 @@ public class SocialForce implements VelocityCalculator {
 
         int[] neighbouricelly;
         int[] neighbouricellx;
-
+        
         // Check cell boundary condition
         if (cellix == 0 && celliy == 0) {   // Left Top corner
 //            System.out.println("Case Top Left Corner; ");
@@ -467,7 +467,8 @@ public class SocialForce implements VelocityCalculator {
         double Vxwall = 0;
         double Vywall = 0;
         
-        if ((Pxi>1) && (Pyi>1)){    // TO FIX OUT OF BOUND ERROR
+        if ((Pxi>=1) && (Pyi>=1) && (Pxi<=Xmax) && (Pyi<=Ymax)){    // TO FIX OUT OF BOUND ERROR
+            
             double[] Fwi = averageSurroundForce(Pxi, Pyi, Xmax, Ymax, N0x, N0y, Fw, Fwx, Fwy);
             double fiwx = Fwi[0];
             double fiwy = Fwi[1];
@@ -483,7 +484,7 @@ public class SocialForce implements VelocityCalculator {
         // SUM AND BOUND TOTAL FORCE
         // #################################################################
 
-        double PanicFactor = 0.2;
+        double PanicFactor = 0;
         double exi = (1-PanicFactor)*preferredVelocity.x + PanicFactor*exjavg;
         double eyi = (1-PanicFactor)*preferredVelocity.y + PanicFactor*eyjavg;
         double normei = Math.sqrt(exi*exi + eyi*eyi);

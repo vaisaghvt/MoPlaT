@@ -22,7 +22,6 @@ import java.util.logging.Logger;
 import javax.vecmath.Point2d;
 import javax.vecmath.Tuple2d;
 import javax.vecmath.Vector2d;
-import motionPlanners.pbm.WorkingMemory;
 import org.jfree.chart.JFreeChart;
 import sim.engine.SimState;
 
