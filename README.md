@@ -1,0 +1,4 @@
+Overview
+========
+
+This is a java based motion planning testbed that is used for comparison and analysis of different motion planning systems. It uses the MASON agent simulation toolkit for creating a parallel discrete event simulation of agents moving in an environment. A data tracking module enables the tracking of agents and their movements. Besides this, there is an environment creator for creating xml files that represent the scenarios. The settings for the simulation are also specified in xml files; this enables the easy switching between different settings and experiments. Some shell scripts have also been made that makes it easy to run several experiments with different settings. The vanilla MASON GUI has been extended with the addition of the capability to track agents and other useful portrayals and functionality.
