@@ -9,7 +9,7 @@ import agent.RVOAgent;
 import agent.clustering.ClusteredSpace;
 import agent.latticegas.LatticeSpace;
 import app.params.SimulationParameters;
-import environment.XMLScenarioManager;
+import environment.xml.XMLScenarioManager;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -24,12 +24,19 @@ import utility.Geometry;
 /**
  *
  * @author vaisaghvt
+ * 
+ * Description : Initialize parameters from xml files. The first line sets which 
+ * xml file will be used.
+ * 
  */
 public class PropertySet {
 
+    /**
+     * The file to use specifying the parameters for this run.
+     */
     public static String PROPERTIES_FILENAME = "CrowdProperties" + File.separatorChar
             + "LatticeTestSettings.xml";
-
+    
     public static enum Model {
         // Add full path of class to be called for the constructor. Also if there are
         // parameters for the constructor change at the place where it is called. 
@@ -73,6 +80,7 @@ public class PropertySet {
     public static boolean CHECKBOARD;
     public static boolean TRACK_DATA;
     public static int PBMSCENARIO;
+    public static boolean HIGH_PRECISION;
     
     public static void writePropertiesToFile(String fileName) {
         File file = new File(fileName);
@@ -150,6 +158,7 @@ public class PropertySet {
             CHECK_SIZE_X = params.getDefaultCheckSizeX();
             CHECK_SIZE_Y = params.getDefaultCheckSizeY();
             SCALE = params.getDefaultScale();
+            HIGH_PRECISION = params.isHighPrecision();
 
 
             //AGENT DISPLAY PARAMETERS

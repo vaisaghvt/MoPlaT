@@ -1,4 +1,4 @@
-package environment;
+package environment.xml;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,23 +24,25 @@ import org.xml.sax.InputSource;
  *
  * This class is defined to get the data from the XML file for our requirements.
  */
-public class XMLManager {
+public class XMLScenarioManager {
 
-    private static XMLManager instance = null;
+    private static XMLScenarioManager instance = null;
     private JAXBContext context = null;
     private Marshaller marshaller = null;
     private Unmarshaller unmarshaller = null;
-
-    public static synchronized XMLManager instance() {
-        if (instance == null) {
-            instance = new XMLManager();
+    private static String name;
+    public static synchronized XMLScenarioManager instance(String packageName) {
+        if (instance == null || !name.equals(packageName)) {
+            name = packageName;
+            instance = new XMLScenarioManager(packageName);
         }
+        
         return instance;
     }
 
-    private XMLManager() {
+    private XMLScenarioManager(String packageName) {
         try {
-            context = JAXBContext.newInstance("environment.geography");
+            context = JAXBContext.newInstance(packageName);
 
             marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");

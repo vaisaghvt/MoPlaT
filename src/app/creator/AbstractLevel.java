@@ -24,7 +24,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
- *
+ *The app creation is done level by level. Just extend this class and Add to 
+ * CreatorMain() in case you want to add a new Level.
+ * 
+ * 
  * @author vaisagh
  */
 public abstract class AbstractLevel {

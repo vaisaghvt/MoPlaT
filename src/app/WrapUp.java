@@ -11,6 +11,9 @@ import sim.engine.Steppable;
 
 /**
  *
+ * Checks at the end of each time step if the simulation has ended. And kills the
+ * threads if it's done.
+ * Change the checks here if you want to change when the simulation ends.
  * @author vaisagh
  */
 class WrapUp implements Steppable {

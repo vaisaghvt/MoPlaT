@@ -9,6 +9,8 @@ import sim.engine.Steppable;
 
 /**
  *
+ * Implement this interface if you want some new data to be collected.
+ * 
  * @author vaisaghvt
  */
 public interface DataTracker extends Steppable{

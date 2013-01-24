@@ -46,7 +46,6 @@ public class RVOSpace {
      */
     protected List<RVO2Obstacle> obstacleList = new ArrayList<RVO2Obstacle>();
     protected RVOModel rvoModel;
-    private List<Point2d> roadMap;
 
     public RVOSpace(int xSize, int ySize, double gridSize, RVOModel rm) {
 

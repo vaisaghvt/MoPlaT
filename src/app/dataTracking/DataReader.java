@@ -23,6 +23,9 @@ import java.util.concurrent.Future;
 
 /**
  *
+ * 
+ * REads the data written as binary files and converts them to text files that
+ * can later be read in matlab using one of the scripts below.
  * @author vaisagh
  */
 public class DataReader {

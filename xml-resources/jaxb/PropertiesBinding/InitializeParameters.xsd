@@ -46,6 +46,7 @@
             <xs:attribute name="TimeHorizonObst" type="xs:double"/>
             <xs:attribute name="RVOEpsilon" type="xs:float"/>
             <xs:attribute name="PBMScenario" type="xs:int"/>
+            <xs:attribute name="HighPrecision" type="xs:boolean"/>            
             
         </xs:complexType>
     </xs:element>

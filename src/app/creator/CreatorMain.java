@@ -23,6 +23,14 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
 /**
+ * The Main class for the environment creation engine. To add a new level extend
+ * AbstractLevel and add the level in the initializeLevels(). You will also need 
+ * to modify ModelDetails since that class controls what is written to the xml file.
+ * Currently there are some levels that are obsolete. This application just creates 
+ * an xml file. So in many cases it will be much easier to modify the xml file 
+ * directly.
+ * 
+ * TODO : CLEAN THIS UP!!
  *
  * @author vaisagh
  */
@@ -181,6 +189,9 @@ public class CreatorMain implements ActionListener {
          */
     }
 
+    /**
+     * Function to change if a new level has to be added
+     */
     private void initializeLevels() {
         listOfLevels = new ArrayList<AbstractLevel>();
 

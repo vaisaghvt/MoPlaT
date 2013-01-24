@@ -9,7 +9,8 @@ package agent;
  *
  * @author Vaisagh
  * 
- * Description: This class defines an inspector for the RVOAgents.
+ * Description: This class defines an inspector for the RVOAgents. An inspector
+ * allows user to click on an agent and get information about the agent. 
  *
  */
 import app.PropertySet;

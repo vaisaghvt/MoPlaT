@@ -8,6 +8,7 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 /**
+ * Paints each level.
  *
  * @author vaisagh
  */

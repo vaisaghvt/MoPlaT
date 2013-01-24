@@ -30,7 +30,7 @@ import sim.util.Double2D;
  *
  *
  *
- * Description:This class which is a parent of RVOAgent describes the things
+ * Description: This class which is a parent of RVOAgent describes the things
  * that are drawn including the Agent itself, it's trail, it's velocity or in
  * special cases: the ORCA lines, etc. based on flags that are set. For any
  * changes to be made to what is drawn on the pallete, change the code here.

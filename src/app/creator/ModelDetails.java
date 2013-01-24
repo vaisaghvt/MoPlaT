@@ -4,7 +4,7 @@
  */
 package app.creator;
 
-import environment.XMLScenarioManager;
+import environment.xml.XMLScenarioManager;
 import environment.geography.Agent;
 import environment.geography.AgentGroup;
 import environment.geography.AgentLine;
@@ -24,6 +24,8 @@ import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBException;
 
 /**
+ * Stores the model details. This file needs to be updated if the data being created
+ * has either been changed or a new level has been added.
  *
  * @author vaisagh
  */

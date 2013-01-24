@@ -14,7 +14,7 @@ import sim.portrayal.DrawInfo2D;
 /**
  * RVO2Obstacle
  *
- * @author michaellees
+ * @author Vaisagh
  * Created: Dec 1, 2010
  *
  * Copyright michaellees 

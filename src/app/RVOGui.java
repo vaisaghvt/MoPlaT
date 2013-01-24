@@ -5,7 +5,6 @@
 package app;
 
 import agent.clustering.ClusteredSpace;
-import app.PropertySet.Model;
 import java.awt.Color;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -52,7 +51,7 @@ public class RVOGui extends GUIState {
     ContinuousPortrayal2D[] clusteredPortrayal;
     ObjectGridPortrayal2D checkBoardPortrayal;
     FastValueGridPortrayal2D latticeGasPortrayal;
-    FastValueGridPortrayal2D socialForcePortrayal;
+   
 
     public RVOGui() {
         this(new RVOModel(PropertySet.SEED));
@@ -75,9 +74,7 @@ public class RVOGui extends GUIState {
             latticeGasPortrayal = new FastValueGridPortrayal2D();
         }
 
-        if (PropertySet.MODEL == Model.SocialForce) {
-            socialForcePortrayal = new FastValueGridPortrayal2D();
-        }
+        
 
 
         /**
