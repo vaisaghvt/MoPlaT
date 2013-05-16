@@ -156,7 +156,7 @@ public class Device extends DevicePortrayal implements Proxiable {
  * 
  * 0 means no stop triggered
  * 1 means stop triggered and start counting
- * Once stopCounter reaches STOP_LENGTH+1 the agent will resume moving
+ * Once stopCounter reaches STOP_LENGTH the agent will resume moving
  * @return 
  */
     public boolean checkStillStopped() {
