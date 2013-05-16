@@ -32,5 +32,10 @@ TimeHorizon="0.3"
 TimeHorizonObst="0.05" 
 RVOEpsilon="0.00005" 
 name="1"
-HighPrecision="false"> 
+HighPrecision="false"
+DeviceSensorRange = "1"
+DeviceThreshold = "15"
+DeviceMsgThreshold="5"
+DeviceMaxHops="2"
+DeviceMoveProbability ="0.3"> 
 </SimulationParameters>

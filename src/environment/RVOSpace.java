@@ -4,6 +4,7 @@ import agent.RVOAgent;
 import app.PropertySet;
 import app.PropertySet.Model;
 import app.RVOModel;
+import device.Device;
 import environment.Obstacle.RVO2Obstacle;
 import environment.Obstacle.RVOObstacle;
 
@@ -41,6 +42,11 @@ public class RVOSpace {
      * This space contains the obstacle information
      */
     protected Continuous2D obstacleSpace;
+    
+     /**
+     * This space contains the wireless devices
+     */
+    protected Continuous2D deviceSpace;
     /**
      * This is the model for local reference
      */
@@ -56,13 +62,16 @@ public class RVOSpace {
 
         agentSpace = new Continuous2D(gridDimension, xRealSize, yRealSize);
         obstacleSpace = new Continuous2D(gridDimension, xRealSize, yRealSize);
+        deviceSpace = new Continuous2D(gridDimension, xRealSize, yRealSize);
         rvoModel = rm;
     }
 
     public Continuous2D getCurrentAgentSpace() {
         return agentSpace;
     }
-
+    public Continuous2D getDeviceAgentSpace() {
+        return deviceSpace;
+    }
     public RVOModel getRvoModel() {
         return rvoModel;
     }
@@ -148,8 +157,11 @@ public class RVOSpace {
 
     public void updatePositionOnMap(RVOAgent agent, double x, double y) {
         //TODO: vvt: check whether the agent was created on an existing obstacle
-        agent.setCurrentPosition(x, y);
+//        agent.setCurrentPosition(x, y);
         agentSpace.setObjectLocation(agent, new Double2D(x, y));
+        if(agent.hasDevice()){
+             deviceSpace.setObjectLocation(agent.getDevice(), new Double2D(x, y));
+        }
     }
 
     public Bag senseNeighbours(RVOAgent me) {
@@ -179,6 +191,18 @@ public class RVOSpace {
 
     }
 
+    public Bag senseNeighbours(Device me) {
+        double sensorRange = Device.SENSOR_RANGE;
+        Bag neighbours = findDeviceNeighbours(me.getCurrentPosition(), sensorRange);
+        return neighbours; 
+
+    }
+    
+    public Bag findDeviceNeighbours(Point2d currentPosition, double radius) {
+        Bag neighbours = deviceSpace.getObjectsExactlyWithinDistance(new Double2D(currentPosition.x, currentPosition.y), radius);
+        return neighbours;
+    }
+    
     public Bag findNeighbours(Double2D currentPosition, double radius) {
         Bag neighbours = agentSpace.getObjectsExactlyWithinDistance(currentPosition, radius);
         return neighbours;

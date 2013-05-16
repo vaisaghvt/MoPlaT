@@ -9,6 +9,8 @@ import agent.RVOAgent;
 import agent.clustering.ClusteredSpace;
 import agent.latticegas.LatticeSpace;
 import app.params.SimulationParameters;
+import device.Device;
+import device.DevicePortrayal;
 import environment.xml.XMLScenarioManager;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -81,6 +83,11 @@ public class PropertySet {
     public static boolean TRACK_DATA;
     public static int PBMSCENARIO;
     public static boolean HIGH_PRECISION;
+    public static int DEVICE_SENSOR_RANGE;
+    public static int DEVICE_THRESHOLD;
+    public static int DEVICE_MSG_THRESHOLD;
+    public static int DEVICE_MAX_HOPS;
+    public static double DEVICE_MOVE_PROBABILITY;
     
     public static void writePropertiesToFile(String fileName) {
         File file = new File(fileName);
@@ -177,6 +184,23 @@ public class PropertySet {
 
             Geometry.EPSILON = params.getRVOEpsilon();  //@hunan: in this case, can avoid symmetric deadlock in 1to1 case, but cannot avoid crossing4corner cases
             
+            
+            //Device DISPLAY PARAMETERS
+            DevicePortrayal.SHOW_ORCA_LINES = params.isShowLines();
+            DevicePortrayal.SHOW_VELOCITY = params.isShowVelocity();
+            DevicePortrayal.SHOW_TRAILS = params.isTrails();
+            
+            DevicePortrayal.SHOW_STP = false; //default false
+
+            //Device PARAMETERS
+            Device.RADIUS = params.getAgentRadius();
+//           Device.DEFAULT_PREFERRED_SPEED = params.getPreferredSpeed();
+//            Device.SENSOR_RANGE = params.getSensorRange();
+            Device.SENSOR_RANGE = params.getDeviceSensorRange();
+            Device.DEVICE_THRESHOLD= params.getDeviceThreshold();
+            Device.DEVICE_MSG_THRESHOLD = params.getDeviceMsgThreshold();
+            Device.DEVICE_MAX_HOPS = params.getDeviceMaxHops();
+            Device.DEVICE_MOVE_PROBABILITY = params.getDeviceMoveProbability();
             
             if (USECLUSTERING) {
                 ClusteredSpace.ALPHA = params.getAlpha();

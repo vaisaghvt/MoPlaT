@@ -48,6 +48,11 @@
             <xs:attribute name="PBMScenario" type="xs:int"/>
             <xs:attribute name="HighPrecision" type="xs:boolean"/>            
             
+            <xs:attribute name="DeviceSensorRange" type="xs:int"/>
+            <xs:attribute name="DeviceThreshold" type="xs:int"/>
+            <xs:attribute name="DeviceMsgThreshold" type="xs:int"/>
+            <xs:attribute name="DeviceMaxHops" type="xs:int"/>
+            <xs:attribute name="DeviceMoveProbability" type="xs:double"/>
         </xs:complexType>
     </xs:element>
 

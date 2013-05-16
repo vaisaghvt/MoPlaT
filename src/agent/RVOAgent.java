@@ -14,6 +14,7 @@ package agent;
  */
 import app.PropertySet;
 import com.google.common.collect.HashMultimap;
+import device.Device;
 import environment.RVOSpace;
 import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
@@ -84,6 +85,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
      * @hunan: added to enable prefVelocity to be set accoridng to prefDirection rather than a specific goal
      */
     protected Vector2d prefDirection;
+    protected Device mydevice;
 
     public void setPrefDirection(Vector2d prefDir) {
         prefDirection = prefDir;
@@ -117,7 +119,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public RVOAgent(RVOSpace mySpace) {
         super(); //for portraying the trails on the agentportrayal layer
         this.mySpace = mySpace;
-        currentPosition = new PrecisePoint();
+//        currentPosition = new PrecisePoint();
 //        goal = new Point2d();
 
         //DEFAULT_PREFERRED_SPEED is the default value specified in 1.xml
@@ -127,7 +129,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         }
 
         Object[] args = new Object[0];              // Change these two if you need to pass arguments to your motion plannign constructor
-        Class<?> [] classes = new Class<?>[0];      // Change these two if you want to pass arguments to your motion planning constructor
+        Class<?>[] classes = new Class<?>[0];      // Change these two if you want to pass arguments to your motion planning constructor
         try {
 
             velocityCalc = (VelocityCalculator) Class.forName(PropertySet.MODEL.getAssociatedClass()).getConstructor(classes).newInstance(args);
@@ -148,6 +150,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             Logger.getLogger(RVOAgent.class.getName()).log(Level.SEVERE, null, ex);
         }
         id = agentCount++;
+        setDevice(mySpace);
     }
 
     /*
@@ -156,31 +159,45 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public RVOAgent(Point2d startPosition, Point2d goal, RVOSpace mySpace, Color col) {
         this(mySpace);
         setColor(col);
-        currentPosition = new PrecisePoint(startPosition.getX(), startPosition.getY());
+        setCurrentPosition(startPosition.getX(), startPosition.getY());
+//        if (this.hasDevice()) {
+//            this.getDevice().setCurrentPosition(currentPosition.toPoint());
+//        }
         this.goal = goal;
         setPrefVelocity();
     }
 
     /*
-     * Default constructor to create agents from XML file
+     * Default constructor to create agents from XML file From Hu Nan
      */
     public RVOAgent(Point2d startPosition, Vector2d prefDirection, RVOSpace mySpace, Color col) {
         this(mySpace);
         setColor(col);
-        currentPosition = new PrecisePoint(startPosition.getX(), startPosition.getY());
+        setCurrentPosition(startPosition.getX(), startPosition.getY());
+        /*
+        if (this.hasDevice()) {
+            this.getDevice().setCurrentPosition(currentPosition.toPoint());
+        }
+        */
         this.prefDirection = prefDirection;
         setPrefVelocity();
     }
 
-    //@Should indicate, only called in VT's clusteredAgent
+    //@Should indicate, only called in VT's clusteredAgent DONT USE!
     public RVOAgent(RVOAgent otherAgent) {
         this(otherAgent.getMySpace());
         preferredSpeed = otherAgent.getPreferredSpeed();
         maxSpeed = preferredSpeed * 1.5;
-        currentPosition = new PrecisePoint();
+//        currentPosition = new PrecisePoint();
         this.setCurrentPosition(otherAgent.getCurrentPosition().getX(), otherAgent.getCurrentPosition().getY());
+        /*
+        if (this.hasDevice()) {
+            this.getDevice().setCurrentPosition(currentPosition.toPoint());
+        }
+        * */
         goal = new Point2d(otherAgent.getGoal().getX(), otherAgent.getGoal().getY());
         mySpace = otherAgent.mySpace;
+        mydevice = otherAgent.mydevice; // added for device
         id = otherAgent.getId();
         agentCount--;
     }
@@ -210,6 +227,20 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 
     public VelocityCalculator getVelocityCalculator() {
         return velocityCalc;
+    }
+
+    // check if agent has a device
+    public boolean hasDevice() {
+        return (mydevice != null);
+    }
+
+    public Device getDevice() {
+        return mydevice;
+    }
+
+    private void setDevice(RVOSpace mySpace) {
+        mydevice = new Device(mySpace);
+        mydevice.setAttachedAgent(this); //set device to the agent
     }
 
     private boolean reachedGoal() {
@@ -243,9 +274,12 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public double getY() {
         return currentPosition.getY();
     }
-
+//everytime you set position of the agent, if agent has device, it will also set the position of the device
     final public void setCurrentPosition(double x, double y) {
         currentPosition = new PrecisePoint(x, y);
+        if(this.hasDevice())    {
+            this.getDevice().setCurrentPosition(currentPosition.toPoint());
+        }
     }
 
     public Vector2d getVelocity() {
@@ -412,7 +446,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 
     }
 
-
     public void setMaximumSpeed(double maxSpeed) {
         this.maxSpeed = maxSpeed;
     }
@@ -439,7 +472,11 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 //                chosenVelocity = new PrecisePoint(prefVelocity.getX(), prefVelocity.getY());
 
                 Bag sensedNeighbours = mySpace.senseNeighbours(RVOAgent.this);
-
+                /*
+                if(hasDevice()) {
+                    getDevice().execute();
+                }
+                */
                 if (PropertySet.INFOPROCESSING) {
                     /**
                      * Here we process the neighbour list that was passed to it
@@ -628,14 +665,26 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 //                return;
 //            }
 //                velocity = chosenVelocity; //TO VT: this u previously said need to use precise point, why changed back without justification here?
-
+                
+                //agent dont move as it listens to the device
+                if(hasDevice() && getDevice().isStopped())  {
+                    velocity = new PrecisePoint(0,0);
+                    getDevice().checkStillStopped();
+                }
+                else {
                 velocity = new PrecisePoint(chosenVelocity.getX() + mySpace.getRvoModel().random.nextFloat() * utility.Geometry.EPSILON, chosenVelocity.getY() + mySpace.getRvoModel().random.nextFloat() * utility.Geometry.EPSILON);
-
+                }
                 double currentPosition_x = (currentPosition.getX()
                         + velocity.getX() * PropertySet.TIMESTEP);
                 double currentPosition_y = (currentPosition.getY()
                         + velocity.getY() * PropertySet.TIMESTEP);
                 setCurrentPosition(currentPosition_x, currentPosition_y);
+                /*
+                if (hasDevice()) {
+                    getDevice().setCurrentPosition(currentPosition.toPoint());
+                    //getDevice().execute();
+                }
+                */
                 getMySpace().updatePositionOnMap(RVOAgent.this, currentPosition_x,
                         currentPosition_y);
             }
@@ -791,7 +840,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                 result = new Vector2d(cleanCurrentGoal.toVector());
                 result.sub(this.getCurrentPosition());
                 result.normalize();
-         
+
                 break;
             }
         }

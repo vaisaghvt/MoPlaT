@@ -10,6 +10,8 @@ import app.PropertySet.Model;
 import app.dataTracking.DataTracker;
 import app.dataTracking.PhysicaDataTracker;
 import com.google.common.collect.HashMultimap;
+import device.Device.ActDevice;
+import device.Device.SenseThinkDevice;
 import environment.Obstacle.RVOObstacle;
 import environment.RVOSpace;
 import environment.geography.Agent;
@@ -28,7 +30,7 @@ import java.util.logging.Logger;
 import javax.vecmath.Point2d;
 import javax.xml.bind.JAXBException;
 import motionPlanners.socialforce.SocialForce;
-import sim.engine.ParallelSequence;
+import sim.engine.RandomSequence;
 import sim.engine.Schedule;
 import sim.engine.Sequence;
 import sim.engine.SimState;
@@ -56,7 +58,7 @@ public class RVOModel extends SimState {
     private RVOSpace rvoSpace;
     private LatticeSpace latticeSpace;
     /**
-     * Actually initialised to ArrayList as can be seen in second constructor,
+     * Actually initialized to ArrayList as can be seen in second constructor,
      * But using List type here so that we can change the implementation later
      * if needed
      */
@@ -181,18 +183,25 @@ public class RVOModel extends SimState {
 
     public void scheduleAgents() {
         List<SenseThink> senseThinkAgents = new ArrayList<SenseThink>();
-
+        List<SenseThinkDevice> senseThinkDevices = new ArrayList<SenseThinkDevice>(); 
+        List<ActDevice> actDevices = new ArrayList<ActDevice>();
         List<Act> actAgents = new ArrayList<Act>();
         for (RVOAgent agent : agentList) {
             senseThinkAgents.add(agent.getSenseThink());
+            if(agent.hasDevice())   {
+                senseThinkDevices.add(agent.getDevice().getSenseThinkDevice());
+                actDevices.add(agent.getDevice().getActDevice());
+            }
             actAgents.add(agent.getAct());
         }
 
 //        senseThinkStoppable = mySpace.getRvoModel().schedule.scheduleRepeating(senseThinkAgent, 2, 1.0);
 //        actStoppable = mySpace.getRvoModel().schedule.scheduleRepeating(actAgent, 3, 1.0);
 //        (new RVOAgent(this.rvoSpace)).scheduleAgent();
-        schedule.scheduleRepeating(Schedule.EPOCH, 1, new ParallelSequence(senseThinkAgents.toArray(new SenseThink[]{})), 1.0);
-        schedule.scheduleRepeating(Schedule.EPOCH, 2, new Sequence(actAgents.toArray(new Act[]{})), 1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH, 1, new RandomSequence(senseThinkAgents.toArray(new SenseThink[]{})),1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH, 2, new RandomSequence(senseThinkDevices.toArray(new SenseThinkDevice[]{})),1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH, 3, new Sequence(actAgents.toArray(new Act[]{})), 1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH, 4, new Sequence(actDevices.toArray(new ActDevice[]{})), 1.0);
     }
 
     public List<RVOAgent> getAgentList() {
@@ -230,6 +239,9 @@ public class RVOModel extends SimState {
 
     public void addNewAgent(RVOAgent a) {
         a.createSteppables();
+        if(a.hasDevice())   {
+            a.getDevice().createSteppables();
+        }
         agentList.add(a);
         rvoSpace.updatePositionOnMap(a, a.getX(), a.getY());
         if (PropertySet.LATTICEMODEL) {
@@ -354,8 +366,8 @@ public class RVOModel extends SimState {
                     } else if (initialSpeed > maxSpeed) {
                         initialSpeed = maxSpeed;
                     }
-
-                    agent.setPreferredSpeed(initialSpeed);
+                    
+                   agent.setPreferredSpeed(initialSpeed);
                     agent.setMaximumSpeed(maxSpeed);
 
 //                    agent.set  //to modify to include a group of agents with preferred direction!@@@@@@@@@

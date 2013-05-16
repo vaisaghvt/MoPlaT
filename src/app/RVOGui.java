@@ -51,6 +51,7 @@ public class RVOGui extends GUIState {
     ContinuousPortrayal2D[] clusteredPortrayal;
     ObjectGridPortrayal2D checkBoardPortrayal;
     FastValueGridPortrayal2D latticeGasPortrayal;
+    private final ContinuousPortrayal2D devicePortrayal;
    
 
     public RVOGui() {
@@ -68,6 +69,7 @@ public class RVOGui extends GUIState {
         geographyPortrayal = new ContinuousPortrayal2D();
         checkBoardPortrayal = new ObjectGridPortrayal2D();
         agentPortrayal = new ContinuousPortrayal2D();
+        devicePortrayal = new ContinuousPortrayal2D();
 
 
         if (PropertySet.LATTICEMODEL) {
@@ -96,6 +98,8 @@ public class RVOGui extends GUIState {
 
 
         agentPortrayal.setField(model.getRvoSpace().getCurrentAgentSpace());
+        devicePortrayal.setField(model.getRvoSpace().getDeviceAgentSpace());
+  //      devicePortrayal.setPortrayalForClass(Device.class, new RectanglePortrayal2D(new Color(1.0f, 0.4f, 0.4f, 0.7f)));
 
 
         checkBoardPortrayal.setField(new ObjectGrid2D(checkSizeX, checkSizeY));
@@ -177,6 +181,7 @@ public class RVOGui extends GUIState {
 
         display.attach(geographyPortrayal, "Geography portrayal");  // attach the portrayals
         display.attach(agentPortrayal, "Agent portrayal");  // attach the portrayals
+        display.attach(devicePortrayal, "Device portrayal"); // attach the portrayals
         if (PropertySet.CHECKBOARD) {
             display.attach(this.checkBoardPortrayal, "Check board");
         }
