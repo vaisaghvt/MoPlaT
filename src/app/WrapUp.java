@@ -4,6 +4,7 @@
  */
 package app;
 
+import agent.AgentGenerator;
 import agent.RVOAgent;
 import java.util.List;
 import sim.engine.SimState;
@@ -42,6 +43,9 @@ class WrapUp implements Steppable {
                     && agent.getCurrentPosition().getY() < state.getWorldYSize()) {
                 return;
             }
+        }
+        if(!AgentGenerator.finished()){
+            return;
         }
 //        System.out.println("here");
         state.kill();

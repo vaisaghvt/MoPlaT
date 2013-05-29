@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" name="VaisaghTesting" Xsize="30" Ysize="30" scale="20" displayUsed="true" latticeModel="false" logUsed="true">
+    <roadMap>
+        <position x="13.85" y="10.25"/>
+        <number>0</number>
+    </roadMap>
+    <roadMap>
+        <position x="13.95" y="7.95"/>
+        <number>1</number>
+    </roadMap>
+    <roadMap>
+        <position x="14.3" y="3.55"/>
+        <number>2</number>
+    </roadMap>
+    <obstacles>
+        <vertices x="5.0" y="9.85"/>
+        <vertices x="12.6" y="9.85"/>
+        <vertices x="12.6" y="7.95"/>
+        <vertices x="5.05" y="7.8"/>
+    </obstacles>
+    <obstacles>
+        <vertices x="15.3" y="8.0"/>
+        <vertices x="15.25" y="9.5"/>
+        <vertices x="21.85" y="9.5"/>
+        <vertices x="21.85" y="8.1"/>
+    </obstacles>
+    <generationLines>
+        <endPoint x="18.1" y="21.95"/>
+        <startPoint x="7.95" y="21.95"/>
+        <minSpeed>0.0</minSpeed>
+        <maxSpeed>2.6</maxSpeed>
+        <meanSpeed>1.3</meanSpeed>
+        <sDevSpeed>0.0</sDevSpeed>
+        <frequency>100</frequency>
+        <number>2</number>
+    </generationLines>
+</SimulationScenario>

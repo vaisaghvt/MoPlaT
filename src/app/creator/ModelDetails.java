@@ -11,6 +11,7 @@ import environment.geography.AgentLine;
 import environment.geography.Goals;
 import environment.geography.Obstacle;
 import environment.geography.Position;
+import environment.geography.RoadMapPoint;
 //import environment.geography.RoadMapPoint;
 import environment.geography.SimulationScenario;
 import java.io.File;
@@ -138,23 +139,27 @@ class ModelDetails {
 
         environment.getGenerationLines().clear();
         if (!agentLines.isEmpty()) {
-            for (int i = 0; i < agentLines.size(); i++) {
+            for (AgentLine line : agentLines) {
                 AgentLine tempLine = new AgentLine();
 
                 Position start = new Position();
-                start.setX((double) agentLines.get(i).getStartPoint().getX());
-                start.setY((double) agentLines.get(i).getStartPoint().getY());
+                start.setX((double) line.getStartPoint().getX());
+                start.setY((double) line.getStartPoint().getY());
 
                 Position end = new Position();
-                end.setX((double) agentLines.get(i).getEndPoint().getX());
-                end.setY((double) agentLines.get(i).getEndPoint().getY());
+                end.setX((double) line.getEndPoint().getX());
+                end.setY((double) line.getEndPoint().getY());
 
                 tempLine.setStartPoint(start);
                 tempLine.setEndPoint(end);
 
-                tempLine.setFrequency(agentLines.get(i).getFrequency());
-                tempLine.setNumber(agentLines.get(i).getNumber());
-                tempLine.setDirection(agentLines.get(i).getDirection());
+                tempLine.setFrequency(line.getFrequency());
+                tempLine.setNumber(line.getNumber());
+
+                tempLine.setMinSpeed(line.getMinSpeed());
+                tempLine.setMaxSpeed(line.getMaxSpeed());
+                tempLine.setMeanSpeed(line.getMeanSpeed());
+                tempLine.setSDevSpeed(line.getSDevSpeed());
 
                 environment.getGenerationLines().add(tempLine);
             }
@@ -216,10 +221,10 @@ class ModelDetails {
                 roadMapPointPosition.setX((double) roadMap.get(i).getX());
                 roadMapPointPosition.setY((double) roadMap.get(i).getY());
 
-//                RoadMapPoint point = new RoadMapPoint();
-//                point.setPosition(roadMapPointPosition);
-//                point.setNumber(i);
-//               environment.getRoadMap().add(point);
+                RoadMapPoint point = new RoadMapPoint();
+                point.setPosition(roadMapPointPosition);
+                point.setNumber(i);
+               environment.getRoadMap().add(point);
 
             }
         }
@@ -227,7 +232,10 @@ class ModelDetails {
         XMLScenarioManager manager = XMLScenarioManager.instance("environment.geography");
         try {
 
-            manager.marshal(environment, new FileOutputStream(environment.getName() + ".xml"));
+            manager.marshal(environment, new FileOutputStream(
+                    "xml-resources" + File.separatorChar+
+                    "scenarios" + File.separatorChar+
+                    environment.getName() + ".xml"));
 
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();

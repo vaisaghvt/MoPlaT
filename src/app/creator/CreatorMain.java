@@ -203,9 +203,10 @@ public class CreatorMain implements ActionListener {
         listOfLevels.add(new ObstacleLevel(model, frame, statusBar, buttonArea, interactionArea));
         listOfLevels.add(new AgentGeneratorLevel(model, frame, statusBar, buttonArea, interactionArea));
         listOfLevels.add(new AgentGroupCreatorLevel(model, frame, statusBar, buttonArea, interactionArea));
-        listOfLevels.add(new IndividualAgentAdderLevel(model, frame, statusBar, buttonArea, interactionArea));
-        listOfLevels.add(new AgentEditorLevel(model, frame, statusBar, buttonArea, interactionArea));
-        listOfLevels.add(new EnvironmentGoalLineLevel(model, frame, statusBar, buttonArea, interactionArea));
+//        listOfLevels.add(new IndividualAgentAdderLevel(model, frame, statusBar, buttonArea, interactionArea));
+//        listOfLevels.add(new AgentEditorLevel(model, frame, statusBar, buttonArea, interactionArea));
+        //TODO: Enable if lattice gas model is being used.
+//        listOfLevels.add(new EnvironmentGoalLineLevel(model, frame, statusBar, buttonArea, interactionArea));
         listOfLevels.add(new RoadMapLevel(model, frame, statusBar, buttonArea, interactionArea));
         listOfLevels.add(new FinalLevel(model, frame, statusBar, buttonArea, interactionArea));
 

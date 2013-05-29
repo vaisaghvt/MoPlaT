@@ -36,8 +36,9 @@ public class PropertySet {
     /**
      * The file to use specifying the parameters for this run.
      */
-    public static String PROPERTIES_FILENAME = "CrowdProperties" + File.separatorChar
-            + "LatticeTestSettings.xml";
+    public static String PROPERTIES_FILENAME = "CrowdProperties" + File.separatorChar +
+            "DeviceSettings" + File.separatorChar +
+            "DeviceTestingFile.xml";
     
     public static enum Model {
         // Add full path of class to be called for the constructor. Also if there are
