@@ -235,12 +235,12 @@ class AgentGeneratorLevel extends AbstractLevel implements MouseListener, MouseM
             do {
                 frequency = (String) JOptionPane.showInputDialog(
                         null,
-                        "How many time steps between agents being generate?",
+                        "How many time steps between agents being generated?",
                         "Input",
                         JOptionPane.PLAIN_MESSAGE,
                         null,
                         null,
-                        "1");
+                        "100");
                 try {
                     Integer.parseInt(frequency);
                 } catch (NumberFormatException numException) {
