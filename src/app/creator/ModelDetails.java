@@ -235,6 +235,7 @@ class ModelDetails {
             manager.marshal(environment, new FileOutputStream(
                     "xml-resources" + File.separatorChar+
                     "scenarios" + File.separatorChar+
+                    "deviceScenarios" + File.separatorChar+
                     environment.getName() + ".xml"));
 
         } catch (FileNotFoundException ex) {
