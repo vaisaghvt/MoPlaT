@@ -5,9 +5,13 @@
 package agent;
 
 import app.RVOModel;
+import com.google.common.collect.HashMultimap;
+import environment.geography.AgentLine;
 import environment.geography.Goals;
 import environment.geography.Position;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
@@ -15,86 +19,126 @@ import sim.engine.SimState;
 import sim.engine.Steppable;
 
 /**
- * This class defines the agent generator line that can generate agents at 
+ * This class defines the agent generator line that can generate agents at
  * requested positions with a given frequency
- * 
- * 
- * @author micheal lees
+ *
+ * TODO : Fix so that multiple generators can be used if needed
+ * @author Vaisagh
  */
 public class AgentGenerator implements Steppable {
+    private static boolean finished = false;
 
     int generatorsPerLine;
     Point2d startPoint;
     Point2d endPoint;
     RVOModel model;
-    int directionX;
-    int directionY;
     double gap;
-    List<Goals> goals;
     private int steps;
+    private final HashMultimap<Integer, Point2d> actualRoadMap;
+    private final double maxSpeed;
+    private final double minSpeed;
+    private final double sdevSpeed;
+    private final double meanSpeed;
+    private final List<? extends Point2d> generationPoints;
 
-    public AgentGenerator(Point2d start, Point2d end, int number, int direction,
-            List<Goals> passedGoals, RVOModel model) {
-        startPoint = new Point2d(start.getX(), start.getY());
-        endPoint = new Point2d(end.getX(), end.getY());
-        generatorsPerLine = number;
-        steps=0;
+    public AgentGenerator(AgentLine agentLine, RVOModel model, HashMultimap<Integer, Point2d> actualRoadMap) {
+        maxSpeed = agentLine.getMaxSpeed();
+        minSpeed = agentLine.getMinSpeed();
+        meanSpeed = agentLine.getMeanSpeed();
+        sdevSpeed = agentLine.getSDevSpeed();
+
+
+        startPoint = new Point2d(agentLine.getStartPoint().getX(), agentLine.getStartPoint().getY());
+        endPoint = new Point2d(agentLine.getEndPoint().getX(), agentLine.getEndPoint().getY());
+        this.actualRoadMap = actualRoadMap;
+
+        generatorsPerLine = agentLine.getNumber();
+        steps = 0;
         this.model = model;
-        //0 means -x, 1 means x, 2 means y, 3 means -y
-        switch (direction) {
-            case 0:
-                directionX = -1;
-                directionY = 0;
-                break;
-            case 1:
-                directionX = 1;
-                directionY = 0;
-                break;
-            case 2:
-                directionX = 0;
-                directionY = 1;
-                break;
-            case 3:
-                directionX = 0;
-                directionY = -1;
-                break;
-        }
-
-        goals = new ArrayList<Goals>(passedGoals.size());
-        for (int i = 0; i < passedGoals.size(); i++) {
-            Goals tempGoal = new Goals();
-            Position startPosition = new Position();
-
-            startPosition.setX(passedGoals.get(i).getStartPoint().getX());
-            startPosition.setY(passedGoals.get(i).getStartPoint().getY());
-
-            Position endPosition = new Position();
-
-            endPosition.setX(passedGoals.get(i).getEndPoint().getX());
-            endPosition.setY(passedGoals.get(i).getEndPoint().getY());
-
-
-            tempGoal.setStartPoint(startPosition);
-            tempGoal.setEndPoint(endPosition);
-            goals.add(tempGoal);
-        }
 
         Vector2d distance = new Vector2d(startPoint);
         distance.sub(endPoint);
 
 
-        gap = (number > 1) ? distance.length() / (number - 1) : distance.length() / 2;
+
+        generationPoints = getGoalPoints(RVOAgent.RADIUS, generatorsPerLine, startPoint, endPoint);
+        createAgents();
+    }
+
+    public static List<? extends Point2d> getGoalPoints(double agentRadius, int numberOfAgents, Point2d startPoint, Point2d endPoint) {
+        assert numberOfAgents >= 1;
+        ArrayList<Point2d> results = new ArrayList<Point2d>();
+        double generationLineLength = startPoint.distance(endPoint) - 2 * agentRadius;
+
+
+        double firstAgentDistance;
+        double subsequentDistance = 0.0;
+        if (numberOfAgents == 1) {
+            firstAgentDistance = agentRadius + generationLineLength / 2;
+        } else {
+            firstAgentDistance = agentRadius;
+            subsequentDistance = generationLineLength / (numberOfAgents - 1);
+            if (subsequentDistance < agentRadius * 2) {
+                System.out.println("WARNING!!! Cannot generate that many points. "
+                        + "Reducing to what is physically possible");
+                //vvt : Not sure if it would be better to just make the program fail here.
+                subsequentDistance = agentRadius * 2;
+            }
+        }
+//        double subsequentDistance = agentRadius * 2;
+        Vector2d unitDirection = new Vector2d(endPoint);
+        unitDirection.sub(startPoint);
+        unitDirection.normalize();
+
+
+
+        Point2d firstAgentLocation = new Point2d(unitDirection);
+        firstAgentLocation.scale(firstAgentDistance);
+        firstAgentLocation.add(startPoint);
+
+        results.add(firstAgentLocation);
+        for (int i = 1; i < numberOfAgents; i++) {
+            Point2d newPosition = new Point2d(unitDirection);
+            newPosition.scale(firstAgentDistance + subsequentDistance * i);
+            newPosition.add(startPoint);
+
+            assert !Double.isNaN(newPosition.x);
+
+            results.add(newPosition);
+        }
+
+        return results;
     }
 
     @Override
     public void step(SimState ss) {
+        createAgents();
+        steps++;
+        if (steps > 50) {
+            model.getGeneratorStoppable().stop();
+            AgentGenerator.finished = true;
+        }
+    }
+
+    private void createAgents() {
         for (int i = 0; i < generatorsPerLine; i++) {
             RVOAgent agent = new RVOAgent(model.getRvoSpace());
-            if (directionY != 0) {
-                agent.setCurrentPosition(startPoint.getX() + gap * i, startPoint.getY());
-            } else {
-                agent.setCurrentPosition(startPoint.getX(), startPoint.getY() + gap * i);
+            Point2d agentPosition = generationPoints.get(i);
+            agent.setCurrentPosition(agentPosition.x, agentPosition.y);
+
+            double initialSpeed = model.random.nextGaussian() * sdevSpeed + meanSpeed;
+            if (initialSpeed < minSpeed) {
+                initialSpeed = minSpeed;
+            } else if (initialSpeed > maxSpeed) {
+                initialSpeed = maxSpeed;
             }
+
+            agent.setPreferredSpeed(initialSpeed);
+            agent.setMaximumSpeed(maxSpeed);
+
+            assert actualRoadMap != null;
+            agent.addRoadMap(actualRoadMap);
+
 
             //   agent.setGoal(new Point2d(6.0, 0.0));
             agent.setPrefVelocity();
@@ -102,9 +146,9 @@ public class AgentGenerator implements Steppable {
             model.addNewAgent(agent);
 
         }
-        steps++;
-        if(steps>50){
-            model.getGeneratorStoppable().stop();
-        }
+    }
+    
+    public static boolean finished(){
+        return AgentGenerator.finished;
     }
 }

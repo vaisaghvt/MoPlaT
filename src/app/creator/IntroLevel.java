@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -98,7 +99,7 @@ class IntroLevel extends AbstractLevel {
         descriptionArea.add(new JLabel("X size(meters) :"));
         descriptionArea.add(xSize);
         descriptionArea.add(new JLabel(""));
-        xSize.setText("3");
+        xSize.setText("30");
 
         for (int i = 0; i < 4; i++) {
             descriptionArea.add(new JLabel(""));
@@ -110,7 +111,7 @@ class IntroLevel extends AbstractLevel {
         descriptionArea.add(new JLabel("Y size (meters) :"));
         descriptionArea.add(ySize);
         descriptionArea.add(new JLabel(""));
-        ySize.setText("3");
+        ySize.setText("30");
 
         for (int i = 0; i < 4; i++) {
             descriptionArea.add(new JLabel(""));
@@ -122,7 +123,7 @@ class IntroLevel extends AbstractLevel {
         descriptionArea.add(new JLabel("Scale (pix / m) :"));
         descriptionArea.add(scale);
         descriptionArea.add(new JLabel(""));
-        scale.setText("100");
+        scale.setText("20");
 
 
         for (int i = 0; i < 4; i++) {
@@ -139,7 +140,6 @@ class IntroLevel extends AbstractLevel {
         for (int i = 0; i < 4; i++) {
             descriptionArea.add(new JLabel(""));
         }
-
 
     }
 

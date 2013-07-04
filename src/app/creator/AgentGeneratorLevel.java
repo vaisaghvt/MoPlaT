@@ -31,6 +31,10 @@ class AgentGeneratorLevel extends AbstractLevel implements MouseListener, MouseM
     private Position point;
     private Position prevPoint;
     private Point currentPoint;
+    private static final double DEFAULT_MAX_SPEED = 2.6;
+    private static final double DEFAULT_MIN_SPEED = 0.0;
+    private static final double DEFAULT_SDEV_SPEED = 0.0;
+    private static final double DEFAULT_MEAN_SPEED = 1.3 ;
 
     public AgentGeneratorLevel(ModelDetails model, JFrame frame, JLabel statusBar, JPanel buttonArea, DrawingPanel interactionArea) {
         super(model, frame, statusBar, buttonArea);
@@ -158,40 +162,85 @@ class AgentGeneratorLevel extends AbstractLevel implements MouseListener, MouseM
 
 
 
-            String creationDirection;
+            int size=0;
+            double minSpeed= DEFAULT_MIN_SPEED, maxSpeed = DEFAULT_MAX_SPEED;
+            double meanSpeed = DEFAULT_MEAN_SPEED, sDev = DEFAULT_SDEV_SPEED;
+            String tempString;
             do {
-                Object[] possibilities = {"Up", "Down", "Left", "Right"};
-                creationDirection = "Up";
-                creationDirection = (String) JOptionPane.showInputDialog(
+                tempString = (String) JOptionPane.showInputDialog(
                         null,
-                        "Which direction do you want agents to be generated?",
+                        "Minimum Speed",
                         "Input",
-                        JOptionPane.QUESTION_MESSAGE,
+                        JOptionPane.PLAIN_MESSAGE,
                         null,
-                        possibilities,
-                        "Up");
-            } while (creationDirection == null);
-            if (creationDirection.equalsIgnoreCase("up")) {
-                tempAgentLine.setDirection(3);
-            } else if (creationDirection.equalsIgnoreCase("down")) {
-                tempAgentLine.setDirection(2);
-            } else if (creationDirection.equalsIgnoreCase("right")) {
-                tempAgentLine.setDirection(1);
-            } else {
-                tempAgentLine.setDirection(0);
-            }
-
+                        null,
+                        String.valueOf(DEFAULT_MIN_SPEED));
+               try {
+                    minSpeed = Double.parseDouble(tempString);
+                } catch (NumberFormatException numException) {
+                    continue;
+                }
+            } while (minSpeed<0||minSpeed>2.6);
+            
+        
+            do {
+                tempString = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Maximum Speed?",
+                        "Input",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        String.valueOf(DEFAULT_MAX_SPEED));
+               try {
+                    maxSpeed = Double.parseDouble(tempString);
+                } catch (NumberFormatException numException) {
+                    continue;
+                }
+            } while (maxSpeed<minSpeed||maxSpeed>2.6);
+            meanSpeed = (minSpeed + maxSpeed) /2.0;
+            do {
+                tempString = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Average Speed?",
+                        "Input",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        Double.toString(meanSpeed));
+               try {
+                    meanSpeed = Double.parseDouble(tempString);
+                } catch (NumberFormatException numException) {
+                    continue;
+                }
+            } while (meanSpeed<minSpeed||meanSpeed>maxSpeed);
+            
+            do {
+                tempString = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Standard Deviation:",
+                        "Input",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        "0.0");
+               try {
+                    sDev = Double.parseDouble(tempString);
+                } catch (NumberFormatException numException) {
+                    continue;
+                }
+            } while (false);
 
             String frequency;
             do {
                 frequency = (String) JOptionPane.showInputDialog(
                         null,
-                        "How many time steps between agents being generate?",
+                        "How many time steps between agents being generated?",
                         "Input",
                         JOptionPane.PLAIN_MESSAGE,
                         null,
                         null,
-                        "1");
+                        "100");
                 try {
                     Integer.parseInt(frequency);
                 } catch (NumberFormatException numException) {
@@ -219,6 +268,10 @@ class AgentGeneratorLevel extends AbstractLevel implements MouseListener, MouseM
 
 
 
+            tempAgentLine.setMinSpeed(minSpeed);
+            tempAgentLine.setMaxSpeed(maxSpeed);
+            tempAgentLine.setMeanSpeed(meanSpeed);
+            tempAgentLine.setSDevSpeed(sDev);
             tempAgentLine.setFrequency(Integer.parseInt(frequency));
             tempAgentLine.setNumber(Integer.parseInt(number));
             agentLines.add(tempAgentLine);
