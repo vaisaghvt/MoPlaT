@@ -134,7 +134,7 @@ public class Device extends DevicePortrayal implements Proxiable {
             sendTooDense(this.getDeviceId(), 1);
             System.out.println(neighbours.size());
         } else {
-            dense = false;
+            dense = false;          
             
         }
     }

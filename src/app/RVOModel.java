@@ -199,7 +199,7 @@ public class RVOModel extends SimState {
 //        actStoppable = mySpace.getRvoModel().schedule.scheduleRepeating(actAgent, 3, 1.0);
 //        (new RVOAgent(this.rvoSpace)).scheduleAgent();
         schedule.scheduleRepeating(Schedule.EPOCH, 1, new RandomSequence(senseThinkAgents.toArray(new SenseThink[]{})),1.0);
-        schedule.scheduleRepeating(Schedule.EPOCH, 2, new RandomSequence(senseThinkDevices.toArray(new SenseThinkDevice[]{})),1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH, 2, new Sequence(senseThinkDevices.toArray(new SenseThinkDevice[]{})),1.0);
         schedule.scheduleRepeating(Schedule.EPOCH, 3, new Sequence(actAgents.toArray(new Act[]{})), 1.0);
         schedule.scheduleRepeating(Schedule.EPOCH, 4, new Sequence(actDevices.toArray(new ActDevice[]{})), 1.0);
     }

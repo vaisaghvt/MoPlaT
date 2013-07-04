@@ -175,10 +175,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         setColor(col);
         setCurrentPosition(startPosition.getX(), startPosition.getY());
         /*
-        if (this.hasDevice()) {
-            this.getDevice().setCurrentPosition(currentPosition.toPoint());
-        }
-        */
+         if (this.hasDevice()) {
+         this.getDevice().setCurrentPosition(currentPosition.toPoint());
+         }
+         */
         this.prefDirection = prefDirection;
         setPrefVelocity();
     }
@@ -191,10 +191,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 //        currentPosition = new PrecisePoint();
         this.setCurrentPosition(otherAgent.getCurrentPosition().getX(), otherAgent.getCurrentPosition().getY());
         /*
-        if (this.hasDevice()) {
-            this.getDevice().setCurrentPosition(currentPosition.toPoint());
-        }
-        * */
+         if (this.hasDevice()) {
+         this.getDevice().setCurrentPosition(currentPosition.toPoint());
+         }
+         * */
         goal = new Point2d(otherAgent.getGoal().getX(), otherAgent.getGoal().getY());
         mySpace = otherAgent.mySpace;
         mydevice = otherAgent.mydevice; // added for device
@@ -275,9 +275,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         return currentPosition.getY();
     }
 //everytime you set position of the agent, if agent has device, it will also set the position of the device
+
     final public void setCurrentPosition(double x, double y) {
         currentPosition = new PrecisePoint(x, y);
-        if(this.hasDevice())    {
+        if (this.hasDevice()) {
             this.getDevice().setCurrentPosition(currentPosition.toPoint());
         }
     }
@@ -473,10 +474,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 
                 Bag sensedNeighbours = mySpace.senseNeighbours(RVOAgent.this);
                 /*
-                if(hasDevice()) {
-                    getDevice().execute();
-                }
-                */
+                 if(hasDevice()) {
+                 getDevice().execute();
+                 }
+                 */
                 if (PropertySet.INFOPROCESSING) {
                     /**
                      * Here we process the neighbour list that was passed to it
@@ -665,14 +666,16 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 //                return;
 //            }
 //                velocity = chosenVelocity; //TO VT: this u previously said need to use precise point, why changed back without justification here?
-                
+
                 //agent dont move as it listens to the device
-                if(hasDevice() && getDevice().isStopped())  {
-                    velocity = new PrecisePoint(0,0);
+                if (hasDevice() && getDevice().isStopped()) {
+                    //changed this 27th May 2013 to not move only when it is declared dens
+                    velocity = new PrecisePoint(0, 0);
+
+                    //continue checking until it is stopped for 10 ticks
                     getDevice().checkStillStopped();
-                }
-                else {
-                velocity = new PrecisePoint(chosenVelocity.getX() + mySpace.getRvoModel().random.nextFloat() * utility.Geometry.EPSILON, chosenVelocity.getY() + mySpace.getRvoModel().random.nextFloat() * utility.Geometry.EPSILON);
+                } else {
+                    velocity = new PrecisePoint(chosenVelocity.getX() + mySpace.getRvoModel().random.nextFloat() * utility.Geometry.EPSILON, chosenVelocity.getY() + mySpace.getRvoModel().random.nextFloat() * utility.Geometry.EPSILON);
                 }
                 double currentPosition_x = (currentPosition.getX()
                         + velocity.getX() * PropertySet.TIMESTEP);
@@ -680,11 +683,11 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                         + velocity.getY() * PropertySet.TIMESTEP);
                 setCurrentPosition(currentPosition_x, currentPosition_y);
                 /*
-                if (hasDevice()) {
-                    getDevice().setCurrentPosition(currentPosition.toPoint());
-                    //getDevice().execute();
-                }
-                */
+                 if (hasDevice()) {
+                 getDevice().setCurrentPosition(currentPosition.toPoint());
+                 //getDevice().execute();
+                 }
+                 */
                 getMySpace().updatePositionOnMap(RVOAgent.this, currentPosition_x,
                         currentPosition_y);
             }
