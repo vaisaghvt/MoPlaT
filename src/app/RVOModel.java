@@ -9,6 +9,7 @@ import agent.latticegas.LatticeSpace;
 import app.PropertySet.Model;
 import app.dataTracking.DataTracker;
 import app.dataTracking.PhysicaDataTracker;
+import app.dataTracking.DeviceDataTracker;
 import com.google.common.collect.HashMultimap;
 import device.Device.ActDevice;
 import device.Device.SenseThinkDevice;
@@ -124,9 +125,8 @@ public class RVOModel extends SimState {
         if (PropertySet.TRACK_DATA) {
 //            dataTracker = new CWDataCollector(this, agentList);
 
-            dataTracker = new PhysicaDataTracker(this, agentList);
-//            dataTracker = new PhysicaDataTracker(this, agentList);
-            schedule.scheduleRepeating(dataTracker, 6, 1.0);
+            dataTracker = new DeviceDataTracker(this, agentList);
+            schedule.scheduleRepeating(dataTracker, 6, 1.0);            
         }
         schedule.scheduleRepeating(new WrapUp(this, agentList), 7, 1.0);
 

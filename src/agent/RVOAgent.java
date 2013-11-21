@@ -63,6 +63,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     /**
      * Current position of the agent from javax.vecmath
      */
+    private int listenToDevice =1;
     protected PrecisePoint currentPosition;
     protected double mass = 70; // in KG
     /**
@@ -88,7 +89,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     /**
      * Environmental space of the agents, contains multiple MASON fields
      */
-    protected  RVOSpace mySpace;
+    protected RVOSpace mySpace;
     /**
      * The motion planning system used by the agent, this can used any method
      * for motion planning that implements the VelocityCalculator interface
@@ -100,6 +101,9 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     private Act actAgent;
     private boolean dead = false;
     private HashMultimap<Integer, Point2d> roadMap;
+    private Point2d currentRoadMapPoint = null;
+//    private PrecisePoint prevGoal;
+    private int currentPriority = -1;
 
     /**
      * Used by RVOModel to create an agent with just the space initialized.
@@ -142,7 +146,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             Logger.getLogger(RVOAgent.class.getName()).log(Level.SEVERE, null, ex);
         }
         id = agentCount++;
-        setDevice(mySpace);
+
+        setDevice(mySpace); //assigns a device to agents in mySpace
     }
 
     /**
@@ -318,7 +323,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 //        return prefVelocity;
     }
 
-
     public Vector2d getPrefVelocity() {
         return prefVelocity;
     }
@@ -334,7 +338,6 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     public RVOSpace getMySpace() {
         return mySpace;
     }
-
 
     /**
      * Returns the predicted position i simulation steps in the future based on
@@ -415,6 +418,17 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         return null;
     }
 
+    private Vector2d findVelocityFromRoadMap(Point2d localCurrentGoal) {
+        currentRoadMapPoint = new Point2d(localCurrentGoal);
+        PrecisePoint cleanCurrentGoal = new PrecisePoint(localCurrentGoal.getX(), localCurrentGoal.getY());
+        Vector2d result = new Vector2d(cleanCurrentGoal.toVector());
+        result.sub(this.getCurrentPosition());
+        if (result.length() != 0) {
+            result.normalize();
+        }
+        return result;
+    }
+
     public class SenseThink implements Steppable {
 
         @Override
@@ -427,11 +441,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 //                chosenVelocity = new PrecisePoint(prefVelocity.getX(), prefVelocity.getY());
 
                 Bag sensedNeighbours = mySpace.senseNeighbours(RVOAgent.this);
-                /*
-                 if(hasDevice()) {
-                 getDevice().execute();
-                 }
-                 */
+
                 if (PropertySet.INFOPROCESSING) {
                     /**
                      * Here we process the neighbour list that was passed to it
@@ -444,16 +454,33 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 
                 }
 
-                //default as towards the goal
-                setPrefVelocity(); //update the preferredVelocity according to the current position and the goal
+                //updated on 30th September 2013
+                if (hasDevice() && Device.FORBIDDENAREA_APPROACH) {
+                    setPrefVelocity();
+                } else {//use the stop device approach
+
+                    //the code commented out here is to implement no-move on device for about 10 tics
+                    if (hasDevice() && getDevice().isStopped()) {
+                        if (getDevice().isDense()) {
+                            System.out.println("yes im in ");
+                            prefVelocity = new Vector2d(0, 0);
+                        } else {
+                            setPrefVelocity();
+                        }
+                        getDevice().checkStillStopped();
+                    } else {
+                        setPrefVelocity();
+                    }
+                }
+
+                //updated on Aug 20 2013
+                /* if agent has device and is dense, set preferred velocity to 0 */
 
                 /**
                  * Very slight perturbation of velocity to remove deadlock
                  * problems of perfect symmetry
                  */
-// if(id==0){
-//     System.out.println();
-// }
+                //updated on Aug 20 2013
                 assert !Double.isNaN(prefVelocity.x);
                 Vector2d tempVelocity = velocityCalc.calculateVelocity(
                         RVOAgent.this, sensedNeighbours,
@@ -623,15 +650,17 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 //            }
 //                velocity = chosenVelocity; //TO VT: this u previously said need to use precise point, why changed back without justification here?
 
-                //agent dont move as it listens to the device
-                if (hasDevice() && getDevice().isStopped()) {
-                    velocity = new PrecisePoint(0, 0);
-                    getDevice().checkStillStopped();
-                } else {
-                    velocity = new PrecisePoint(
-                            chosenVelocity.getX() + mySpace.getRvoModel().random.nextFloat() * utility.Geometry.EPSILON,
-                            chosenVelocity.getY() + mySpace.getRvoModel().random.nextFloat() * utility.Geometry.EPSILON);
-                }
+                /* 19th August 2013 : Moved to sensethink to compute preferred velocity instead
+                 //agent dont move as it listens to the device
+                 if (hasDevice() && getDevice().isStopped()) {
+                 velocity = new PrecisePoint(0, 0);
+                 getDevice().checkStillStopped();
+                 } else {
+                 */
+                velocity = new PrecisePoint(
+                        chosenVelocity.getX() + mySpace.getRvoModel().random.nextFloat() * utility.Geometry.EPSILON,
+                        chosenVelocity.getY() + mySpace.getRvoModel().random.nextFloat() * utility.Geometry.EPSILON);
+                //}
                 double currentPosition_x = (currentPosition.getX()
                         + velocity.getX() * PropertySet.TIMESTEP);
                 double currentPosition_y = (currentPosition.getY()
@@ -724,42 +753,75 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 
     public Vector2d determinePrefVelocity() {
         Vector2d result = null;
+        Vector2d agentUnitVelocity = new Vector2d(this.getVelocity());
+        if (this.getVelocity().getX() != 0.0f
+                || this.getVelocity().getY() != 0.0f) {
+            agentUnitVelocity.normalize();
+        }
+        Point2d agentTopPosition = new Point2d();
+        agentTopPosition.setX(this.getCurrentPosition().getX() - agentUnitVelocity.getY() * RVOAgent.RADIUS);
+        agentTopPosition.setY(this.getCurrentPosition().getY() + agentUnitVelocity.getX() * RVOAgent.RADIUS);
 
-        for (int i = roadMap.keySet().size() - 1; i >= 0; i--) {
+        Point2d agentBottomPosition = new Point2d();
+        agentBottomPosition.setX(this.getCurrentPosition().getX() + agentUnitVelocity.getY() * RVOAgent.RADIUS);
+        agentBottomPosition.setY(this.getCurrentPosition().getY() - agentUnitVelocity.getX() * RVOAgent.RADIUS);
+
+        Point2d ignoredPoint = null;
+        
+        for (int localCurrentPriority = roadMap.keySet().size() - 1; 
+                localCurrentPriority >= 0; localCurrentPriority--) {
+            
+            if (currentRoadMapPoint!=null && localCurrentPriority == currentPriority){ 
+                // for current priority level use the last used roadmap without 
+                // calculating min distance. The only reason to not take this 
+                // would be that this point is forbidden.
+                if (mySpace.visibleFrom(currentRoadMapPoint, agentTopPosition)
+                            && mySpace.visibleFrom(currentRoadMapPoint, agentBottomPosition)) {
+                    if (listenToDevice>0 && this.hasDevice() && Device.FORBIDDENAREA_APPROACH 
+                            && this.getDevice().hasForbiddenArea() 
+                            && this.getDevice().inForbiddenArea(currentRoadMapPoint)) {
+                        ignoredPoint=currentRoadMapPoint;
+                        listenToDevice --;
+                    }else{
+                    
+                        result = findVelocityFromRoadMap(currentRoadMapPoint);
+                        return result;
+                        
+                    }
+                }
+                
+            }
+            
             double minDistance = Double.MAX_VALUE;
             Point2d localCurrentGoal = null;
-            for (Point2d tempCurrentGoal : roadMap.get(i)) {
-
-                Vector2d agentUnitVelocity = new Vector2d(this.getVelocity());
-                if (this.getVelocity().getX() != 0.0f
-                        || this.getVelocity().getY() != 0.0f) {
-                    agentUnitVelocity.normalize();
+            for (Point2d tempCurrentGoal : roadMap.get(localCurrentPriority)) {
+                if(ignoredPoint !=null && ignoredPoint.equals(tempCurrentGoal)){
+                    continue;
                 }
-                Point2d agentTopPosition = new Point2d();
-                agentTopPosition.setX(this.getCurrentPosition().getX() - agentUnitVelocity.getY() * RVOAgent.RADIUS);
-                agentTopPosition.setY(this.getCurrentPosition().getY() + agentUnitVelocity.getX() * RVOAgent.RADIUS);
-
-                Point2d agentBottomPosition = new Point2d();
-                agentBottomPosition.setX(this.getCurrentPosition().getX() + agentUnitVelocity.getY() * RVOAgent.RADIUS);
-                agentBottomPosition.setY(this.getCurrentPosition().getY() - agentUnitVelocity.getX() * RVOAgent.RADIUS);
+//                if (this.hasDevice() && Device.FORBIDDENAREA_APPROACH 
+//                        && this.getDevice().hasForbiddenArea() 
+//                        && this.getDevice().inForbiddenArea(tempCurrentGoal)) {
+//                    continue;
+//                }
 
                 if (mySpace.visibleFrom(tempCurrentGoal, agentTopPosition)
                         && mySpace.visibleFrom(tempCurrentGoal, agentBottomPosition)) {
-                    if (this.getCurrentPosition().distance(tempCurrentGoal) < minDistance) {
-                        minDistance = this.getCurrentPosition().distance(tempCurrentGoal);
-                        localCurrentGoal = tempCurrentGoal;
-                    }
+//                    if (hasDevice() && Device.FORBIDDENAREA_APPROACH) {
+//                        localCurrentGoal = tempCurrentGoal; //try without minDist Oct 2013
+//                        break; //agent may move to a goal further away than a nearer goal new Oct 2013
+//                    } else {
+                        if (this.getCurrentPosition().distance(tempCurrentGoal) < minDistance) {
+                            minDistance = this.getCurrentPosition().distance(tempCurrentGoal);
+                            localCurrentGoal = tempCurrentGoal;
+                         
+                        }
+//                    }
                 }
             }
 
             if (localCurrentGoal != null) {
-                PrecisePoint cleanCurrentGoal = new PrecisePoint(localCurrentGoal.getX(), localCurrentGoal.getY());
-                result = new Vector2d(cleanCurrentGoal.toVector());
-                result.sub(this.getCurrentPosition());
-                if (result.length() != 0) {
-                    result.normalize();
-                }
-
+                result = findVelocityFromRoadMap(localCurrentGoal);
+                currentPriority = localCurrentPriority;
                 break;
             }
             if (result != null) {
@@ -794,11 +856,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             }
 
             if (localCurrentGoal != null) {
-                PrecisePoint cleanCurrentGoal = new PrecisePoint(localCurrentGoal.getX(), localCurrentGoal.getY());
-                result = new Vector2d(cleanCurrentGoal.toVector());
-                result.sub(this.getCurrentPosition());
-                result.normalize();
-
+                result = findVelocityFromRoadMap(localCurrentGoal);
+                currentPriority = i;
                 break;
             }
         }

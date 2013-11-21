@@ -127,8 +127,9 @@ public class AgentPortrayal extends SimplePortrayal2D {
 //                this.setColor(Color.green);
 //        }  
 
-        double startx = -1;
-        double starty = -1;
+        double startx = me.getCurrentPosition().getX() * scale;
+        double starty = me.getCurrentPosition().getY() * scale;
+        
         double endx = 0, endy = 0;
         int countNumOfStepDraw = 40;   //used to display trail only for the last 50 steps
 

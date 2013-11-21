@@ -202,6 +202,9 @@ public class PropertySet {
             Device.DEVICE_MSG_THRESHOLD = params.getDeviceMsgThreshold();
             Device.DEVICE_MAX_HOPS = params.getDeviceMaxHops();
             Device.DEVICE_MOVE_PROBABILITY = params.getDeviceMoveProbability();
+            Device.FORBIDDENAREA_APPROACH = params.isForbiddenAreaApproach();
+            Device.MIN_DIST_TO_GOAL = params.isMinDistToGoal();
+
             
             if (USECLUSTERING) {
                 ClusteredSpace.ALPHA = params.getAlpha();

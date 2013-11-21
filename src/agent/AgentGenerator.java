@@ -114,7 +114,7 @@ public class AgentGenerator implements Steppable {
     public void step(SimState ss) {
         createAgents();
         steps++;
-        if (steps > 50) {
+        if (steps > 50) { //TODO : MAke into a variable in property set
             model.getGeneratorStoppable().stop();
             AgentGenerator.finished = true;
         }

@@ -127,7 +127,7 @@ public class DataReader {
         return true;
     }
 
-    private static List<File> findAllFile(String[] args) {
+    public static List<File> findAllFile(String[] args) {
         if (args.length < 2) {
             System.out.println("you used: DataReader" + Arrays.toString(args));
             System.out.println("actual usage: DataReader TYPE files");
@@ -138,6 +138,8 @@ public class DataReader {
             type = FILE_TYPE.LATTICE;
         } else if (args[0].equalsIgnoreCase(FILE_TYPE.FLOAT.toString())) {
             type = FILE_TYPE.FLOAT;
+        } else if (args[0].equalsIgnoreCase(FILE_TYPE.CSV.toString())) {
+            type = FILE_TYPE.CSV;
         } else {
             type = null;
             System.out.println("TYPE =" + Arrays.toString(FILE_TYPE.values()));
@@ -176,6 +178,9 @@ public class DataReader {
             return false;
         
         }
+        else if(fileName.contains(".csv")) {
+            return true;
+        }
         if (type == FILE_TYPE.FLOAT && (fileName.contains("Position") || fileName.contains("Velocity"))) {
             return true;
         } else if (type == FILE_TYPE.LATTICE && fileName.contains("Lattice")) {
@@ -200,7 +205,8 @@ public class DataReader {
     public enum FILE_TYPE {
 
         LATTICE,
-        FLOAT;
+        FLOAT,
+        CSV;
     }
 
     public static void main(String[] args) {
@@ -211,6 +217,8 @@ public class DataReader {
             type = FILE_TYPE.LATTICE;
         } else if (args[0].equalsIgnoreCase(FILE_TYPE.FLOAT.toString())) {
             type = FILE_TYPE.FLOAT;
+        } else if (args[0].equalsIgnoreCase(FILE_TYPE.CSV.toString())) {
+            type = FILE_TYPE.CSV;
         } else {
             type = null;
             System.out.println("TYPE =" + Arrays.toString(FILE_TYPE.values()));
