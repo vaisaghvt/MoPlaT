@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" name="Default" Xsize="5" Ysize="5" scale="100" displayUsed="true" latticeModel="false" logUsed="true">
+    <obstacles>
+        <vertices x="1.0" y="1.0"/>
+        <vertices x="1.0" y="1.0"/>
+        <vertices x="2.25" y="1.01"/>
+    </obstacles>
+    <obstacles>
+        <vertices x="1.41" y="1.02"/>
+        <vertices x="1.41" y="1.02"/>
+        <vertices x="1.42" y="1.29"/>
+    </obstacles>
+    <obstacles>
+        <vertices x="1.42" y="1.01"/>
+        <vertices x="2.69" y="1.08"/>
+        <vertices x="1.84" y="1.65"/>
+        <vertices x="1.42" y="1.02"/>
+    </obstacles>
+    <environmentGoals>
+        <endPoint x="2.55" y="0.06"/>
+        <startPoint x="2.55" y="0.06"/>
+    </environmentGoals>
+    <environmentGoals>
+        <endPoint x="2.96" y="0.05"/>
+        <startPoint x="2.41" y="0.05"/>
+    </environmentGoals>
+    <generationLines>
+        <endPoint x="4.52" y="4.56"/>
+        <startPoint x="0.37" y="4.56"/>
+        <direction>3</direction>
+        <frequency>1</frequency>
+        <number>10</number>
+    </generationLines>
+    <agentGroups>
+        <endPoint x="4.82" y="4.44"/>
+        <startPoint x="3.4" y="1.58"/>
+        <size>10</size>
+        <minSpeed>0.0</minSpeed>
+        <maxSpeed>2.6</maxSpeed>
+        <meanSpeed>1.3</meanSpeed>
+        <sDevSpeed>0.0</sDevSpeed>
+        <groupDirection_x>0</groupDirection_x>
+        <groupDirection_y>0</groupDirection_y>
+        <maxDensityFactor>0.0</maxDensityFactor>
+        <groupColor>0</groupColor>
+    </agentGroups>
+</SimulationScenario>
