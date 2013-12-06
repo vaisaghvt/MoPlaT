@@ -723,8 +723,13 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     }
 
     public Vector2d determinePrefVelocity() {
+        
+        
+        
         Vector2d result = null;
 
+        
+        
         for (int i = roadMap.keySet().size() - 1; i >= 0; i--) {
             double minDistance = Double.MAX_VALUE;
             Point2d localCurrentGoal = null;
