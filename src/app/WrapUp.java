@@ -6,6 +6,7 @@ package app;
 
 import agent.AgentGenerator;
 import agent.RVOAgent;
+import app.dataTracking.PhysicaDataTracker;
 import java.util.List;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -48,6 +49,9 @@ class WrapUp implements Steppable {
             return;
         }
 //        System.out.println("here");
+        
+  
+        
         state.kill();
     }
 }

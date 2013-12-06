@@ -9,6 +9,7 @@ import agent.latticegas.LatticeSpace;
 import app.PropertySet.Model;
 import app.dataTracking.DataTracker;
 import app.dataTracking.PhysicaDataTracker;
+import app.dataTracking.DeviceDataTracker;
 import com.google.common.collect.HashMultimap;
 import device.Device.ActDevice;
 import device.Device.SenseThinkDevice;
@@ -72,7 +73,7 @@ public class RVOModel extends SimState {
 
 //    //for different pbm scenarios to set initial preferredVelocity
 //    private int pbmScenario = 0;
-//    
+//
 //    public void setPbmSecenario(int pbmTestCase){
 //        pbmScenario = pbmTestCase;
 //    }
@@ -112,7 +113,7 @@ public class RVOModel extends SimState {
     public void start() {
 
         super.start();
-        // This function is equivalent to a reset. 
+        // This function is equivalent to a reset.
         //Need to readup a bit more to see if it is even necessary...
         setup();
         if (PropertySet.INITIALISEFROMXML) {
@@ -124,9 +125,8 @@ public class RVOModel extends SimState {
         if (PropertySet.TRACK_DATA) {
 //            dataTracker = new CWDataCollector(this, agentList);
 
-            dataTracker = new PhysicaDataTracker(this, agentList);
-//            dataTracker = new PhysicaDataTracker(this, agentList);
-            schedule.scheduleRepeating(dataTracker, 6, 1.0);
+            dataTracker = new DeviceDataTracker(this, agentList);
+            schedule.scheduleRepeating(dataTracker, 6, 1.0);            
         }
         schedule.scheduleRepeating(new WrapUp(this, agentList), 7, 1.0);
 
@@ -185,7 +185,7 @@ public class RVOModel extends SimState {
 
     public void scheduleAgents() {
         List<SenseThink> senseThinkAgents = new ArrayList<SenseThink>();
-        List<SenseThinkDevice> senseThinkDevices = new ArrayList<SenseThinkDevice>(); 
+        List<SenseThinkDevice> senseThinkDevices = new ArrayList<SenseThinkDevice>();
         List<ActDevice> actDevices = new ArrayList<ActDevice>();
         List<Act> actAgents = new ArrayList<Act>();
         for (RVOAgent agent : agentList) {
@@ -200,12 +200,14 @@ public class RVOModel extends SimState {
 //        senseThinkStoppable = mySpace.getRvoModel().schedule.scheduleRepeating(senseThinkAgent, 2, 1.0);
 //        actStoppable = mySpace.getRvoModel().schedule.scheduleRepeating(actAgent, 3, 1.0);
 //        (new RVOAgent(this.rvoSpace)).scheduleAgent();
+
         schedule.scheduleRepeating(Schedule.EPOCH, 2, new RandomSequence(senseThinkAgents.toArray(new SenseThink[]{})),1.0);
         schedule.scheduleRepeating(Schedule.EPOCH, 3, new RandomSequence(senseThinkDevices.toArray(new SenseThinkDevice[]{})),1.0);
         schedule.scheduleRepeating(Schedule.EPOCH, 4, new RandomSequence(actAgents.toArray(new Act[]{})), 1.0);
         schedule.scheduleRepeating(Schedule.EPOCH, 5, new RandomSequence(actDevices.toArray(new ActDevice[]{})), 1.0);
-        
+
         initialSchedulingDone = true;
+
     }
 
     public List<RVOAgent> getAgentList() {
@@ -251,7 +253,7 @@ public class RVOModel extends SimState {
         if (PropertySet.LATTICEMODEL) {
             latticeSpace.addAgentAt(a.getX(), a.getY(), a.getId());
         }
-        if(initialSchedulingDone){          
+        if(initialSchedulingDone){
             schedule.scheduleRepeating(a.getSenseThink(),2,1.0);
             schedule.scheduleRepeating(a.getAct(),4,1.0);
             if(a.hasDevice()){
@@ -347,7 +349,7 @@ public class RVOModel extends SimState {
             //this is used to generate a set of agents in a line
             List<AgentLine> xmlAgentLineList = scenario.getGenerationLines();
             for (AgentLine agentLine: xmlAgentLineList) {
-                
+
                 AgentGenerator tempAgentLine = new AgentGenerator(agentLine, this, actualRoadMap);
                 addNewAgentLine(tempAgentLine, agentLine.getFrequency());
             }
@@ -364,7 +366,7 @@ public class RVOModel extends SimState {
 
 //                Vector2d groupDirection = new Vector2d(tempAgentGroup.getGroupDirectionX(),tempAgentGroup.getGroupDirectionY());//normalized vector to specify the group direction
 //                groupDirection.normalize();
-//                
+//
                 for (int i = 0; i < tempAgentGroup.getSize(); i++) {
                     RVOAgent agent = new RVOAgent(this.getRvoSpace());
                     Point2d position = this.getAgentPosition(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY(),
@@ -377,7 +379,7 @@ public class RVOModel extends SimState {
                     } else if (initialSpeed > maxSpeed) {
                         initialSpeed = maxSpeed;
                     }
-                    
+
                    agent.setPreferredSpeed(initialSpeed);
                     agent.setMaximumSpeed(maxSpeed);
 

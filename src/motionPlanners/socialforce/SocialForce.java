@@ -488,8 +488,10 @@ public class SocialForce implements VelocityCalculator {
         double exi = (1-PanicFactor)*preferredVelocity.x + PanicFactor*exjavg;
         double eyi = (1-PanicFactor)*preferredVelocity.y + PanicFactor*eyjavg;
         double normei = Math.sqrt(exi*exi + eyi*eyi);
-        exi = exi/normei;
-        eyi = eyi/normei;
+        if (normei != 0 )   {
+            exi = exi/normei;
+            eyi = eyi/normei;
+        }
         
         double preferredSpeed = preferredVelocity.length();
         
