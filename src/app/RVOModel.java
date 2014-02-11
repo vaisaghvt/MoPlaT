@@ -7,11 +7,15 @@ import agent.RVOAgent.SenseThink;
 import agent.clustering.ClusteredSpace;
 import agent.latticegas.LatticeSpace;
 import app.PropertySet.Model;
+import app.dataTracking.BasicPositionVelocityTextWriter;
+import app.dataTracking.CWDataCollector;
 import app.dataTracking.DataTracker;
 import app.dataTracking.PhysicaDataTracker;
 import app.dataTracking.DeviceDataTracker;
 import com.google.common.collect.HashMultimap;
+import device.Device;
 import device.Device.ActDevice;
+import device.Device.ClearDeviceMemory;
 import device.Device.SenseThinkDevice;
 import environment.Obstacle.RVOObstacle;
 import environment.RVOSpace;
@@ -29,6 +33,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.vecmath.Point2d;
+import javax.vecmath.Vector2d;
 import javax.xml.bind.JAXBException;
 import motionPlanners.socialforce.SocialForce;
 import sim.engine.RandomSequence;
@@ -125,10 +130,10 @@ public class RVOModel extends SimState {
         if (PropertySet.TRACK_DATA) {
 //            dataTracker = new CWDataCollector(this, agentList);
 
-            dataTracker = new DeviceDataTracker(this, agentList);
-            schedule.scheduleRepeating(dataTracker, 6, 1.0);            
+            dataTracker = new BasicPositionVelocityTextWriter(this, agentList);
+            schedule.scheduleRepeating(dataTracker, 7, 1.0);            
         }
-        schedule.scheduleRepeating(new WrapUp(this, agentList), 7, 1.0);
+        schedule.scheduleRepeating(new WrapUp(this, agentList), 8, 1.0);
 
     }
 
@@ -184,6 +189,7 @@ public class RVOModel extends SimState {
     }
 
     public void scheduleAgents() {
+        List<ClearDeviceMemory> clearDevices = new ArrayList<ClearDeviceMemory>();
         List<SenseThink> senseThinkAgents = new ArrayList<SenseThink>();
         List<SenseThinkDevice> senseThinkDevices = new ArrayList<SenseThinkDevice>();
         List<ActDevice> actDevices = new ArrayList<ActDevice>();
@@ -191,6 +197,7 @@ public class RVOModel extends SimState {
         for (RVOAgent agent : agentList) {
             senseThinkAgents.add(agent.getSenseThink());
             if(agent.hasDevice())   {
+                clearDevices.add(agent.getDevice().getClearDeviceMemory());
                 senseThinkDevices.add(agent.getDevice().getSenseThinkDevice());
                 actDevices.add(agent.getDevice().getActDevice());
             }
@@ -202,9 +209,11 @@ public class RVOModel extends SimState {
 //        (new RVOAgent(this.rvoSpace)).scheduleAgent();
 
         schedule.scheduleRepeating(Schedule.EPOCH, 2, new RandomSequence(senseThinkAgents.toArray(new SenseThink[]{})),1.0);
-        schedule.scheduleRepeating(Schedule.EPOCH, 3, new RandomSequence(senseThinkDevices.toArray(new SenseThinkDevice[]{})),1.0);
-        schedule.scheduleRepeating(Schedule.EPOCH, 4, new RandomSequence(actAgents.toArray(new Act[]{})), 1.0);
-        schedule.scheduleRepeating(Schedule.EPOCH, 5, new RandomSequence(actDevices.toArray(new ActDevice[]{})), 1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH, 3, new RandomSequence(clearDevices.toArray(new ClearDeviceMemory[]{})),1.0);
+        
+        schedule.scheduleRepeating(Schedule.EPOCH, 4, new RandomSequence(senseThinkDevices.toArray(new SenseThinkDevice[]{})),1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH, 5, new RandomSequence(actAgents.toArray(new Act[]{})), 1.0);
+        schedule.scheduleRepeating(Schedule.EPOCH, 6, new RandomSequence(actDevices.toArray(new ActDevice[]{})), 1.0);
 
         initialSchedulingDone = true;
 
@@ -290,27 +299,26 @@ public class RVOModel extends SimState {
                 latticeSpace.setDirection(scenario.getDirection());
             }
 
-//            List<Agent> xmlAgentList = scenario.getCrowd();
-//            for (int i = 0; i < xmlAgentList.size(); i++) {
-//                Agent tempAgent = xmlAgentList.get(i);
-//
-//                //@hunan: added in a new RVOAgent constructor to set the necessary parameters for PBM use only
-//
-//                RVOAgent tempRVOAgent = new RVOAgent(
-//                        new Point2d(tempAgent.getPosition().getX(), tempAgent.getPosition().getY()),
-//                        new Point2d(tempAgent.getGoal().getX(), tempAgent.getGoal().getY()),
-//                        rvoSpace,
-//                        Color.red);
-//                if (tempRVOAgent.getId() == 0) {
-//                    tempRVOAgent.setColor(Color.BLACK);
-//                }
-//
-//                tempRVOAgent.setPreferredSpeed(tempAgent.getPreferedSpeed());
-//                tempRVOAgent.setMaximumSpeed(tempAgent.getPreferedSpeed() * 2.0);
-//
-//                addNewAgent(tempRVOAgent);
-//
-//            }
+            List<Agent> xmlAgentList = scenario.getCrowd();
+            for (int i = 0; i < xmlAgentList.size(); i++) {
+                Agent tempAgent = xmlAgentList.get(i);
+
+                //@hunan: added in a new RVOAgent constructor to set the necessary parameters for PBM use only
+
+                RVOAgent tempRVOAgent = new RVOAgent(
+                        new Point2d(tempAgent.getPosition().getX(), tempAgent.getPosition().getY()),
+                        new Point2d(tempAgent.getGoal().getX(), tempAgent.getGoal().getY()),
+                        rvoSpace);
+                if (tempRVOAgent.getId() == 0) {
+                    tempRVOAgent.setColor(Color.BLACK);
+                }
+
+                tempRVOAgent.setPreferredSpeed(tempAgent.getPreferedSpeed());
+                tempRVOAgent.setMaximumSpeed(tempAgent.getPreferedSpeed() * 2.0);
+
+                addNewAgent(tempRVOAgent);
+
+            }
 
             List<Goals> xmlGoalList = scenario.getEnvironmentGoals();
             if (PropertySet.LATTICEMODEL) {
@@ -349,9 +357,14 @@ public class RVOModel extends SimState {
             //this is used to generate a set of agents in a line
             List<AgentLine> xmlAgentLineList = scenario.getGenerationLines();
             for (AgentLine agentLine: xmlAgentLineList) {
-
-                AgentGenerator tempAgentLine = new AgentGenerator(agentLine, this, actualRoadMap);
-                addNewAgentLine(tempAgentLine, agentLine.getFrequency());
+                if(actualRoadMap!=null){
+                    AgentGenerator tempAgentLine = new AgentGenerator(agentLine, this, actualRoadMap);
+                    addNewAgentLine(tempAgentLine, agentLine.getFrequency());
+                }else {
+                    AgentGenerator tempAgentLine = new AgentGenerator(agentLine, this, new Vector2d(agentLine.getGroupDirectionX(), agentLine.getGroupDirectionY()));
+                    addNewAgentLine(tempAgentLine, agentLine.getFrequency());
+                
+                }
             }
 
             List<AgentGroup> xmlAgentGroupList = scenario.getAgentGroups();
@@ -364,15 +377,23 @@ public class RVOModel extends SimState {
                 int[][] spaces = initializeLattice(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY(),
                         tempAgentGroup.getEndPoint().getX(), tempAgentGroup.getEndPoint().getY());
 
-//                Vector2d groupDirection = new Vector2d(tempAgentGroup.getGroupDirectionX(),tempAgentGroup.getGroupDirectionY());//normalized vector to specify the group direction
-//                groupDirection.normalize();
+                //TOdo added for hu nan experiments
+                Vector2d groupDirection = new Vector2d(tempAgentGroup.getGroupDirectionX(),tempAgentGroup.getGroupDirectionY());//normalized vector to specify the group direction
+                groupDirection.normalize();
+                groupDirection.scale(100);
 //
                 for (int i = 0; i < tempAgentGroup.getSize(); i++) {
                     RVOAgent agent = new RVOAgent(this.getRvoSpace());
                     Point2d position = this.getAgentPosition(tempAgentGroup.getStartPoint().getX(), tempAgentGroup.getStartPoint().getY(),
                             spaces);
                     agent.setCurrentPosition(position.x, position.y);
-
+                    
+                    //TODO : Added for setting hu nan's experiments
+                    Point2d goal = new Point2d(position);
+                    goal.add(groupDirection);
+                    agent.setGoal(goal);
+                    
+                    
                     double initialSpeed = random.nextGaussian() * sdevSpeed + meanSpeed;
                     if (initialSpeed < minSpeed) {
                         initialSpeed = minSpeed;
@@ -443,9 +464,6 @@ public class RVOModel extends SimState {
 //                }
 //            }
         }
-
-
-
         return new Point2d(mnx + (x * RVOAgent.RADIUS * 2), mny + (y * RVOAgent.RADIUS * 2));
 
     }

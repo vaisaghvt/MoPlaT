@@ -174,9 +174,6 @@ public final class ClusteredSpace extends RVOSpace {
         finalNeighbourSet.remove(me);
         Bag finalList = new Bag();
         finalList.addAll(finalNeighbourSet);
-        if(me.getId()==0){
-            System.out.println();
-        }
         return finalList;
 
     }

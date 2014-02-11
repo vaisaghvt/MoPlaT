@@ -8,6 +8,7 @@ import agent.RVOAgent;
 import environment.RVOSpace;
 import java.util.HashMap;
 import javax.vecmath.Point2d;
+import javax.vecmath.Vector2d;
 import sim.engine.*;
 import sim.util.*;
 import utility.PrecisePoint;
@@ -23,7 +24,7 @@ public class Device extends DevicePortrayal implements Proxiable {
 //    private int messageThreshold = 3; //received messages more than this amount, device is dense
 //    private int maxHops = 2; // this is the max. hops to consider in dense map
 
-    private boolean dense = false;
+//    private boolean dense = false;
     private int deviceId;
     public static int deviceIdCount = 0;
     protected RVOSpace mySpace;
@@ -33,7 +34,9 @@ public class Device extends DevicePortrayal implements Proxiable {
     public static int DEVICE_THRESHOLD; // max threshold for number of devices around agent
     public static int DEVICE_MSG_THRESHOLD; // max message threshold received by device to determine if agent is dense
     public static int DEVICE_MAX_HOPS;  // no. of hops of message passing
-    public static double DEVICE_MOVE_PROBABILITY;
+    public static double DEVICE_HOLDING_PROBABILITY;
+    public static double DEVICE_TRUST;
+
     public static int STOP_LENGTH = 10; //number of ticks to stop for when too dense
     public static int deviceCount = 0; // no. of devices
     private HashMap<Integer, Integer> denseMap; //map of denseness of neighbours
@@ -45,6 +48,7 @@ public class Device extends DevicePortrayal implements Proxiable {
     private boolean[] FA = new boolean[4]; //tracks the forbidden zones in four quadrants
     public static boolean FORBIDDENAREA_APPROACH; //to put into xml definition file
     public static boolean MIN_DIST_TO_GOAL;
+    private ClearDeviceMemory clearDevice;
 
     public Device() {
         deviceId = deviceIdCount++;
@@ -73,7 +77,11 @@ public class Device extends DevicePortrayal implements Proxiable {
     }
 
     public boolean isDense() {
-        return dense;
+        return (
+                (neighbours.size() > Device.DEVICE_THRESHOLD 
+                || 
+                denseMap.size() > Device.DEVICE_MSG_THRESHOLD) 
+                );
     }
 
     public Bag getNeighbours() {
@@ -111,39 +119,21 @@ public class Device extends DevicePortrayal implements Proxiable {
             }
 
         }
-        if ((neighbours.size() > Device.DEVICE_THRESHOLD || denseMap.size() > Device.DEVICE_MSG_THRESHOLD) && mySpace.getRvoModel().random.nextDouble() < Device.DEVICE_MOVE_PROBABILITY) {    
-            dense = true;
-        } else {
-            dense = false;
-        }
+//        if (
+//                (neighbours.size() > Device.DEVICE_THRESHOLD 
+//                || 
+//                denseMap.size() > Device.DEVICE_MSG_THRESHOLD) 
+//                && mySpace.getRvoModel().random.nextDouble() < Device.DEVICE_MOVE_PROBABILITY
+//                ) {    
+//            dense = true;
+//        } else {
+//            dense = false;
+//        }
     }
 
-    /* This method is called in device steppable */
-    public void execute() {
-        this.clearNeighbours();
-//        minFA = 0.0;
-//        maxFA = 0.0;
-//        hasForbiddenArea = false;
 
-        //original device that sends to neighbours that it is in the dense situation
-        neighbours = this.getNeighbours();
-        if (neighbours.size() > Device.DEVICE_THRESHOLD) {
-            sendTooDense(this.getDeviceId(), 1);
-        } else {
-            dense = false;
-        }
-        
-        //edited on 30th September 2013
-        if (FORBIDDENAREA_APPROACH) {
-            getForbiddenArea();
-        } else {//use the stop device approach
-            if (dense && !isStopped()) {
-                System.out.println("start stop executed!");
-                setStopped();
-            }
-        }
-
-
+    public ClearDeviceMemory getClearDeviceMemory() {
+        return this.clearDevice;
     }
 
     public SenseThinkDevice getSenseThinkDevice() {
@@ -155,6 +145,7 @@ public class Device extends DevicePortrayal implements Proxiable {
     }
 
     public void createSteppables() {
+        this.clearDevice = new ClearDeviceMemory();
         this.senseThinkDevice = new SenseThinkDevice();
         this.actDevice = new ActDevice();
     }
@@ -168,10 +159,11 @@ public class Device extends DevicePortrayal implements Proxiable {
      * @return
      */
     public boolean checkStillStopped() {
+        
         if (this.stopCounter > STOP_LENGTH) {
             this.stopCounter = 0;
             return false;
-        } else {
+        } else  {
             this.stopCounter++;
             return true;
         }
@@ -186,17 +178,58 @@ public class Device extends DevicePortrayal implements Proxiable {
         this.stopCounter = 1;
     }
 
+    public String getForbiddenAreasAsString() {
+        return FA[0]+","+FA[1]+","+FA[2]+","+FA[3];
+    }
+
+    boolean isQuardantForbidden(int i) {
+        return FA[i];
+    }
+
+    public class ClearDeviceMemory implements Steppable {
+
+        @Override
+        public void step(SimState ss) {
+           clearDenseMap();
+           clearNeighbours();
+        }
+        
+    }
+    
     public class SenseThinkDevice implements Steppable {
 
         public void step(SimState ss) {
-            execute();
+
+//        minFA = 0.0;
+//        maxFA = 0.0;
+//        hasForbiddenArea = false
+
+        //original device that sends to neighbours that it is in the dense situation
+            neighbours = getNeighbours();
+            if (neighbours.size() > Device.DEVICE_THRESHOLD) {
+                sendTooDense(getDeviceId(), 1);
+            } 
+//        else {
+//            dense = false;
+//        }
+        
+        
         }
     }
 
     public class ActDevice implements Steppable {
 
         public void step(SimState ss) {
-            clearDenseMap();
+           
+                //edited on 30th September 2013
+            if (FORBIDDENAREA_APPROACH) {
+                calculateForbiddenArea();
+            } else if (isDense() && !isStopped()) {
+//                System.out.println("start stop executed!");
+                setStopped();
+            }
+            
+
         }
     }
 
@@ -210,7 +243,8 @@ public class Device extends DevicePortrayal implements Proxiable {
     }
 
     public boolean hasForbiddenArea() {
-        return FA[0] || FA[1] || FA[2] || FA[3];
+        return (FA[0] || FA[1] || FA[2] || FA[3]);
+//                &&!(FA[0] && FA[1] && FA[2] && FA[3]);
     }
 
     private double getWeightedAngle(PrecisePoint source, Point2d dest) {
@@ -229,6 +263,7 @@ public class Device extends DevicePortrayal implements Proxiable {
         }
         return neighbourAngle;
     }
+    
 
     public boolean inForbiddenArea(Point2d testVector) {
         /* 23rd September 2013
@@ -242,35 +277,35 @@ public class Device extends DevicePortrayal implements Proxiable {
          */
         //TODO: instead of calculating angle, just calculate only quadrant by takin positive or negative x and y
         //updated on 25th September 2013
-        double neighbourAngle;
-        neighbourAngle = getWeightedAngle(this.currentPosition, testVector);
-
+        Vector2d relativeVectorToAgent = new Vector2d(testVector);
+                relativeVectorToAgent.sub(getCurrentPosition());
+                relativeVectorToAgent.normalize();
+                
         // within the first quadrant
-        if (neighbourAngle >= 0 && neighbourAngle < 1 && FA[0]) {
+        if(relativeVectorToAgent.x >=0 && relativeVectorToAgent.y <=0 && FA[0]) {
             return true;
             // within the second quadrant
-        } else if (neighbourAngle >= 1 && neighbourAngle < 2 && FA[1]) {
+        } else if(relativeVectorToAgent.x <=0 && relativeVectorToAgent.y <=0 && FA[1]) {
             return true;
             // within the third quadrant
-        } else if (neighbourAngle >= 2 && neighbourAngle < 3 && FA[2]) {
+        } else if(relativeVectorToAgent.x <=0 && relativeVectorToAgent.y >=0 && FA[2]) {
             return true;
             // within the fourth quadrant
-        } else if (FA[3]) {
+        } else if(relativeVectorToAgent.x >=0 && relativeVectorToAgent.y >=0 && FA[3]) {
             return true;
         }
         return false;
 
     }
 
-    private void getForbiddenArea() {
-        Double neighbourAngle;
+    private void calculateForbiddenArea() {
+//        Double neighbourAngle;
         int maxAgents = 0;
         int[] agentList = new int[4];
-        this.clearNeighbours();
-        neighbours = this.getNeighbours();
-//        minFA = 0.0;
-//        maxFA = 0.0;
-//        hasForbiddenArea = false;
+        FA = new boolean[4];
+        if(!isDense()){
+            return;
+        }
         // initialise the number of agents in the 4 quadrants
         for (int i = 0; i < 4; i++) {
             agentList[i] = 0;
@@ -279,40 +314,57 @@ public class Device extends DevicePortrayal implements Proxiable {
             Device dev = (Device) neighbour;
             if (dev.isDense()) {
                 //next stores the resultant vector obtained from current positions of this and neighbour
-                neighbourAngle = getWeightedAngle(this.currentPosition, (Point2d) dev.getCurrentPosition());
+//                neighbourAngle = getWeightedAngle(this.currentPosition, (Point2d) dev.getCurrentPosition());
+                Vector2d relativeVectorToAgent = new Vector2d(dev.getCurrentPosition());
+                relativeVectorToAgent.sub(getCurrentPosition());
+                relativeVectorToAgent.normalize();
+                
                 // the neighbour falls within the first quadrant
-                if (neighbourAngle >= 0 && neighbourAngle < 1) {
+//                if (neighbourAngle >= 0 && neighbourAngle < 1) {
+                if(relativeVectorToAgent.x >=0 && relativeVectorToAgent.y <=0){
+                
                     agentList[0]++;
                     if (agentList[0] > maxAgents) {
                         maxAgents = agentList[0];
                     }
                     // the neighbour falls within the second quadrant    
-                } else if (neighbourAngle >= 1 && neighbourAngle < 2) {
+//                } else if (neighbourAngle >= 1 && neighbourAngle < 2) {
+                }
+                if(relativeVectorToAgent.x <=0 && relativeVectorToAgent.y <=0){
+                
                     agentList[1]++;
                     if (agentList[1] > maxAgents) {
                         maxAgents = agentList[1];
                     }
                     // the neighbour falls within the third quadrant
-                } else if (neighbourAngle >= 2 && neighbourAngle < 3) {
+//                } else if (neighbourAngle >= 2 && neighbourAngle < 3) {
+                }
+                if(relativeVectorToAgent.x <=0 && relativeVectorToAgent.y >=0){
+                
                     agentList[2]++;
                     if (agentList[2] > maxAgents) {
                         maxAgents = agentList[2];
                     }
                     // the neighbour falls within the fourth quadrant
-                } else {
-                    agentList[3]++;
+                } 
+                if(relativeVectorToAgent.x >=0 && relativeVectorToAgent.y >=0){
+                  agentList[3]++;
                     if (agentList[3] > maxAgents) {
                         maxAgents = agentList[3];
                     }
                 }
             }
         }
-        for (int j = 0; j < 4; j++) {
-            if ((agentList[j] == maxAgents || agentList[j] >= 1) && maxAgents > 0) {
-                FA[j] = true;
-//                hasForbiddenArea = true;
-            } else {
-                FA[j] = false;
+        if (maxAgents > 0){
+            for (int j = 0; j < 4; j++) {
+                if (agentList[j] == maxAgents) 
+    //                    || agentList[j] >= 1)
+                         {
+                    FA[j] = true;
+    //                hasForbiddenArea = true;
+                } else {
+                    FA[j] = false;
+                }
             }
         }
 

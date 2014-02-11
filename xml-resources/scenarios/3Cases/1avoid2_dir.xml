@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="100" Ysize="5" Xsize="15" name="1avoid2_dir">
+    <crowd>
+        <prefDirection x="-1" y="0"/>
+        <position y="1.75" x="11"/>
+        <id>1</id>
+        <preferedSpeed>1.5</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+        
+    </crowd> 
+    <crowd>
+        <prefDirection x="1" y="0"/>
+        <position y="2.25" x="1"/>
+        <id>2</id>
+        <preferedSpeed>1.5</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+
+    </crowd>
+    <crowd>
+        <prefDirection x="-1" y="0"/>
+        <position y="2.75" x="11"/>
+        <id>3</id>
+        <preferedSpeed>1.5</preferedSpeed>
+        <commitmentLevel>2</commitmentLevel>
+
+    </crowd>
+</SimulationScenario>

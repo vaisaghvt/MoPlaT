@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="20" Ysize="30" Xsize="30" name="cross-specGoal-tr-30m">
+	<obstacles>
+            <vertices y="-5" x="-5"/>
+            <vertices y="-5" x="0"/>
+            <vertices y="-5" x="5"/>
+            <vertices y="-5" x="12.5"/>
+            <vertices y="0" x="12.5"/>
+            <vertices y="5" x="12.5"/>
+            <vertices y="12.5" x="12.5"/>
+            <vertices y="12.5" x="5"/>
+            <vertices y="12.5" x="0"/>
+            <vertices y="12.5" x="-5"/>
+    </obstacles>
+    
+    <obstacles>
+       <vertices y="-5" x="17.5"/>
+        <vertices y="0" x="17.5"/>
+        <vertices y="5" x="17.5"/>
+        <vertices y="12.5" x="17.5"/>
+        <vertices y="12.5" x="20"/>
+        <vertices y="12.5" x="30"/>
+        <vertices y="12.5" x="35"/>
+        <vertices y="5" x="35"/>
+        <vertices y="0" x="35"/>
+        <vertices y="-5" x="35"/>
+    </obstacles>
+    
+    <obstacles>
+        <vertices y="17.5" x="-5"/>
+        <vertices y="17.5" x="0"/>
+        <vertices y="17.5" x="5"/>
+        <vertices y="17.5" x="12.5"/>
+        <vertices y="20" x="12.5"/>
+        <vertices y="25" x="12.5"/>
+        <vertices y="35" x="12.5"/>
+        <vertices y="35" x="5"/>
+        <vertices y="35" x="0"/>
+        <vertices y="35" x="-5"/>
+    </obstacles>
+    
+
+    <obstacles>
+        <vertices y="17.5" x="35"/>
+        <vertices y="17.5" x="30"/>
+        <vertices y="17.5" x="25"/>
+        <vertices y="17.5" x="17.5"/>
+        <vertices y="25" x="17.5"/>
+        <vertices y="30" x="17.5"/>
+        <vertices y="35" x="17.5"/>
+        <vertices y="35" x="20"/>
+        <vertices y="35" x="25"/>
+        <vertices y="35" x="35"/>
+	</obstacles>
+    
+ <!--top group of agents-->
+	<!--top front row-->
+    <crowd>
+        <position y="4" x="13.5"/>
+        <goal y="34.5" x="13.5"/>
+        <id>0</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+		<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="34.5" x="13.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    <crowd>
+        <position y="4" x="14.5"/>
+        <goal y="34.5" x="14.5"/>
+        <id>1</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+		<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="34.5" x="14.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    <crowd>
+        <position y="4" x="15.5"/>
+        <goal y="34.5" x="15.5"/>
+        <id>2</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="34.5" x="15.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    <crowd>
+        <position y="4" x="16.5"/>
+        <goal y="34.5" x="16.5"/>
+        <id>3</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="34.5" x="16.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    
+    <!--top row 2-->
+   	<crowd>
+        <position y="3" x="13.5"/>
+        <goal y="33.5" x="13.5"/>
+        <id>4</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="33.5" x="13.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    <crowd>
+        <position y="3" x="14.5"/>
+        <goal y="33.5" x="14.5"/>
+        <id>5</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="33.5" x="14.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    <crowd>
+        <position y="3" x="15.5"/>
+        <goal y="33.5" x="15.5"/>
+        <id>6</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="33.5" x="15.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    <crowd>
+        <position y="3" x="16.5"/>
+        <goal y="33.5" x="16.6"/>
+        <id>7</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="33.5" x="16.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    
+    <!--top row 3-->
+   	<crowd>
+        <position y="2" x="13.5"/>
+        <goal y="32.5" x="13.5"/>
+        <id>8</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="32.5" x="13.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    <crowd>
+        <position y="2" x="14.5"/>
+        <goal y="32.5" x="14.5"/>
+        <id>9</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="32.5" x="14.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    <crowd>
+        <position y="2" x="15.5"/>
+        <goal y="32.5" x="15.5"/>
+        <id>10</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="32.5" x="15.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    <crowd>
+        <position y="2" x="16.5"/>
+        <goal y="32.5" x="16.5"/>
+        <id>11</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="32.5" x="16.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    
+    <!--top row 4-->
+	<crowd>
+        <position y="1" x="13.5"/>
+        <goal y="31.5" x="13.5"/>
+        <id>12</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="31.5" x="13.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    <crowd>
+        <position y="1" x="14.5"/>
+        <goal y="31.5" x="14.5"/>
+        <id>13</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="31.5" x="14.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    <crowd>
+        <position y="1" x="15.5"/>
+        <goal y="31.5" x="15.5"/>
+        <id>14</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="31.5" x="15.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    <crowd>
+        <position y="1" x="16.5"/>
+        <goal y="31.5" x="16.5"/>
+        <id>15</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="17" x="15"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="31.5" x="16.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>0</agentColor>
+    </crowd>
+    
+	    <!--right front line-->
+    <crowd>
+        <position y="13.5" x="26"/>
+        <goal y="13.5" x="-4.5"/>
+        <id>16</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+		<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="13.5" x="-4.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>2</agentColor>
+    </crowd>
+    <crowd>
+        <position y="14.5" x="26"/>
+        <goal y="14.5" x="-4.5"/>
+        <id>17</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="14.5" x="-4.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+		<agentColor>2</agentColor>
+    </crowd>
+    <crowd>
+        <position y="15.5" x="26"/>
+        <goal y="15.5" x="-4.5"/>
+        <id>18</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="15.5" x="-4.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+				<agentColor>2</agentColor>
+    </crowd>
+    <crowd>
+        <position y="16.5" x="26"/>
+        <goal y="16.5" x="-4.5"/>
+        <id>19</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="16.5" x="-4.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+				<agentColor>2</agentColor>
+    </crowd>
+    
+    <!--right line 2-->
+    <crowd>
+        <position y="13.5" x="27"/>
+        <goal y="13.5" x="-3.5"/>
+        <id>20</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="13.5" x="-3.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+				<agentColor>2</agentColor>
+    </crowd>
+    <crowd>
+        <position y="14.5" x="27"/>
+        <goal y="14.5" x="-3.5"/>
+        <id>21</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="14.5" x="-3.5"/>
+			</roadMapPoint>
+		</agentRoadmap>		
+		<agentColor>2</agentColor>
+    </crowd>
+    <crowd>
+        <position y="15.5" x="27"/>
+        <goal y="15.5" x="-3.5"/>
+        <id>22</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="15.5" x="-3.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+				<agentColor>2</agentColor>
+    </crowd>
+    <crowd>
+        <position y="16.5" x="27"/>
+        <goal y="16.5" x="-3.5"/>
+        <id>23</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="16.5" x="-3.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+				<agentColor>2</agentColor>
+    </crowd>
+    
+    <!--right line 3-->
+    <crowd>
+        <position y="13.5" x="28"/>
+        <goal y="13.5" x="-2.5"/>
+        <id>24</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="13.5" x="-2.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+				<agentColor>2</agentColor>
+    </crowd>
+    <crowd>
+        <position y="14.5" x="28"/>
+        <goal y="14.5" x="-2.5"/>
+        <id>25</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="14.5" x="-2.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+				<agentColor>2</agentColor>
+    </crowd>
+    <crowd>
+        <position y="15.5" x="28"/>
+        <goal y="15.5" x="-2.5"/>
+        <id>26</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="15.5" x="-2.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+				<agentColor>2</agentColor>
+    </crowd>
+    <crowd>
+        <position y="16.5" x="28"/>
+        <goal y="16.5" x="-2.5"/>
+        <id>27</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="16.5" x="-2.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+				<agentColor>2</agentColor>
+    </crowd>
+    
+    <!--right line 4-->
+    <crowd>
+        <position y="13.5" x="29"/>
+        <goal y="13.5" x="-1.5"/>
+        <id>28</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="13.5" x="-1.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+				<agentColor>2</agentColor>
+    </crowd>
+    <crowd>
+        <position y="14.5" x="29"/>
+        <goal y="14.5" x="-1.5"/>
+        <id>29</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="14.5" x="-1.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+				<agentColor>2</agentColor>
+    </crowd>
+    <crowd>
+        <position y="15.5" x="29"/>
+        <goal y="15.5" x="-1.5"/>
+        <id>30</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="15.5" x="-1.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+				<agentColor>2</agentColor>
+    </crowd>
+    <crowd>
+        <position y="16.5" x="29"/>
+        <goal y="16.5" x="-1.5"/>
+        <id>31</id>
+        <preferedSpeed>1.33</preferedSpeed>
+        <commitmentLevel>1</commitmentLevel>
+				<agentRoadmap>
+			<roadMapPoint>
+				<number>1</number>
+				<position y="15" x="13"/>
+			</roadMapPoint>
+			<roadMapPoint>
+				<number>2</number>
+				<position y="16.5" x="-1.5"/>
+			</roadMapPoint>
+		</agentRoadmap>
+				<agentColor>2</agentColor>
+    </crowd>
+</SimulationScenario>

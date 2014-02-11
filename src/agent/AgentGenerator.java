@@ -26,7 +26,7 @@ import sim.engine.Steppable;
  * @author Vaisagh
  */
 public class AgentGenerator implements Steppable {
-    private static boolean finished = false;
+    private static boolean finished = true;
 
     int generatorsPerLine;
     Point2d startPoint;
@@ -40,8 +40,10 @@ public class AgentGenerator implements Steppable {
     private final double sdevSpeed;
     private final double meanSpeed;
     private final List<? extends Point2d> generationPoints;
+    private Vector2d preferedDirection;
 
     public AgentGenerator(AgentLine agentLine, RVOModel model, HashMultimap<Integer, Point2d> actualRoadMap) {
+        finished = false;
         maxSpeed = agentLine.getMaxSpeed();
         minSpeed = agentLine.getMinSpeed();
         meanSpeed = agentLine.getMeanSpeed();
@@ -51,6 +53,33 @@ public class AgentGenerator implements Steppable {
         startPoint = new Point2d(agentLine.getStartPoint().getX(), agentLine.getStartPoint().getY());
         endPoint = new Point2d(agentLine.getEndPoint().getX(), agentLine.getEndPoint().getY());
         this.actualRoadMap = actualRoadMap;
+
+        generatorsPerLine = agentLine.getNumber();
+        steps = 0;
+        this.model = model;
+
+        Vector2d distance = new Vector2d(startPoint);
+        distance.sub(endPoint);
+
+
+
+        generationPoints = getGoalPoints(RVOAgent.RADIUS, generatorsPerLine, startPoint, endPoint);
+        createAgents();
+    }
+    
+    public AgentGenerator(AgentLine agentLine, RVOModel model, Vector2d direction) {
+        finished = false;
+        maxSpeed = agentLine.getMaxSpeed();
+        minSpeed = agentLine.getMinSpeed();
+        meanSpeed = agentLine.getMeanSpeed();
+        sdevSpeed = agentLine.getSDevSpeed();
+
+
+        startPoint = new Point2d(agentLine.getStartPoint().getX(), agentLine.getStartPoint().getY());
+        endPoint = new Point2d(agentLine.getEndPoint().getX(), agentLine.getEndPoint().getY());
+        
+        this.actualRoadMap = null;
+        this.preferedDirection = new Vector2d(direction);
 
         generatorsPerLine = agentLine.getNumber();
         steps = 0;
@@ -110,6 +139,8 @@ public class AgentGenerator implements Steppable {
         return results;
     }
 
+   
+
     @Override
     public void step(SimState ss) {
         createAgents();
@@ -136,9 +167,17 @@ public class AgentGenerator implements Steppable {
             agent.setPreferredSpeed(initialSpeed);
             agent.setMaximumSpeed(maxSpeed);
 
-            assert actualRoadMap != null;
-            agent.addRoadMap(actualRoadMap);
-
+            
+            if(actualRoadMap !=null){
+                agent.addRoadMap(actualRoadMap);
+            }else{
+                 this.preferedDirection.normalize();
+                this.preferedDirection.scale(100);
+                //TODO : Added for setting hu nan's experiments
+                    Point2d goal = new Point2d(agent.getCurrentPosition());
+                    goal.add(this.preferedDirection);
+                    agent.setGoal(goal);
+            }
 
             //   agent.setGoal(new Point2d(6.0, 0.0));
             agent.setPrefVelocity();

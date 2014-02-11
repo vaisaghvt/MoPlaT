@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="30" Ysize="10" Xsize="35" name="corridor-group-wall2">
+     <obstacles>
+        <vertices y="1.5" x="-5"/>
+        <vertices y="1.75" x="-5"/>
+        <vertices y="1.75" x="0"/>
+        <vertices y="1.75" x="10"/>
+        <vertices y="1.75" x="20"/>
+        <vertices y="1.75" x="30"/>
+        <vertices y="1.75" x="40"/>
+        <vertices y="1.5" x="40"/>
+    </obstacles>
+    
+    <obstacles>
+        <vertices y="8.25" x="-5"/>
+        <vertices y="8" x="-5"/>
+        <vertices y="8" x="0"/>
+        <vertices y="8" x="10"/>
+        <vertices y="8" x="20"/>
+        <vertices y="8" x="30"/>
+        <vertices y="8" x="40"/>
+        <vertices y="8.25" x="40"/>
+    </obstacles>
+<!--
+    <agentGroups>
+        <endPoint y="8" x="8"/>
+        <startPoint y="2.5" x="1"/>
+        <size>30</size>
+        <minSpeed>1</minSpeed>
+        <maxSpeed>1.5</maxSpeed>
+        <meanSpeed>1.33</meanSpeed>
+        <sDevSpeed>0</sDevSpeed>
+        <groupDirection_x>1</groupDirection_x>
+        <groupDirection_y>0</groupDirection_y>
+        <maxDensityFactor>1.2</maxDensityFactor>
+    </agentGroups>
+	
+    <agentGroups>
+        <endPoint y="8" x="35"/>
+        <startPoint y="2.5" x="28"/>
+        <size>30</size>
+        <minSpeed>1</minSpeed>
+        <maxSpeed>1.5</maxSpeed>
+        <meanSpeed>1.33</meanSpeed>
+        <sDevSpeed>0</sDevSpeed>
+        <groupDirection_x>-1</groupDirection_x>
+        <groupDirection_y>0</groupDirection_y>
+        <maxDensityFactor>1.2</maxDensityFactor>
+    </agentGroups>
+ -->   
+   <generationLines>
+        <endPoint x="0.5" y="7.5"/>
+        <startPoint x="0.5" y="2.5"/>
+        <minSpeed>1</minSpeed>
+        <maxSpeed>1.5</maxSpeed>
+        <meanSpeed>1.33</meanSpeed>
+        <sDevSpeed>0</sDevSpeed>
+        <groupDirection_x>1</groupDirection_x>
+        <groupDirection_y>0</groupDirection_y>
+        <frequency>40</frequency>
+        <number>6</number>
+    </generationLines>
+	
+    <generationLines>
+        <endPoint x="34.5" y="7.5"/>
+        <startPoint x="34.5" y="2.5"/>
+        <minSpeed>1</minSpeed>
+        <maxSpeed>1.5</maxSpeed>
+        <meanSpeed>1.33</meanSpeed>
+        <sDevSpeed>0</sDevSpeed>
+        <groupDirection_x>-1</groupDirection_x>
+        <groupDirection_y>0</groupDirection_y>
+        <frequency>40</frequency>
+        <number>6</number>
+    </generationLines>
+    
+</SimulationScenario>

@@ -10,6 +10,7 @@ import app.dataTracking.PhysicaDataTracker;
 import java.util.List;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import utility.Geometry;
 
 /**
  *
@@ -37,11 +38,17 @@ class WrapUp implements Steppable {
                 return;
             }
         }
-        for (RVOAgent agent : agents) {
-            if (agent.getCurrentPosition().getX() > 0
-                    && agent.getCurrentPosition().getY() > 0
-                    && agent.getCurrentPosition().getX() < state.getWorldXSize()
-                    && agent.getCurrentPosition().getY() < state.getWorldYSize()) {
+//        for (RVOAgent agent : agents) {
+//            if (agent.getCurrentPosition().getX() > 0
+//                    && agent.getCurrentPosition().getY() > 0
+//                    && agent.getCurrentPosition().getX() < state.getWorldXSize()
+//                    && agent.getCurrentPosition().getY() < state.getWorldYSize()) {
+//                return;
+//            }
+//        }
+        
+        for(RVOAgent agent:agents){
+            if(agent.getGoal().distance(agent.getCurrentPosition())>=Geometry.EPSILON){
                 return;
             }
         }

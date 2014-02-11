@@ -37,8 +37,8 @@ public class PropertySet {
      * The file to use specifying the parameters for this run.
      */
     public static String PROPERTIES_FILENAME = "CrowdProperties" + File.separatorChar +
-            "DeviceSettings" + File.separatorChar +
-            "DeviceTestingFile.xml";
+//            "CW2011" + File.separatorChar +
+            "CW2011PaperSettings.xml";
     
     public static enum Model {
         // Add full path of class to be called for the constructor. Also if there are
@@ -88,7 +88,7 @@ public class PropertySet {
     public static int DEVICE_THRESHOLD;
     public static int DEVICE_MSG_THRESHOLD;
     public static int DEVICE_MAX_HOPS;
-    public static double DEVICE_MOVE_PROBABILITY;
+
     
     public static void writePropertiesToFile(String fileName) {
         File file = new File(fileName);
@@ -167,8 +167,7 @@ public class PropertySet {
             CHECK_SIZE_Y = params.getDefaultCheckSizeY();
             SCALE = params.getDefaultScale();
             HIGH_PRECISION = params.isHighPrecision();
-
-
+            
             //AGENT DISPLAY PARAMETERS
             AgentPortrayal.SHOW_ORCA_LINES = params.isShowLines();
             AgentPortrayal.SHOW_VELOCITY = params.isShowVelocity();
@@ -185,14 +184,7 @@ public class PropertySet {
 
             Geometry.EPSILON = params.getRVOEpsilon();  //@hunan: in this case, can avoid symmetric deadlock in 1to1 case, but cannot avoid crossing4corner cases
             
-            
-            //Device DISPLAY PARAMETERS
-            DevicePortrayal.SHOW_ORCA_LINES = params.isShowLines();
-            DevicePortrayal.SHOW_VELOCITY = params.isShowVelocity();
-            DevicePortrayal.SHOW_TRAILS = params.isTrails();
-            
-            DevicePortrayal.SHOW_STP = false; //default false
-
+          
             //Device PARAMETERS
             Device.RADIUS = params.getAgentRadius();
 //           Device.DEFAULT_PREFERRED_SPEED = params.getPreferredSpeed();
@@ -201,7 +193,10 @@ public class PropertySet {
             Device.DEVICE_THRESHOLD= params.getDeviceThreshold();
             Device.DEVICE_MSG_THRESHOLD = params.getDeviceMsgThreshold();
             Device.DEVICE_MAX_HOPS = params.getDeviceMaxHops();
-            Device.DEVICE_MOVE_PROBABILITY = params.getDeviceMoveProbability();
+            
+            Device.DEVICE_HOLDING_PROBABILITY = params.getDeviceHoldingProbability();
+            Device.DEVICE_TRUST  = params.getDeviceTrust();
+            
             Device.FORBIDDENAREA_APPROACH = params.isForbiddenAreaApproach();
             Device.MIN_DIST_TO_GOAL = params.isMinDistToGoal();
 

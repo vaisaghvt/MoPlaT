@@ -131,7 +131,7 @@ public class AgentPortrayal extends SimplePortrayal2D {
         double starty = me.getCurrentPosition().getY() * scale;
         
         double endx = 0, endy = 0;
-        int countNumOfStepDraw = 40;   //used to display trail only for the last 50 steps
+        int countNumOfStepDraw = 150;   //used to display trail only for the last 50 steps
 
         if (trails && points.size() >= countNumOfStepDraw) { // if trails need to be drawn...
             final BasicStroke stroke;

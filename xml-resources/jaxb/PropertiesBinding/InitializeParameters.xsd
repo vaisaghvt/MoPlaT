@@ -52,7 +52,9 @@
             <xs:attribute name="DeviceThreshold" type="xs:int"/>
             <xs:attribute name="DeviceMsgThreshold" type="xs:int"/>
             <xs:attribute name="DeviceMaxHops" type="xs:int"/>
-            <xs:attribute name="DeviceMoveProbability" type="xs:double"/>
+            
+            <xs:attribute name="DeviceHoldingProbability" type="xs:double"/>
+            <xs:attribute name="DeviceTrust" type="xs:double"/>
             <xs:attribute name="ForbiddenAreaApproach" type="xs:boolean"/>
             <xs:attribute name="MinDistToGoal" type="xs:boolean"/>
 

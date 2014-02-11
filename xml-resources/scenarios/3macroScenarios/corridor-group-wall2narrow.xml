@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="30" Ysize="10" Xsize="35" name="corridorGroup">
+     <obstacles>
+        <vertices y="1.5" x="0"/>
+        <vertices y="2.5" x="0"/>
+        <vertices y="2.5" x="35"/>
+        <vertices y="1.5" x="35"/>
+    </obstacles>
+    
+    <obstacles>
+        <vertices y="8.5" x="0"/>
+        <vertices y="7.5" x="0"/>
+        <vertices y="7.5" x="35"/>
+        <vertices y="8.5" x="35"/>
+    </obstacles>
+
+    <agentGroups>
+        <endPoint y="6.5" x="5"/>
+        <startPoint y="3.5" x="0.2"/>
+        <size>40</size>
+        <minSpeed>1</minSpeed>
+        <maxSpeed>2</maxSpeed>
+        <meanSpeed>1.33</meanSpeed>
+        <sDevSpeed>0</sDevSpeed>
+        <groupDirection_x>1</groupDirection_x>
+        <groupDirection_y>0</groupDirection_y>
+        <maxDensityFactor>1</maxDensityFactor>
+    </agentGroups>
+	
+    <agentGroups>
+        <endPoint y="6.5" x="36"/>
+        <startPoint y="3.5" x="30"/>
+        <size>40</size>
+        <minSpeed>1</minSpeed>
+        <maxSpeed>2</maxSpeed>
+        <meanSpeed>1.33</meanSpeed>
+        <sDevSpeed>0</sDevSpeed>
+        <groupDirection_x>-1</groupDirection_x>
+        <groupDirection_y>0</groupDirection_y>
+        <maxDensityFactor>1</maxDensityFactor>
+    </agentGroups>
+    
+<!--    <generationLines>
+        <endPoint y ="3" x="1"/>
+        <startPoint y ="7" x="1"/>
+        <direction>1</direction>
+        <frequency></frequency>
+        
+    </generationLines>-->
+    
+</SimulationScenario>

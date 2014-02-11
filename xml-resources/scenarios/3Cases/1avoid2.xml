@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="100" Ysize="3" Xsize="15" name="followTest1">
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="100" Ysize="5" Xsize="15" name="1avoid2">
     <crowd>
-        <goal y="0.70104794" x="1.9383987"/>
-        <position y="0.70104794" x="10.9383987"/>
+        <goal y="1.65" x="2"/>
+        <position y="1.65" x="12"/>
         <id>1</id>
-        <preferedSpeed>1.4</preferedSpeed>
+        <preferedSpeed>1.5</preferedSpeed>
         <commitmentLevel>3</commitmentLevel>
     </crowd> 
     <crowd>
-        <goal y="1.269669324" x="14.163663493"/>
-        <position y="1.269669324" x="1.163663493"/>
+        <goal y="1.25" x="14"/>
+        <position y="1.25" x="2"/>
         <id>2</id>
-        <preferedSpeed>1.4</preferedSpeed>
+        <preferedSpeed>1.5</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="1.606932125" x="1.93596693"/>
-        <position y="1.606932125" x="10.93596693"/>
+        <goal y="0.85" x="2"/>
+        <position y="0.85" x="12"/>
         <id>3</id>
-        <preferedSpeed>1.4</preferedSpeed>
+        <preferedSpeed>1.5</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
 </SimulationScenario>

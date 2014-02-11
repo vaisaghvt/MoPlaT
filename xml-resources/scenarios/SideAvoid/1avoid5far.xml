@@ -2,14 +2,14 @@
 <SimulationScenario xmlns="http://geography.environment" logUsed="true" displayUsed="true" scale="80" Ysize="5" Xsize="12" name="SideAvoid">
     <crowd>
         <goal y="2.1" x="11"/>
-        <position y="2.1" x="1.6"/>
+        <position y="2.1" x="6.6"/>
         <id>1</id>
         <preferedSpeed>1.1</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="1.65" x="1.0125"/>
-        <position y="1.65" x="10"/>
+        <goal y="1.85" x="1.0125"/>
+        <position y="1.85" x="10"/>
         <id>2</id>  
         <preferedSpeed>1.1</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
@@ -22,22 +22,22 @@
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="2.55" x="1.025"/>
-        <position y="2.55" x="10"/>
+        <goal y="2.35" x="1.025"/>
+        <position y="2.35" x="10"/>
         <id>4</id>
         <preferedSpeed>1.1</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="3" x="1.0625"/>
-        <position y="3" x="10"/>
+        <goal y="2.8" x="1.0625"/>
+        <position y="2.8" x="10"/>
         <id>5</id>
         <preferedSpeed>1.1</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>
     </crowd>
     <crowd>
-        <goal y="1.2" x="1.0875"/>
-        <position y="1.2" x="10"/>
+        <goal y="1.4" x="1.0875"/>
+        <position y="1.4" x="10"/>
         <id>6</id>
         <preferedSpeed>1.1</preferedSpeed>
         <commitmentLevel>2</commitmentLevel>

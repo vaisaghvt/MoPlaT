@@ -19,7 +19,9 @@ import environment.RVOSpace;
 import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.vecmath.Point2d;
@@ -63,7 +65,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     /**
      * Current position of the agent from javax.vecmath
      */
-    private int listenToDevice =1;
+    private int listenToDevice =6;
     protected PrecisePoint currentPosition;
     protected double mass = 70; // in KG
     /**
@@ -104,6 +106,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     private Point2d currentRoadMapPoint = null;
 //    private PrecisePoint prevGoal;
     private int currentPriority = -1;
+    private boolean isTrustingDevice=true;
 
     /**
      * Used by RVOModel to create an agent with just the space initialized.
@@ -146,10 +149,24 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             Logger.getLogger(RVOAgent.class.getName()).log(Level.SEVERE, null, ex);
         }
         id = agentCount++;
-
-        setDevice(mySpace); //assigns a device to agents in mySpace
+        
+        if(mySpace.getRvoModel().random.nextDouble()  < Device.DEVICE_HOLDING_PROBABILITY){
+            setDevice(mySpace); //assigns a device to agents in mySpace
+            if(mySpace.getRvoModel().random.nextDouble() < Device.DEVICE_TRUST){
+                this.isTrustingDevice = true;
+            }else{
+                this.isTrustingDevice = false;
+            }
+        }
+        
     }
 
+    public RVOAgent(Point2d myLocation,Point2d goal,RVOSpace rvoSpace){
+        this(rvoSpace);
+        this.setCurrentPosition(myLocation.x, myLocation.y);
+        this.setGoal(goal);
+        
+    }
     /**
      * Not used. Maybe used in clustered agents. Created by VT
      *
@@ -213,13 +230,13 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     }
 
     private boolean reachedGoal() {
-
-        if (goal != null) {
-
-            return (currentPosition.toPoint().distance(goal) < RADIUS);
-        } else {
-            return false;
-        }
+return false;
+//        if (goal != null) {
+//
+//            return (currentPosition.toPoint().distance(goal) < RADIUS);
+//        } else {
+//            return false;
+//        }
     }
 
     public Point2d getCurrentPosition() {
@@ -257,6 +274,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             velocity = new PrecisePoint();
         }
 //        return velocity.toVector(); //the error comes from here, 1.3,0 gives vector value of 1,0
+//        System.out.println(velocity);
         return new Vector2d(velocity.getX(), velocity.getY());
     }
 
@@ -298,7 +316,13 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
             prefVelocity = new Vector2d(goal);
             prefVelocity.sub(currentPosition.toPoint());
             prefVelocity.normalize();
-            prefVelocity.scale(preferredSpeed); //@hunan:added the scale for perferredSpeed
+            double distanceToGoal = currentPosition.toPoint().distance(goal);
+            if(distanceToGoal < preferredSpeed) {
+                prefVelocity.scale(distanceToGoal);
+            }
+            else {
+                prefVelocity.scale(preferredSpeed);
+            } //@hunan:added the scale for perferredSpeed
         } //according to preferredDirection
 //        else {
 //            prefVelocity = new Vector2d(prefDirection);
@@ -429,6 +453,10 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         return result;
     }
 
+    private boolean isTrustingDevice() {
+        return isTrustingDevice;
+    }
+
     public class SenseThink implements Steppable {
 
         @Override
@@ -460,14 +488,13 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                 } else {//use the stop device approach
 
                     //the code commented out here is to implement no-move on device for about 10 tics
-                    if (hasDevice() && getDevice().isStopped()) {
-                        if (getDevice().isDense()) {
-                            System.out.println("yes im in ");
+                    if (hasDevice() && getDevice().isStopped() ) {
+                        if (getDevice().checkStillStopped()&& RVOAgent.this.isTrustingDevice()) {
                             prefVelocity = new Vector2d(0, 0);
+//                            RVOAgent.this.setPreferredSpeed(0.);
                         } else {
                             setPrefVelocity();
                         }
-                        getDevice().checkStillStopped();
                     } else {
                         setPrefVelocity();
                     }
@@ -665,6 +692,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
                         + velocity.getX() * PropertySet.TIMESTEP);
                 double currentPosition_y = (currentPosition.getY()
                         + velocity.getY() * PropertySet.TIMESTEP);
+                
                 setCurrentPosition(currentPosition_x, currentPosition_y);
                 /*
                  if (hasDevice()) {
@@ -752,9 +780,7 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
     }
 
     public Vector2d determinePrefVelocity() {
-        
-        
-        
+  
         Vector2d result = null;
 
         Vector2d agentUnitVelocity = new Vector2d(this.getVelocity());
@@ -770,62 +796,62 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
         agentBottomPosition.setX(this.getCurrentPosition().getX() + agentUnitVelocity.getY() * RVOAgent.RADIUS);
         agentBottomPosition.setY(this.getCurrentPosition().getY() - agentUnitVelocity.getX() * RVOAgent.RADIUS);
 
-        Point2d ignoredPoint = null;
+        Set<Point2d> ignoredPoints = new LinkedHashSet<Point2d> ();
         
         for (int localCurrentPriority = roadMap.keySet().size() - 1; 
                 localCurrentPriority >= 0; localCurrentPriority--) {
             
             if (currentRoadMapPoint!=null && localCurrentPriority == currentPriority){ 
-                // for current priority level use the last used roadmap without 
-                // calculating min distance. The only reason to not take this 
-                // would be that this point is forbidden.
+//                // for current priority level use the last used roadmap without 
+//                // calculating min distance. The only reason to not take this 
+//                // would be that this point is forbidden.
                 if (mySpace.visibleFrom(currentRoadMapPoint, agentTopPosition)
                             && mySpace.visibleFrom(currentRoadMapPoint, agentBottomPosition)) {
                     if (listenToDevice>0 && this.hasDevice() && Device.FORBIDDENAREA_APPROACH 
                             && this.getDevice().hasForbiddenArea() 
                             && this.getDevice().inForbiddenArea(currentRoadMapPoint)) {
-                        ignoredPoint=currentRoadMapPoint;
-                        listenToDevice --;
+                        ignoredPoints.add(currentRoadMapPoint);
+                        
                     }else{
-                    
                         result = findVelocityFromRoadMap(currentRoadMapPoint);
                         return result;
-                        
                     }
                 }
-                
+//                
             }
             
             double minDistance = Double.MAX_VALUE;
             Point2d localCurrentGoal = null;
             for (Point2d tempCurrentGoal : roadMap.get(localCurrentPriority)) {
-                if(ignoredPoint !=null && ignoredPoint.equals(tempCurrentGoal)){
+                if(ignoredPoints.contains(tempCurrentGoal)){
                     continue;
                 }
-//                if (this.hasDevice() && Device.FORBIDDENAREA_APPROACH 
-//                        && this.getDevice().hasForbiddenArea() 
-//                        && this.getDevice().inForbiddenArea(tempCurrentGoal)) {
-//                    continue;
-//                }
-
                 if (mySpace.visibleFrom(tempCurrentGoal, agentTopPosition)
-                        && mySpace.visibleFrom(tempCurrentGoal, agentBottomPosition)) {
-//                    if (hasDevice() && Device.FORBIDDENAREA_APPROACH) {
-//                        localCurrentGoal = tempCurrentGoal; //try without minDist Oct 2013
-//                        break; //agent may move to a goal further away than a nearer goal new Oct 2013
-//                    } else {
+                            && mySpace.visibleFrom(tempCurrentGoal, agentBottomPosition)) {
+                    if (this.hasDevice() && Device.FORBIDDENAREA_APPROACH 
+                            && this.getDevice().hasForbiddenArea() 
+                            && this.getDevice().inForbiddenArea(tempCurrentGoal)) {
+                        ignoredPoints.add(tempCurrentGoal);
+                        continue;
+                    }else{
                         if (this.getCurrentPosition().distance(tempCurrentGoal) < minDistance) {
                             minDistance = this.getCurrentPosition().distance(tempCurrentGoal);
                             localCurrentGoal = tempCurrentGoal;
                          
                         }
-//                    }
+                    }
                 }
+            
             }
 
+            if(!ignoredPoints.isEmpty()){
+                listenToDevice--;
+           
+            }
             if (localCurrentGoal != null) {
                 result = findVelocityFromRoadMap(localCurrentGoal);
                 currentPriority = localCurrentPriority;
+                
                 break;
             }
             if (result != null) {
@@ -836,6 +862,8 @@ public class RVOAgent extends AgentPortrayal implements Proxiable {
 //            assert false;
 
             result = tryWeakTest();
+          
+//            result = new Vector2d();
             assert !Double.isNaN(result.x);
         }
 //        System.out.println(result);

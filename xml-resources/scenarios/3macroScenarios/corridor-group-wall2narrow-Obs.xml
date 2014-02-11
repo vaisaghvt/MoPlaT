@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="30" Ysize="10" Xsize="35" name="corridor-group-narrow-obstacle">
+     <obstacles>
+        <vertices y="1.5" x="0"/>
+        <vertices y="2.5" x="0"/>
+        <vertices y="2.5" x="35"/>
+        <vertices y="1.5" x="35"/>
+    </obstacles>
+    
+    <obstacles>
+        <vertices y="8.5" x="0"/>
+        <vertices y="7.5" x="0"/>
+        <vertices y="7.5" x="35"/>
+        <vertices y="8.5" x="35"/>
+    </obstacles>
+	
+	 <obstacles>
+        <vertices y="4.75" x="17.25"/>
+        <vertices y="4.75" x="17.75"/>
+        <vertices y="5.25" x="17.75"/>
+        <vertices y="5.25" x="17.25"/>
+    </obstacles>
+
+    <agentGroups>
+        <endPoint y="6.5" x="4"/>
+        <startPoint y="3.5" x="1"/>
+        <size>16</size>
+        <minSpeed>1</minSpeed>
+        <maxSpeed>2</maxSpeed>
+        <meanSpeed>1.33</meanSpeed>
+        <sDevSpeed>0.3</sDevSpeed>
+        <groupDirection_x>1</groupDirection_x>
+        <groupDirection_y>0</groupDirection_y>
+        <maxDensityFactor>1</maxDensityFactor>
+    </agentGroups>
+	
+    <agentGroups>
+        <endPoint y="6.5" x="40"/>
+        <startPoint y="3.5" x="31"/>
+        <size>16</size>
+        <minSpeed>1</minSpeed>
+        <maxSpeed>2</maxSpeed>
+        <meanSpeed>1.33</meanSpeed>
+        <sDevSpeed>0.3</sDevSpeed>
+        <groupDirection_x>-1</groupDirection_x>
+        <groupDirection_y>0</groupDirection_y>
+        <maxDensityFactor>1</maxDensityFactor>
+    </agentGroups>
+</SimulationScenario>

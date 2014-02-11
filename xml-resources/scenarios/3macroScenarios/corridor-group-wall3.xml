@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="30" Ysize="10" Xsize="40" name="corridor-group-wall2">
+	<obstacles>
+		<vertices y="3" x="-10"/>
+		<vertices y="3" x="-5"/>
+		<vertices y="3" x="0"/>
+		<vertices y="3" x="3"/>
+		<vertices y="3" x="6"/>
+		<vertices y="3" x="9"/>
+		<vertices y="3" x="12"/>
+		<vertices y="3" x="14"/>
+		<vertices y="4" x="15"/>
+		<vertices y="4" x="17"/>
+		<vertices y="4" x="19"/>
+		<vertices y="4" x="23"/>
+		<vertices y="3" x="23"/>
+		<vertices y="3" x="26"/>
+		<vertices y="3" x="29"/>
+        <vertices y="3" x="32"/>
+		<vertices y="3" x="35"/>
+		<vertices y="3" x="40"/>
+    </obstacles>
+    
+    <obstacles>
+		<vertices y="8" x="-10"/>
+		<vertices y="8" x="-5"/>
+		<vertices y="8" x="0"/>
+		<vertices y="8" x="3"/>
+		<vertices y="8" x="6"/>
+		<vertices y="8" x="9"/>
+		<vertices y="8" x="12"/>
+		<vertices y="8" x="14"/>
+		<vertices y="7" x="15"/>
+		<vertices y="7" x="17"/>
+		<vertices y="7" x="19"/>
+		<vertices y="7" x="23"/>
+		<vertices y="8" x="23"/>
+		<vertices y="8" x="26"/>
+		<vertices y="8" x="29"/>
+        <vertices y="8" x="32"/>
+		<vertices y="8" x="35"/>
+		<vertices y="8" x="40"/>
+    </obstacles>
+
+    <agentGroups>
+        <endPoint y="7.75" x="13.25"/>
+        <startPoint y="3.5" x="-5.25"/>
+        <size>192</size>
+        <minSpeed>0.8</minSpeed>	
+        <maxSpeed>1.9</maxSpeed>
+        <meanSpeed>1.33</meanSpeed>
+        <sDevSpeed>0.26</sDevSpeed>
+        <groupDirection_x>1</groupDirection_x>
+        <groupDirection_y>0</groupDirection_y>
+        <maxDensityFactor>0.6</maxDensityFactor>
+    </agentGroups>
+	
+    
+</SimulationScenario>

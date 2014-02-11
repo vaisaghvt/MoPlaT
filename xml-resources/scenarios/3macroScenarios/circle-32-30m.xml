@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="false" latticeModel="false" displayUsed="true" scale="25" Ysize="30" Xsize="30" name="circle-32-30m">
+ <agentCircles>
+        <centerPoint y="15" x="15"/>
+        <circleRadius>13.75</circleRadius>
+        <number>32</number>
+        <minSpeed>0.7</minSpeed>
+        <maxSpeed>2</maxSpeed>
+        <meanSpeed>1.33</meanSpeed>
+        <sDevSpeed>0.3</sDevSpeed>
+ </agentCircles>
+</SimulationScenario>

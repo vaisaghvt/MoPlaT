@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="30" Ysize="25" Xsize="25" name="cross-group-tr">
+   <obstacles>
+       <vertices y="0" x="0"/>
+        <vertices y="0" x="5"/>
+        <vertices y="0" x="10"/>
+        <vertices y="5" x="10"/>
+        <vertices y="10" x="10"/>
+        <vertices y="10" x="5"/>
+        <vertices y="10" x="0"/>
+    </obstacles>
+    
+    <obstacles>
+       <vertices y="0" x="15"/>
+        <vertices y="5" x="15"/>
+        <vertices y="10" x="15"/>
+        <vertices y="10" x="20"/>
+        <vertices y="10" x="25"/>
+        <vertices y="5" x="25"/>
+        <vertices y="0" x="25"/>
+    </obstacles>
+    
+    <obstacles>
+       <vertices y="15" x="0"/>
+        <vertices y="15" x="5"/>
+        <vertices y="15" x="10"/>
+        <vertices y="20" x="10"/>
+        <vertices y="25" x="10"/>
+        <vertices y="25" x="5"/>
+        <vertices y="25" x="0"/>
+    </obstacles>
+    
+
+    <obstacles>
+	    <vertices y="15" x="25"/>
+        <vertices y="15" x="20"/>
+        <vertices y="15" x="15"/>
+        <vertices y="20" x="15"/>
+        <vertices y="25" x="15"/>
+        <vertices y="25" x="20"/>
+        <vertices y="25" x="25"/>
+	</obstacles>
+    
+    <!--agentGroups>
+        <endPoint y="18" x="8.075"/>
+        <startPoint y="15" x="3.075"/>
+        <size>16</size>
+        <minSpeed>1</minSpeed>
+        <maxSpeed>2</maxSpeed>
+        <meanSpeed>1.5</meanSpeed>
+        <sDevSpeed>0.4</sDevSpeed>
+        <groupDirection_x>1</groupDirection_x>
+        <groupDirection_y>0</groupDirection_y>
+        <maxDensityFactor>0.6</maxDensityFactor>
+    </agentGroups-->
+	<agentGroups>
+        <endPoint y="4" x="14"/>
+        <startPoint y="1" x="11"/>
+        <size>16</size>
+        <minSpeed>1</minSpeed>
+        <maxSpeed>2</maxSpeed>
+        <meanSpeed>1.33</meanSpeed>
+        <sDevSpeed>0</sDevSpeed>
+        <groupDirection_x>0</groupDirection_x>
+        <groupDirection_y>1</groupDirection_y>
+        <maxDensityFactor>1</maxDensityFactor>
+    </agentGroups>
+    <agentGroups>
+        <endPoint y="14" x="24"/>
+        <startPoint y="11" x="21"/>
+        <size>16</size>
+        <minSpeed>1</minSpeed>
+        <maxSpeed>2</maxSpeed>
+        <meanSpeed>1.33</meanSpeed>
+        <sDevSpeed>0</sDevSpeed>
+        <groupDirection_x>-1</groupDirection_x>
+        <groupDirection_y>0</groupDirection_y>
+        <maxDensityFactor>1</maxDensityFactor>
+    </agentGroups> 
+    <!--agentGroups>
+        <endPoint y="28" x="19"/>
+        <startPoint y="25" x="12"/>
+        <size>16</size>
+        <minSpeed>1</minSpeed>
+        <maxSpeed>2</maxSpeed>
+        <meanSpeed>1.5</meanSpeed>
+        <sDevSpeed>0.4</sDevSpeed>
+        <groupDirection_x>0</groupDirection_x>
+        <groupDirection_y>-1</groupDirection_y>
+        <maxDensityFactor>0.6</maxDensityFactor>
+    </agentGroups-->  
+
+    
+</SimulationScenario>

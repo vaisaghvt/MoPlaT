@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<SimulationScenario xmlns="http://geography.environment" name="Scenario3" Xsize="30" Ysize="40" scale="20" displayUsed="true" latticeModel="false" logUsed="true">
+<SimulationScenario xmlns="http://geography.environment" name="Scenario2" Xsize="30" Ysize="40" scale="20" displayUsed="true" latticeModel="false" logUsed="true">
     <roadMap>
         <position x="14.5" y="16.5"/>
         <number>0</number>

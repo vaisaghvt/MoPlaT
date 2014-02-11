@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="100" Ysize="3" Xsize="15" name="followTest1">
+<SimulationScenario xmlns="http://geography.environment" logUsed="true" latticeModel="false" displayUsed="true" scale="100" Ysize="3" Xsize="15" name="avoidtest">
     <crowd>
         <goal y="0.6198874" x="1.0087725"/>
         <position y="0.6198874" x="11.0087725"/>
