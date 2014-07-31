@@ -169,7 +169,7 @@ public class AgentGenerator implements Steppable {
 
             
             if(actualRoadMap !=null){
-                agent.addRoadMap(actualRoadMap);
+                agent.setRoadMap(actualRoadMap);
             }else{
                  this.preferedDirection.normalize();
                 this.preferedDirection.scale(100);

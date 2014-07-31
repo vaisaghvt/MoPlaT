@@ -15,6 +15,19 @@
         </xs:sequence>
     </xs:complexType>
   
+  <xs:complexType name="roadMapPoint">
+        <xs:sequence>
+            <xs:element name="position" type="Position" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="number" type="xs:int" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="agentRoadMap">
+        <xs:sequence>
+            <xs:element name="roadMapPoint" type="roadMapPoint" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+  
     <xs:complexType name="Agent">
         <xs:sequence>
             <xs:element name="goal" type="Position" minOccurs="1" maxOccurs="1"/>
@@ -25,6 +38,7 @@
             <xs:element name="prefDirection_x" type="xs:double"/>
             <xs:element name="prefDirection_y" type="xs:double"/>
             <xs:element name="agentColor" type="xs:int"/>
+            <xs:element name="agentRoadmap" type="agentRoadMap" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -50,6 +64,18 @@
         </xs:sequence>
     </xs:complexType>
     
+     <xs:complexType name="AgentCircle">
+        <xs:sequence>
+            <xs:element name="centerPoint" type="Position" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="circleRadius" type="xs:int"/>
+            <xs:element name="number" type="xs:int"/>
+            <xs:element name="maxSpeed" type="xs:double"/>
+             <xs:element name="minSpeed" type="xs:double"/>
+            <xs:element name="meanSpeed" type="xs:double"/>
+            <xs:element name="sDevSpeed" type="xs:double"/>         
+        </xs:sequence>
+    </xs:complexType>
+    
     <xs:complexType name="AgentGroup">
         <xs:sequence>
             <xs:element name="endPoint" type="Position" minOccurs="1" maxOccurs="1"/>
@@ -63,15 +89,10 @@
             <xs:element name="groupDirection_y" type="xs:int"/>
             <xs:element name="maxDensityFactor" type="xs:double"/>
             <xs:element name="groupColor" type="xs:int"/>
+            <xs:element name="agentRoadmap" type="agentRoadMap" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="roadMapPoint">
-        <xs:sequence>
-            <xs:element name="position" type="Position" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="number" type="xs:int" minOccurs="1" maxOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
 
     <xs:element name="SimulationScenario">
         <xs:complexType>
@@ -82,6 +103,7 @@
                 <xs:element name="environmentGoals" type="Goals" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="generationLines" type="AgentLine" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="agentGroups" type="AgentGroup" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="agentCircles" type="AgentCircle" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
             <xs:attribute name="name" type="xs:string"/>
             <xs:attribute name="Xsize" type="xs:int"/>

@@ -20,6 +20,7 @@ import device.Device.SenseThinkDevice;
 import environment.Obstacle.RVOObstacle;
 import environment.RVOSpace;
 import environment.geography.Agent;
+import environment.geography.AgentCircle;
 import environment.geography.AgentGroup;
 import environment.geography.AgentLine;
 import environment.geography.Goals;
@@ -298,6 +299,46 @@ public class RVOModel extends SimState {
                 latticeSpace.scheduleLattice();
                 latticeSpace.setDirection(scenario.getDirection());
             }
+            
+             List<AgentCircle> xmlCircleList = scenario.getAgentCircles();
+            for (AgentCircle circle: xmlCircleList) {
+                Point2d centerOfCircle = new Point2d(circle.getCenterPoint().getX(), circle.getCenterPoint().getY());
+                int radius = circle.getCircleRadius();
+                int numberOfAgents = circle.getNumber();
+                final double maxSpeed = circle.getMaxSpeed();
+                final double minSpeed = circle.getMinSpeed();
+                final double meanSpeed = circle.getMeanSpeed();
+                averageSpeed += meanSpeed;
+                final double sdevSpeed = circle.getSDevSpeed();
+                
+                List<Point2d> listOfPoints = getPointsOnCircle(centerOfCircle, radius, numberOfAgents);
+                for(int i=0;i<listOfPoints.size();i++){
+                    RVOAgent agent = new RVOAgent(this.getRvoSpace());
+                    Point2d position = listOfPoints.get(i);
+                    
+                    agent.setCurrentPosition(position.x, position.y);
+                    
+                    //TODO : Added for setting hu nan's experiments
+                    Point2d goal = listOfPoints.get((listOfPoints.size()/2+i)%listOfPoints.size());
+//                    goal.add(groupDirection);
+                    agent.setGoal(goal);
+                    
+                    
+                    double initialSpeed = random.nextGaussian() * sdevSpeed + meanSpeed;
+                    if (initialSpeed < minSpeed) {
+                        initialSpeed = minSpeed;
+                    } else if (initialSpeed > maxSpeed) {
+                        initialSpeed = maxSpeed;
+                    }
+
+                   agent.setPreferredSpeed(initialSpeed);
+                    agent.setMaximumSpeed(maxSpeed);
+
+//                    agent.set  //to modify to include a group of agents with preferred direction!@@@@@@@@@
+                    this.addNewAgent(agent);
+                    agent.setPrefVelocity(); //set prefVel according to prefDirection
+                }
+            }
 
             List<Agent> xmlAgentList = scenario.getCrowd();
             for (int i = 0; i < xmlAgentList.size(); i++) {
@@ -315,7 +356,16 @@ public class RVOModel extends SimState {
 
                 tempRVOAgent.setPreferredSpeed(tempAgent.getPreferedSpeed());
                 tempRVOAgent.setMaximumSpeed(tempAgent.getPreferedSpeed() * 2.0);
+                HashMultimap<Integer, Point2d> tempRoadMap = HashMultimap.create();
+                
+                if(tempAgent.getAgentRoadmap()!=null){
+                    for (RoadMapPoint point : tempAgent.getAgentRoadmap().getRoadMapPoint()) {
+                        tempRoadMap.put(point.getNumber(), new Point2d(point.getPosition().getX(), point.getPosition().getY()));
 
+                    }
+                    tempRVOAgent.setRoadMap(tempRoadMap);
+                }
+                
                 addNewAgent(tempRVOAgent);
 
             }
@@ -407,7 +457,7 @@ public class RVOModel extends SimState {
 //                    agent.set  //to modify to include a group of agents with preferred direction!@@@@@@@@@
                     this.addNewAgent(agent);
                     if (actualRoadMap != null) {
-                        agent.addRoadMap(actualRoadMap);
+                        agent.setRoadMap(actualRoadMap);
                     }
                     agent.setPrefVelocity(); //set prefVel according to prefDirection
 //                    groupDirection.scale(initialSpeed);
@@ -493,5 +543,15 @@ public class RVOModel extends SimState {
         int sizeY = (int) Math.floor((endy - starty) / (RVOAgent.RADIUS * 2));
         return new int[sizeX][sizeY];
 
+    }
+
+    private List<Point2d> getPointsOnCircle(Point2d center, int r, int number) {
+        assert number %2 ==0;
+        double angle = Math.PI *2 / number;
+        List<Point2d> result=  new ArrayList<Point2d> (number);
+        for(int i=0;i< number;i++){
+            result.add(new Point2d(center.x+ (r * Math.cos(angle*i)),center.y+ (r * Math.sin(angle*i))));
+        }
+        return result;
     }
 }

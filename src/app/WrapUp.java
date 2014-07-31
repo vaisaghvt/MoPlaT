@@ -38,20 +38,21 @@ class WrapUp implements Steppable {
                 return;
             }
         }
-//        for (RVOAgent agent : agents) {
+        for (RVOAgent agent : agents) {
 //            if (agent.getCurrentPosition().getX() > 0
 //                    && agent.getCurrentPosition().getY() > 0
 //                    && agent.getCurrentPosition().getX() < state.getWorldXSize()
 //                    && agent.getCurrentPosition().getY() < state.getWorldYSize()) {
 //                return;
 //            }
-//        }
-        
-        for(RVOAgent agent:agents){
-            if(agent.getGoal().distance(agent.getCurrentPosition())>=Geometry.EPSILON){
+            if(agent.getVelocity().length()>0.1 && agent.getGoal().distance(agent.getCurrentPosition())>=Geometry.EPSILON){
                 return;
             }
         }
+        
+//        for(RVOAgent agent:agents){
+//            
+//        }
         if(!AgentGenerator.finished()){
             return;
         }

@@ -45,7 +45,7 @@ public class BasicPositionVelocityTextWriter implements DataTracker {
 //    private final ArrayListMultimap<Integer, Double> energySpentByAgent;
     private final ArrayListMultimap<Integer, Vector2d> velocityListForTimeStep;
     private final ArrayListMultimap<Integer, Point2d> positionListForTimeStep;
-
+ private final ArrayListMultimap<Integer, Vector2d> prefVelocityListForTimeStep;
 
     public BasicPositionVelocityTextWriter(RVOModel model, Collection<? extends RVOAgent> agents) {
         stepNumber = 0;
@@ -53,6 +53,7 @@ public class BasicPositionVelocityTextWriter implements DataTracker {
 
         velocityListForTimeStep = ArrayListMultimap.create();
         positionListForTimeStep = ArrayListMultimap.create();
+        prefVelocityListForTimeStep = ArrayListMultimap.create();
 
         numberOfAgents = model.getAgentList().size();
     }
@@ -61,7 +62,9 @@ public class BasicPositionVelocityTextWriter implements DataTracker {
     public void step(SimState ss) {
         for (RVOAgent agent : model.getAgentList()) {
             velocityListForTimeStep.put(stepNumber, agent.getVelocity());
-            System.out.println(agent.getVelocity());
+            prefVelocityListForTimeStep.put(stepNumber, agent.getVelocity());
+
+            //            System.out.println(agent.getVelocity());
             positionListForTimeStep.put(stepNumber, agent.getCurrentPosition());
         }
         stepNumber++;
@@ -78,9 +81,8 @@ public class BasicPositionVelocityTextWriter implements DataTracker {
         String currentFolder = "data"
                 + File.separatorChar + this.trackerType()
                 + File.separatorChar + model.getScenarioName()
-                + File.separatorChar + model.seed()
-                + File.separatorChar + Device.DEVICE_HOLDING_PROBABILITY
-                + File.separatorChar + Device.DEVICE_TRUST
+                + File.separatorChar + PropertySet.USECLUSTERING
+                + File.separatorChar + RVOModel.publicInstance.seed()
                 + File.separatorChar;
 
         String testFile = currentFolder + "test";
@@ -95,7 +97,7 @@ public class BasicPositionVelocityTextWriter implements DataTracker {
         try {
             writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + RVOModel.publicInstance.seed() +  "_" + "Velocity", velocityListForTimeStep);
             writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + RVOModel.publicInstance.seed() + "_" + "Position", positionListForTimeStep);
-
+            writeToFileAgentTuple2dList(currentFolder + model.getScenarioName() + "_" + RVOModel.publicInstance.seed() +  "_" + "PrefVelocity", prefVelocityListForTimeStep);
         } catch (IOException ex) {
             Logger.getLogger(BasicPositionVelocityTextWriter.class.getName()).log(Level.SEVERE, null, ex);
             assert false;

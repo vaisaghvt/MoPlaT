@@ -21,20 +21,20 @@
         <minSpeed>1</minSpeed>
         <maxSpeed>2</maxSpeed>
         <meanSpeed>1.33</meanSpeed>
-        <sDevSpeed>0.3</sDevSpeed>
+        <sDevSpeed>0</sDevSpeed>
         <groupDirection_x>1</groupDirection_x>
         <groupDirection_y>0</groupDirection_y>
         <maxDensityFactor>1</maxDensityFactor>
     </agentGroups>
 	
     <agentGroups>
-        <endPoint y="6.5" x="40"/>
+        <endPoint y="6.5" x="34"/>
         <startPoint y="3.5" x="31"/>
         <size>16</size>
         <minSpeed>1</minSpeed>
         <maxSpeed>2</maxSpeed>
         <meanSpeed>1.33</meanSpeed>
-        <sDevSpeed>0.3</sDevSpeed>
+        <sDevSpeed>0</sDevSpeed>
         <groupDirection_x>-1</groupDirection_x>
         <groupDirection_y>0</groupDirection_y>
         <maxDensityFactor>1</maxDensityFactor>

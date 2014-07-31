@@ -43,6 +43,8 @@ public class AgentPortrayal extends SimplePortrayal2D {
     public static boolean SHOW_VELOCITY;
     public static boolean SHOW_PERCEPTION;
     public static boolean SHOW_STP;
+    public static int TRAIL_LENGTH = 1000;
+    public static boolean SHOW_CLUSTERS= true;
 //    public static boolean SHOW_PERCEIVED_STP;
 //    public static boolean SHOW_PROTOTYPICAL_STP;
     ArrayList<Double2D> points; // this is the list of points that will be painted in the trail
@@ -53,7 +55,7 @@ public class AgentPortrayal extends SimplePortrayal2D {
     protected double offset = 0.0;  // used only by CircledPortrayal2D
     private Color trailColor = new Color(0.0f, 1.0f, 0.0f, 0.2f); // no effect?
     private Color agentColor = new Color(0.0f, 0.0f, 1.0f, 1.0f); // no effect?
-    private float trailLineWidth = 1.5f;
+    private float trailLineWidth = 2.5f;
     private float agentLineWidth = 5.0f;
     private boolean showOrcaLines;
     private boolean showVelocity;
@@ -126,43 +128,8 @@ public class AgentPortrayal extends SimplePortrayal2D {
 //            else if(me.getPrefDirection().x<0)
 //                this.setColor(Color.green);
 //        }  
-
-        double startx = me.getCurrentPosition().getX() * scale;
-        double starty = me.getCurrentPosition().getY() * scale;
-        
-        double endx = 0, endy = 0;
-        int countNumOfStepDraw = 150;   //used to display trail only for the last 50 steps
-
-        if (trails && points.size() >= countNumOfStepDraw) { // if trails need to be drawn...
-            final BasicStroke stroke;
-
-            stroke = new BasicStroke(this.trailLineWidth);
-
-            graphics.setStroke(stroke);
-
-            for (int i = 0; i < countNumOfStepDraw; i++) {
-                graphics.setPaint(new Color(trailColor.getRed(), trailColor.getGreen(), trailColor.getBlue(), (int) (255 * (i + 1) / countNumOfStepDraw)));
-
-                Double2D pt = points.get(points.size() - (countNumOfStepDraw - i));
-                if (startx == -1) {
-                    startx = pt.x;
-                    starty = pt.y;
-                    continue;
-                }
-
-                endx = pt.x;
-                endy = pt.y;
-                graphics.drawLine(
-                        (int) Math.round(startx), (int) Math.round(starty),
-                        (int) Math.round(endx), (int) Math.round(endy));
-
-                startx = endx;
-                starty = endy;
-            }
-
-            final BasicStroke stroke2 = new BasicStroke(agentLineWidth);
-            graphics.setStroke(stroke2);
-        }
+       
+       
 
 
         final double width = 2 * radius * scale + offset;
@@ -172,6 +139,7 @@ public class AgentPortrayal extends SimplePortrayal2D {
         final double PSheight = 2 * radius * (((RVOAgent) this).getPersonalSpaceFactor() + 1) * scale + offset;
 
         if (this instanceof ClusteredAgent) {
+            if (!SHOW_CLUSTERS) return;
             graphics.setColor(Color.BLACK);
             ClusteredAgent tempAgent = (ClusteredAgent) this;
             final double clusteredWidth = 2 * tempAgent.getRadius() * scale + offset;
@@ -188,6 +156,51 @@ public class AgentPortrayal extends SimplePortrayal2D {
 
             return;
         }
+        
+         double startx = me.getCurrentPosition().getX() * scale;
+        double starty = me.getCurrentPosition().getY() * scale;
+        
+        double endx = 0, endy = 0;
+        int countNumOfStepDraw = TRAIL_LENGTH;   //used to display trail only for the last 50 steps
+
+//        if(me.getPrefVelocity().x>0)
+//            trailColor = Color.black;
+//        else
+//            trailColor = Color.green;
+        if (trails) { // if trails need to be drawn...
+            final BasicStroke stroke;
+
+            stroke = new BasicStroke(this.trailLineWidth);
+
+            graphics.setStroke(stroke);
+            int limit = Math.min(points.size(), countNumOfStepDraw);
+            for (int i = limit-1; i>=Math.max(0,points.size()-countNumOfStepDraw); i--) {
+                if(me.getId()<16){
+                    trailColor=Color.YELLOW;
+                    trailColor=Color.BLACK;
+                }
+                graphics.setPaint(new Color(trailColor.getRed(), trailColor.getGreen(), trailColor.getBlue(), (int) (255 * (i + 1) / countNumOfStepDraw)));
+
+                Double2D pt = points.get(i);
+                if (startx == -1) {
+                    startx = pt.x;
+                    starty = pt.y;
+                    continue;
+                }
+
+                endx = pt.x;
+                endy = pt.y;
+                graphics.drawLine(
+                        (int) Math.round(startx), (int) Math.round(starty),
+                        (int) Math.round(endx), (int) Math.round(endy));
+
+                startx = endx;
+                starty = endy;
+            }
+
+//            final BasicStroke stroke2 = new BasicStroke(agentLineWidth);
+//            graphics.setStroke(stroke2);
+        }
 
 
         graphics.setPaint(agentColor);
@@ -199,10 +212,10 @@ public class AgentPortrayal extends SimplePortrayal2D {
         graphics.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{4, 4}, 0));
 
         //draw the personal space of agents
-        graphics.drawOval(
-                (int) Math.round(me.getCurrentPosition().getX() * scale - PSwidth / 2.0),
-                (int) Math.round(me.getCurrentPosition().getY() * scale - PSheight / 2.0),
-                (int) PSwidth, (int) PSheight);
+//        graphics.drawOval(
+//                (int) Math.round(me.getCurrentPosition().getX() * scale - PSwidth / 2.0),
+//                (int) Math.round(me.getCurrentPosition().getY() * scale - PSheight / 2.0),
+//                (int) PSwidth, (int) PSheight);
         graphics.setStroke(new BasicStroke(1.0f));
 
         //Draw Current velocity of the agent

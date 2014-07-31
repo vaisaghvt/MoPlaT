@@ -766,7 +766,7 @@ return false;
         return hash;
     }
 
-    public void addRoadMap(HashMultimap<Integer, Point2d> actualRoadMap) {
+    public void setRoadMap(HashMultimap<Integer, Point2d> actualRoadMap) {
         this.roadMap = actualRoadMap;
     }
 
